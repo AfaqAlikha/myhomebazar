@@ -1,19 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import {
-  NgFor,
-  NgIf,
-  NgClass,
-  DatePipe,
-  DecimalPipe,
-  NgStyle,
-} from '@angular/common';
+import { NgFor, NgIf, NgClass, DatePipe, DecimalPipe, NgStyle } from '@angular/common';
 import { RatingModule } from 'primeng/rating';
 import { ProductService } from '../services/product.service';
 import { ProductOrderService } from '../services/product-order.service';
@@ -22,7 +10,11 @@ import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { UiInputComponent } from '../shared/ui-input/ui-input.component';
 import { MatIconModule } from '@angular/material/icon';
 import { SpinnerService } from '../shared/spinner.service';
-
+declare global {
+  interface Window {
+    adsbygoogle: any[];
+  }
+}
 @Component({
   selector: 'app-product-details',
   templateUrl: './product-details.component.html',
@@ -44,7 +36,7 @@ import { SpinnerService } from '../shared/spinner.service';
     MatIconModule,
   ],
 })
-export class ProductDetailsComponent implements OnInit {
+export class ProductDetailsComponent implements OnInit, AfterViewInit {
   borderRadius = '10px';
   product: any;
   mainImage!: string;
@@ -73,13 +65,13 @@ export class ProductDetailsComponent implements OnInit {
   isLoading = false;
   currentUserId = '';
   canOrder = true;
-
+  private adsRendered = false;
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private productService: ProductService,
     private productOrderService: ProductOrderService,
-    private spinnerService: SpinnerService
+    private spinnerService: SpinnerService,
   ) {}
 
   // ================= INIT =================
@@ -108,6 +100,15 @@ export class ProductDetailsComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    try {
+      window.adsbygoogle = window.adsbygoogle || [];
+      window.adsbygoogle.push({});
+    } catch (e) {
+      console.error('AdSense error:', e);
+    }
+  }
+
   // ================= LOAD PRODUCT =================
   loadProduct(id: string) {
     this.isLoading = true;
@@ -123,15 +124,15 @@ export class ProductDetailsComponent implements OnInit {
 
         this.canOrder = this.currentUserId !== this.product?.user?._id;
         this.product.isAwaitingReview =
-          this.product.awaitingReviewUsers?.includes(this.currentUserId) ||
-          false;
+          this.product.awaitingReviewUsers?.includes(this.currentUserId) || false;
 
         if (this.product?.images?.length) this.mainImage = this.product.images[0];
         if (this.product?.colors?.length) this.selectedColor = this.product.colors[0];
         if (this.product?.sizes?.length) this.selectedSize = this.product.sizes[0];
         if (this.product?.mobileRam?.length) this.selectedRam = this.product.mobileRam[0];
         if (this.product?.wordSizes?.length) this.selectedWordSize = this.product.wordSizes[0];
-        if (this.product?.numberSizes?.length) this.selectedNumberSize = this.product.numberSizes[0];
+        if (this.product?.numberSizes?.length)
+          this.selectedNumberSize = this.product.numberSizes[0];
 
         // BOGO & Discount Handling
         this.checkBogoPromotion();
@@ -149,9 +150,7 @@ export class ProductDetailsComponent implements OnInit {
 
   // ==================== BOGO Logic ====================
   checkBogoPromotion() {
-    const promo = this.product.activePromotions?.find(
-      (p: any) => p.buyQty && p.getQty
-    );
+    const promo = this.product.activePromotions?.find((p: any) => p.buyQty && p.getQty);
 
     if (promo) {
       this.isBogo = true;
@@ -164,48 +163,45 @@ export class ProductDetailsComponent implements OnInit {
     }
   }
 
-
-
   calculateTotalPrice() {
-  const promo = this.product.activePromotions?.[0]; // assume single active promo
+    const promo = this.product.activePromotions?.[0]; // assume single active promo
 
-  if (promo) {
-    const discountPercent = promo.discountPercent || 0;
+    if (promo) {
+      const discountPercent = promo.discountPercent || 0;
 
-    if (promo.buyQty && promo.getQty) {
-      // BOGO case
-      const buyPrice = this.product.price * promo.buyQty;
-      this.totalPrice = buyPrice - (buyPrice * discountPercent) / 100;
-    } else if (discountPercent > 0) {
-      // Simple discount without BOGO
-      this.totalPrice = this.product.price - (this.product.price * discountPercent) / 100;
+      if (promo.buyQty && promo.getQty) {
+        // BOGO case
+        const buyPrice = this.product.price * promo.buyQty;
+        this.totalPrice = buyPrice - (buyPrice * discountPercent) / 100;
+      } else if (discountPercent > 0) {
+        // Simple discount without BOGO
+        this.totalPrice = this.product.price - (this.product.price * discountPercent) / 100;
+      } else {
+        this.totalPrice = this.product.price;
+      }
     } else {
       this.totalPrice = this.product.price;
     }
-  } else {
-    this.totalPrice = this.product.price;
   }
-}
 
-getOriginalPrice() {
-  return this.product?.price;
-}
-
-getDiscountedPrice() {
-  const promo = this.product.activePromotions?.[0];
-  if (!promo) return this.product?.price;
-  const discount = promo.discountPercent || 0;
-
-  if (promo.buyQty && promo.getQty) {
-    const buyPrice = this.product.price * promo.buyQty;
-    return buyPrice - (buyPrice * discount) / 100;
-  } else if (discount > 0) {
-    return this.product.price - (this.product.price * discount) / 100;
-  } else {
-    return this.product.price;
+  getOriginalPrice() {
+    return this.product?.price;
   }
-}
 
+  getDiscountedPrice() {
+    const promo = this.product.activePromotions?.[0];
+    if (!promo) return this.product?.price;
+    const discount = promo.discountPercent || 0;
+
+    if (promo.buyQty && promo.getQty) {
+      const buyPrice = this.product.price * promo.buyQty;
+      return buyPrice - (buyPrice * discount) / 100;
+    } else if (discount > 0) {
+      return this.product.price - (this.product.price * discount) / 100;
+    } else {
+      return this.product.price;
+    }
+  }
 
   // ================= UI HELPERS =================
   setMainImage(img: string) {
@@ -239,53 +235,52 @@ getDiscountedPrice() {
   }
 
   // ================= PLACE ORDER =================
-  
 
   confirmOrder() {
-  if (this.orderForm.invalid) {
-    this.orderForm.markAllAsTouched();
-    return;
-  }
-
-  // Build order data
-  const orderData: any = {
-    productId: this.product?._id,
-    quantity: this.quantity,
-    color: this.selectedColor,
-    size: this.selectedSize,
-    ram: this.selectedRam,
-    wordSize: this.selectedWordSize,
-    numberSize: this.selectedNumberSize,
-    ...this.orderForm.value,
-  };
-
-  // ✅ Only send promotion info if active promotion exists
-  const promo = this.product.activePromotions?.[0];
-  if (promo) {
-    orderData.promotionType = promo.buyQty && promo.getQty ? 'BOGO' : promo.discountPercent ? 'discount' : null;
-    if (orderData.promotionType) {
-      orderData.totalPrice = this.totalPrice; // frontend-calculated
+    if (this.orderForm.invalid) {
+      this.orderForm.markAllAsTouched();
+      return;
     }
+
+    // Build order data
+    const orderData: any = {
+      productId: this.product?._id,
+      quantity: this.quantity,
+      color: this.selectedColor,
+      size: this.selectedSize,
+      ram: this.selectedRam,
+      wordSize: this.selectedWordSize,
+      numberSize: this.selectedNumberSize,
+      ...this.orderForm.value,
+    };
+
+    // ✅ Only send promotion info if active promotion exists
+    const promo = this.product.activePromotions?.[0];
+    if (promo) {
+      orderData.promotionType =
+        promo.buyQty && promo.getQty ? 'BOGO' : promo.discountPercent ? 'discount' : null;
+      if (orderData.promotionType) {
+        orderData.totalPrice = this.totalPrice; // frontend-calculated
+      }
+    }
+
+    this.showModal = false;
+    this.isLoading = true;
+    this.spinnerService.show();
+
+    this.productOrderService.createOrder(orderData).subscribe({
+      next: (res: any) => {
+        this.isLoading = false;
+        this.spinnerService.hide();
+        if (this.product?._id) this.loadProduct(this.product._id);
+        if (res.url) window.location.href = res.url;
+      },
+      error: () => {
+        this.isLoading = false;
+        this.spinnerService.hide();
+      },
+    });
   }
-
-  this.showModal = false;
-  this.isLoading = true;
-  this.spinnerService.show();
-
-  this.productOrderService.createOrder(orderData).subscribe({
-    next: (res: any) => {
-      this.isLoading = false;
-      this.spinnerService.hide();
-      if (this.product?._id) this.loadProduct(this.product._id);
-      if (res.url) window.location.href = res.url;
-    },
-    error: () => {
-      this.isLoading = false;
-      this.spinnerService.hide();
-    },
-  });
-}
-
 
   // ================= COMPLETE / CANCEL ORDER =================
   completeOrder() {

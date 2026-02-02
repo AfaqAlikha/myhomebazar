@@ -1,4 +1,4 @@
-<main class=" container mx-auto py-4 px-10">
+<main class="container mx-auto py-4 px-10">
   <!-- Skeleton Loader -->
   <div *ngIf="isLoading">
     <!-- Breadcrumbs Skeleton -->
@@ -9,9 +9,7 @@
     </div>
 
     <!-- Seller Profile Skeleton -->
-    <div
-      class="flex items-center gap-3 p-3 rounded-lg bg-gray-200 animate-pulse"
-    >
+    <div class="flex items-center gap-3 p-3 rounded-lg bg-gray-200 animate-pulse">
       <div class="w-12 h-12 rounded-full bg-gray-300"></div>
       <div class="flex flex-col gap-1 w-full">
         <div class="h-4 bg-gray-300 w-32 rounded"></div>
@@ -22,9 +20,7 @@
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mt-4">
       <!-- Images Skeleton -->
       <div class="md:col-span-6 gap-2">
-        <div
-          class="w-full h-[400px] md:h-[600px] bg-gray-300 rounded animate-pulse"
-        ></div>
+        <div class="w-full h-[400px] md:h-[600px] bg-gray-300 rounded animate-pulse"></div>
         <div class="flex w-full gap-2 mt-2">
           <div
             *ngFor="let i of [1, 2, 3, 4]"
@@ -34,10 +30,7 @@
 
         <!-- Reviews Skeleton -->
         <div class="p-4 mt-4 hidden md:block">
-          <div
-            *ngFor="let i of [1, 2, 3]"
-            class="p-3 rounded bg-gray-200 animate-pulse mb-2"
-          >
+          <div *ngFor="let i of [1, 2, 3]" class="p-3 rounded bg-gray-200 animate-pulse mb-2">
             <div class="flex gap-2">
               <div class="w-8 h-8 rounded-full bg-gray-300"></div>
               <div class="flex flex-col gap-1 w-full">
@@ -58,16 +51,10 @@
           <div class="h-5 w-32 bg-gray-300 rounded"></div>
           <div class="h-3 w-full bg-gray-300 rounded mt-2"></div>
           <div class="flex gap-2 my-3">
-            <div
-              *ngFor="let i of [1, 2, 3]"
-              class="h-6 w-16 bg-gray-300 rounded"
-            ></div>
+            <div *ngFor="let i of [1, 2, 3]" class="h-6 w-16 bg-gray-300 rounded"></div>
           </div>
           <div class="flex gap-2 my-3">
-            <div
-              *ngFor="let i of [1, 2, 3]"
-              class="h-6 w-16 bg-gray-300 rounded"
-            ></div>
+            <div *ngFor="let i of [1, 2, 3]" class="h-6 w-16 bg-gray-300 rounded"></div>
           </div>
           <div class="flex items-center gap-3 mt-4">
             <div class="h-8 w-8 bg-gray-300 rounded"></div>
@@ -101,7 +88,7 @@
       <div
         class="w-12 h-12 rounded-full flex items-center justify-center !bg-[var(--color-accent)] text-white font-semibold text-lg"
       >
-        {{ username ? username.charAt(0) : "?" }}
+        {{ username ? username.charAt(0) : '?' }}
       </div>
       <div class="flex flex-col">
         <a
@@ -123,16 +110,16 @@
                   i + 1 <= product.averageRating
                     ? 'var(--color-accent)'
                     : i < product.averageRating && i + 1 > product.averageRating
-                    ? 'var(--color-accent)'
-                    : 'var(--color-text-secondary)'
+                      ? 'var(--color-accent)'
+                      : 'var(--color-text-secondary)',
               }"
             >
               {{
                 i + 1 <= product.averageRating
-                  ? "star"
+                  ? 'star'
                   : i < product.averageRating && i + 1 > product.averageRating
-                  ? "star_half"
-                  : "star"
+                    ? 'star_half'
+                    : 'star'
               }}
             </mat-icon>
           </ng-container>
@@ -153,10 +140,7 @@
         <!-- Main Image -->
         <div class="w-full">
           <app-ui-card [borderRadius]="borderRadius" class="p-3">
-            <img
-              [src]="mainImage"
-              class="w-full h-[400px] md:h-[600px] object-cover rounded"
-            />
+            <img [src]="mainImage" class="w-full h-[400px] md:h-[600px] object-cover rounded" />
           </app-ui-card>
         </div>
 
@@ -175,31 +159,23 @@
         <!-- Customer Reviews (Desktop) -->
         <div class="p-4 mt-4 hidden md:block">
           <h3 class="font-semibold mb-2 text-lg">Customer Reviews</h3>
-          <div
-            *ngIf="product.reviews?.length > 0; else noReviews"
-            class="flex flex-col gap-2"
-          >
-            <div
-              *ngFor="let review of product.reviews"
-              class="p-3 rounded bg-blue-50"
-            >
+          <div *ngIf="product.reviews?.length > 0; else noReviews" class="flex flex-col gap-2">
+            <div *ngFor="let review of product.reviews" class="p-3 rounded bg-blue-50">
               <div class="flex gap-1 text-yellow-400">
                 <div
                   class="w-8 h-8 rounded-full flex items-center justify-center !bg-[var(--color-accent)] text-white font-semibold text-lg"
                 >
-                  {{ review.user.name ? review.user.name.charAt(0) : "?" }}
+                  {{ review.user.name ? review.user.name.charAt(0) : '?' }}
                 </div>
                 <div>
-                  <ng-container
-                    *ngFor="let i of [1, 2, 3, 4, 5]; let idx = index"
-                  >
+                  <ng-container *ngFor="let i of [1, 2, 3, 4, 5]; let idx = index">
                     <span *ngIf="idx < review.rating">★</span>
                     <span *ngIf="idx >= review.rating">☆</span>
                   </ng-container>
                   <span class="ml-2 text-gray-600">{{ review.rating }}/5</span>
                   <p class="text-gray-700 text-sm">{{ review.comment }}</p>
                   <small class="text-gray-500 text-xs">{{
-                    review.createdAt | date : "MM/dd/yyyy"
+                    review.createdAt | date: 'MM/dd/yyyy'
                   }}</small>
                 </div>
               </div>
@@ -213,12 +189,19 @@
 
       <!-- Product Info -->
       <div class="md:col-span-6 flex flex-col gap-3">
-        <app-ui-card
-          [borderRadius]="borderRadius"
-          class="p-4 flex flex-col gap-4"
-        >
+        <app-ui-card [borderRadius]="borderRadius" class="p-4 flex flex-col gap-4">
           <div class="flex items-center justify-between">
             <h1 class="text-xl font-bold my-1">{{ product.name }}</h1>
+            <div class="my-4">
+              <ins
+                class="adsbygoogle"
+                style="display: block"
+                data-ad-client="ca-pub-1353355245412217"
+                data-ad-slot="1234567890"
+                data-ad-format="auto"
+                data-full-width-responsive="true"
+              ></ins>
+            </div>
             <!-- Rating -->
             <div class="flex items-center mt-1 gap-1">
               <ng-container *ngFor="let star of [1, 2, 3, 4, 5]; let i = index">
@@ -227,19 +210,17 @@
                     color:
                       i + 1 <= product.averageRating
                         ? 'var(--color-accent)'
-                        : i < product.averageRating &&
-                          i + 1 > product.averageRating
-                        ? 'var(--color-accent)'
-                        : 'var(--color-text-secondary)'
+                        : i < product.averageRating && i + 1 > product.averageRating
+                          ? 'var(--color-accent)'
+                          : 'var(--color-text-secondary)',
                   }"
                 >
                   {{
                     i + 1 <= product.averageRating
-                      ? "star"
-                      : i < product.averageRating &&
-                        i + 1 > product.averageRating
-                      ? "star_half"
-                      : "star"
+                      ? 'star'
+                      : i < product.averageRating && i + 1 > product.averageRating
+                        ? 'star_half'
+                        : 'star'
                   }}
                 </mat-icon>
               </ng-container>
@@ -252,27 +233,18 @@
           <p class="text-gray-500 text-sm my-2">
             {{ product.brand }}
           </p>
-          <p class="text-lg font-semibold my-1">
-            PKR {{ product.price | number }}
-          </p>
+          <p class="text-lg font-semibold my-1">PKR {{ product.price | number }}</p>
           <p class="text-gray-600 text-sm my-2">
             {{ product.description }}
           </p>
 
           <!-- Colors -->
-          <div
-            *ngIf="product.colors?.length > 0"
-            class="flex items-center gap-2 my-3"
-          >
+          <div *ngIf="product.colors?.length > 0" class="flex items-center gap-2 my-3">
             <span>Colors:</span>
             <button
               *ngFor="let color of product.colors"
               (click)="selectColor(color)"
-              [ngClass]="
-                selectedColor === color
-                  ? 'bg-red-500 text-white'
-                  : 'bg-white text-black'
-              "
+              [ngClass]="selectedColor === color ? 'bg-red-500 text-white' : 'bg-white text-black'"
               class="px-2 py-1 border rounded text-sm hover:opacity-80 transition"
             >
               {{ color }}
@@ -280,19 +252,12 @@
           </div>
 
           <!-- Sizes -->
-          <div
-            *ngIf="product.sizes?.length > 0"
-            class="flex items-center gap-2 my-3"
-          >
+          <div *ngIf="product.sizes?.length > 0" class="flex items-center gap-2 my-3">
             <span>Sizes:</span>
             <button
               *ngFor="let size of product.sizes"
               (click)="selectSize(size)"
-              [ngClass]="
-                selectedSize === size
-                  ? 'bg-red-500 text-white'
-                  : 'bg-white text-black'
-              "
+              [ngClass]="selectedSize === size ? 'bg-red-500 text-white' : 'bg-white text-black'"
               class="px-2 py-1 border rounded text-sm hover:opacity-80 transition"
             >
               {{ size }}
@@ -300,18 +265,13 @@
           </div>
 
           <!-- Word Sizes -->
-          <div
-            *ngIf="product.wordSizes?.length > 0"
-            class="flex items-center gap-2 my-3"
-          >
+          <div *ngIf="product.wordSizes?.length > 0" class="flex items-center gap-2 my-3">
             <span>Word Sizes:</span>
             <button
               *ngFor="let word of product.wordSizes"
               (click)="selectedWordSize = word"
               [ngClass]="
-                selectedWordSize === word
-                  ? 'bg-red-500 text-white'
-                  : 'bg-white text-black'
+                selectedWordSize === word ? 'bg-red-500 text-white' : 'bg-white text-black'
               "
               class="px-2 py-1 border rounded text-sm hover:opacity-80 transition"
             >
@@ -320,18 +280,13 @@
           </div>
 
           <!-- Number Sizes -->
-          <div
-            *ngIf="product.numberSizes?.length > 0"
-            class="flex items-center gap-2 my-3"
-          >
+          <div *ngIf="product.numberSizes?.length > 0" class="flex items-center gap-2 my-3">
             <span>Number Sizes:</span>
             <button
               *ngFor="let num of product.numberSizes"
               (click)="selectedNumberSize = num"
               [ngClass]="
-                selectedNumberSize === num
-                  ? 'bg-red-500 text-white'
-                  : 'bg-white text-black'
+                selectedNumberSize === num ? 'bg-red-500 text-white' : 'bg-white text-black'
               "
               class="px-2 py-1 border rounded text-sm hover:opacity-80 transition"
             >
@@ -340,19 +295,12 @@
           </div>
 
           <!-- RAM -->
-          <div
-            *ngIf="product.mobileRam?.length > 0"
-            class="flex items-center gap-2 my-3"
-          >
+          <div *ngIf="product.mobileRam?.length > 0" class="flex items-center gap-2 my-3">
             <span>RAM:</span>
             <button
               *ngFor="let ram of product.mobileRam"
               (click)="selectedRam = ram"
-              [ngClass]="
-                selectedRam === ram
-                  ? 'bg-red-500 text-white'
-                  : 'bg-white text-black'
-              "
+              [ngClass]="selectedRam === ram ? 'bg-red-500 text-white' : 'bg-white text-black'"
               class="px-2 py-1 border rounded text-sm hover:opacity-80 transition"
             >
               {{ ram }}
@@ -360,49 +308,53 @@
           </div>
 
           <!-- Quantity + Order -->
-        <div class="flex items-center gap-2 my-2">
-  <span
-    *ngIf="product.activePromotions?.[0]?.discountPercent > 0"
-    class="text-gray-500 line-through decoration-red-500"
-  >
-    $ {{ getOriginalPrice() | number }}
-  </span>
+          <div class="flex items-center gap-2 my-2">
+            <span
+              *ngIf="product.activePromotions?.[0]?.discountPercent > 0"
+              class="text-gray-500 line-through decoration-red-500"
+            >
+              $ {{ getOriginalPrice() | number }}
+            </span>
 
-  <span class="text-lg font-semibold text-green-600">
-    $ {{ getDiscountedPrice() | number }}
-  </span>
+            <span class="text-lg font-semibold text-green-600">
+              $ {{ getDiscountedPrice() | number }}
+            </span>
 
-  <span
-    *ngIf="product.activePromotions?.[0]?.discountPercent > 0"
-    class="text-sm text-red-500"
-  >
-    {{ product.activePromotions[0].discountPercent }}% OFF
-  </span>
+            <span
+              *ngIf="product.activePromotions?.[0]?.discountPercent > 0"
+              class="text-sm text-red-500"
+            >
+              {{ product.activePromotions[0].discountPercent }}% OFF
+            </span>
 
-  <span
-    *ngIf="isBogo && product.activePromotions?.[0]?.buyQty && product.activePromotions?.[0]?.getQty"
-    class="text-sm text-green-600 ml-2"
-  >
-    BOGO: Buy {{ bogoBuyQty }}, Get {{ bogoGetQty }} Free
-  </span>
-</div>
-         
+            <span
+              *ngIf="
+                isBogo &&
+                product.activePromotions?.[0]?.buyQty &&
+                product.activePromotions?.[0]?.getQty
+              "
+              class="text-sm text-green-600 ml-2"
+            >
+              BOGO: Buy {{ bogoBuyQty }}, Get {{ bogoGetQty }} Free
+            </span>
+          </div>
+
           <!-- Quantity + Order -->
-<div class="flex items-center gap-3 mt-4">
-  <button (click)="decrement()" class="px-3 py-1 border rounded" [disabled]="isBogo">
-    -
-  </button>
-  <input
-    type="text"
-    [value]="quantity"
-    [readonly]="isBogo"
-    class="w-12 text-center border rounded dark:text-black"
-  />
-  <button (click)="increment()" class="px-3 py-1 border rounded" [disabled]="isBogo">
-    +
-  </button>
+          <div class="flex items-center gap-3 mt-4">
+            <button (click)="decrement()" class="px-3 py-1 border rounded" [disabled]="isBogo">
+              -
+            </button>
+            <input
+              type="text"
+              [value]="quantity"
+              [readonly]="isBogo"
+              class="w-12 text-center border rounded dark:text-black"
+            />
+            <button (click)="increment()" class="px-3 py-1 border rounded" [disabled]="isBogo">
+              +
+            </button>
 
-  <!-- <div class="ml-auto flex flex-col text-right">
+            <!-- <div class="ml-auto flex flex-col text-right">
     <span class="font-semibold text-lg">PKR {{ totalPrice | number }}</span>
     <span *ngIf="isBogo" class="text-sm text-green-600">
       BOGO Active: Buy {{ bogoBuyQty }}, Get {{ bogoGetQty }} Free
@@ -412,78 +364,60 @@
     </span>
   </div> -->
 
-  
+            <app-ui-button
+              *ngIf="!product.isAwaitingReview && canOrder"
+              label="Order Now"
+              (clicked)="openModal()"
+              class="ml-2"
+              variant="accent"
+            ></app-ui-button>
+          </div>
 
-
-  <app-ui-button
-    *ngIf="!product.isAwaitingReview && canOrder"
-    label="Order Now"
-    (clicked)="openModal()"
-    class="ml-2"
-    variant="accent"
-  ></app-ui-button>
-</div>
-
-         
-         
           <p *ngIf="!canOrder" class="text-red-500 text-sm mt-2">
             You cannot order your own product.
           </p>
         </app-ui-card>
 
         <!-- ✅ Leave a Review Form: Show only if awaiting review -->
-       
-<app-ui-card
-  *ngIf="product.isAwaitingReview"
-  [borderRadius]="borderRadius"
-  class="p-4 mt-4"
->
-  <h3 class="font-semibold mb-3 text-lg">Order Action</h3>
 
-  <!-- Review Form (Required for both actions) -->
-  <form
-    [formGroup]="reviewForm"
-    class="flex flex-col gap-2"
-  >
-    <p-rating
-      formControlName="rating"
-      [stars]="5"
-      class="mb-2 rating-custom"
-    ></p-rating>
+        <app-ui-card
+          *ngIf="product.isAwaitingReview"
+          [borderRadius]="borderRadius"
+          class="p-4 mt-4"
+        >
+          <h3 class="font-semibold mb-3 text-lg">Order Action</h3>
 
-    <textarea
-      formControlName="comment"
-      placeholder="Write your review"
-      class="w-full border rounded p-2 dark:text-black"
-      rows="3"
-    ></textarea>
+          <!-- Review Form (Required for both actions) -->
+          <form [formGroup]="reviewForm" class="flex flex-col gap-2">
+            <p-rating formControlName="rating" [stars]="5" class="mb-2 rating-custom"></p-rating>
 
-    <p
-      *ngIf="reviewForm.invalid && reviewForm.touched"
-      class="text-red-500 text-sm"
-    >
-      Please complete all required fields.
-    </p>
+            <textarea
+              formControlName="comment"
+              placeholder="Write your review"
+              class="w-full border rounded p-2 dark:text-black"
+              rows="3"
+            ></textarea>
 
-    <!-- Action Buttons -->
-    <div class="flex gap-3 mt-4 justify-end">
-      <app-ui-button
-        label="Complete Order"
-        variant="accent"
-        (clicked)="completeOrder()"
-      ></app-ui-button>
+            <p *ngIf="reviewForm.invalid && reviewForm.touched" class="text-red-500 text-sm">
+              Please complete all required fields.
+            </p>
 
-      <app-ui-button
-        label="Cancel Order"
-        variant="danger"
-        (clicked)="cancelOrder()"
-      ></app-ui-button>
-    </div>
-  </form>
-</app-ui-card>
+            <!-- Action Buttons -->
+            <div class="flex gap-3 mt-4 justify-end">
+              <app-ui-button
+                label="Complete Order"
+                variant="accent"
+                (clicked)="completeOrder()"
+              ></app-ui-button>
 
-
-      
+              <app-ui-button
+                label="Cancel Order"
+                variant="danger"
+                (clicked)="cancelOrder()"
+              ></app-ui-button>
+            </div>
+          </form>
+        </app-ui-card>
       </div>
     </div>
 
@@ -499,25 +433,14 @@
         <h2 class="text-lg font-semibold mb-2">Enter Your Details</h2>
         <form [formGroup]="orderForm" class="flex flex-col gap-2">
           <app-ui-input label="Name" controlName="name"></app-ui-input>
-          <app-ui-input
-            label="Email"
-            controlName="email"
-            type="email"
-          ></app-ui-input>
+          <app-ui-input label="Email" controlName="email" type="email"></app-ui-input>
           <app-ui-input label="Phone" controlName="phone"></app-ui-input>
           <app-ui-input label="City" controlName="city"></app-ui-input>
           <app-ui-input label="Country" controlName="country"></app-ui-input>
           <app-ui-input label="Address" controlName="address"></app-ui-input>
 
           <div class="flex items-center gap-4 mt-2">
-            <label
-              ><input
-                type="radio"
-                formControlName="paymentMethod"
-                value="COD"
-              />
-              COD</label
-            >
+            <label><input type="radio" formControlName="paymentMethod" value="COD" /> COD</label>
             <!-- <label
               ><input
                 type="radio"
