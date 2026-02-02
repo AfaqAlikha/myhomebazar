@@ -1,0 +1,10 @@
+<button
+  type="{{ type || 'button' }}"
+  class="w-full ui-btn"
+  [attr.data-variant]="variant"
+  [disabled]="disabled"
+  (click)="onClick($event)"
+>
+  <span *ngIf="icon" class="mr-2 material-icons">{{ icon }}</span>
+  {{ label }}
+</button>

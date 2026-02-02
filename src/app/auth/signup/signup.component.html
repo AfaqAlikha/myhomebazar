@@ -1,0 +1,83 @@
+<div
+  class="app-container flex flex-col items-center justify-center min-h-screen px-4 py-4"
+>
+  <app-ui-card borderRadius="0.5rem" class="w-full max-w-xl h-full max-h-xl">
+    <div class="flex flex-col items-center justify-center my-2">
+      <img class= " w-[200px] md:w-[120px] " src="logo.png" />
+      <h3 class="text-center text-xl font-semibold mb-4">REGISTER TO MY HOUSE BAZAR</h3>
+    </div>
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+      class="signup-form flex flex-col gap-6 w-full p-2"
+    >
+      <!-- Name -->
+      <app-ui-input
+        label="Name"
+        type="text"
+        placeholder="Enter your name"
+        [controlName]="'name'"
+      ></app-ui-input>
+
+      <!-- Email -->
+      <app-ui-input
+        label="Email"
+        type="email"
+        placeholder="Enter your email"
+        [controlName]="'email'"
+      ></app-ui-input>
+
+      <!-- Password -->
+      <app-ui-password
+        label="Password"
+        [controlName]="'password'"
+      ></app-ui-password>
+
+
+      <app-ui-input
+        label="Country"
+        type="text"
+        placeholder="Enter your country name"
+        [controlName]="'country'"
+      ></app-ui-input>
+       <app-ui-input
+        label="State"
+        type="text"
+        placeholder="Enter your state name"
+        [controlName]="'state'"
+      ></app-ui-input>
+       <app-ui-input
+        label="City"
+        type="text"
+        placeholder="Enter your city name"
+        [controlName]="'city'"
+      ></app-ui-input>
+
+      <!-- Terms -->
+      <mat-checkbox formControlName="terms">
+        Accept Terms & Conditions
+      </mat-checkbox>
+
+    
+
+      <!-- Submit -->
+      <app-ui-button
+        label="Sign Up"
+        type="submit"
+        [disabled]="form.invalid"
+        variant="accent"
+      ></app-ui-button>
+
+        <!-- Links -->
+      <div class="flex justify-center text-sm">
+        <a
+          routerLink="/signin"
+          class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
+        >
+          Already have an account? Sign In
+        </a>
+      </div>
+    </form>
+  </app-ui-card>
+</div>

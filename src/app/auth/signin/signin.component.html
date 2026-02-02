@@ -1,0 +1,53 @@
+<div
+  class="app-container flex flex-col items-center justify-center min-h-screen px-4"
+>
+  <app-ui-card borderRadius="0.5rem" class="w-full max-w-xl">
+    <div class="flex flex-col items-center justify-center my-2">
+      <img class= " w-[200px] md:w-[120px] " src="logo.png" />
+      <h3 class="text-center text-xl font-semibold mb-4">LOGIN TO MY HOUSE BAZAR</h3>
+    </div>
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+      class="signin-form flex flex-col gap-6 w-full p-2"
+    >
+      <!-- Email -->
+      <app-ui-input
+        label="Email"
+        type="email"
+        placeholder="Enter your email"
+        [controlName]="'email'"
+      ></app-ui-input>
+
+      <!-- Password -->
+      <app-ui-password
+        label="Password"
+        [controlName]="'password'"
+      ></app-ui-password>
+
+      <!-- Links -->
+      <div class="flex justify-between text-sm">
+        <a
+          routerLink="/forgot-password"
+          class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
+        >
+          Forgot Password?
+        </a>
+        <a
+          routerLink="/signup"
+          class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
+        >
+          Don't have an account? Sign Up
+        </a>
+      </div>
+      <!-- Submit -->
+      <app-ui-button
+        label="Sign In"
+        type="submit"
+        [disabled]="form.invalid"
+        variant="accent"
+      ></app-ui-button>
+    </form>
+  </app-ui-card>
+</div>

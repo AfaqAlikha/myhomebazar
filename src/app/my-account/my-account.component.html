@@ -1,0 +1,143 @@
+<div class="p-4 container mx-auto">
+  <!-- Profile Card -->
+  <h1 class="text-[24px] font-bold my-3">My Profile</h1>
+  <div
+    class="w-full max-w-xxl p-6 mb-6 bg-[var(--color-card)] rounded-2xl shadow-md transition-colors duration-300"
+  >
+    <div class="flex flex-col items-center mb-4">
+      <div
+        class="w-20 h-20 bg-[var(--color-accent)] rounded-full flex items-center justify-center text-white text-2xl font-bold mb-3"
+      >
+        {{ getInitial(user?.name) }}
+      </div>
+      <h2 class="text-xl font-semibold">{{ user?.name }}</h2>
+    </div>
+
+    <div class="flex justify-around mb-6 text-sm">
+      <div class="text-center">
+        <p class="font-bold">{{ user?.rating || 0 }}/5 ⭐</p>
+        <p>Rating</p>
+      </div>
+      <div class="text-center">
+        <p class="font-bold">{{ user?.completedOrders || 0 }}</p>
+        <p>Completed Orders</p>
+      </div>
+      <div class="text-center" *ngIf="user?.badges?.length">
+        <p class="font-bold text-green-500" *ngFor="let badge of user.badges">
+          {{ badge }}
+        </p>
+        <p>Badges</p>
+      </div>
+    </div>
+
+    <!-- Profile Form -->
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
+      <!-- Name Input -->
+      <div class="flex flex-col">
+        <label class="text-sm font-medium mb-1">Name</label>
+        <input
+          type="text"
+          formControlName="name"
+          placeholder="Enter your name"
+          class="border border-gray-300 rounded-md p-2 text-[var(--color-text)] bg-[var(--color-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-colors duration-300"
+        />
+      </div>
+
+      <!-- Email Input -->
+      <div class="flex flex-col">
+        <label class="text-sm font-medium mb-1">Email</label>
+        <input
+          type="email"
+          formControlName="email"
+          class="border border-gray-300 rounded-md p-2 text-gray-400 bg-[var(--color-bg)] cursor-not-allowed"
+        />
+      </div>
+
+      <!-- Bio Textarea -->
+      <div class="flex flex-col">
+        <label class="text-sm font-medium mb-1">Bio</label>
+        <textarea
+          formControlName="bio"
+          placeholder="Write something about yourself"
+          rows="4"
+          class="border border-gray-300 rounded-md p-2 text-[var(--color-text)] bg-[var(--color-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-colors duration-300 resize-none"
+        ></textarea>
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="loading"
+        class="bg-[var(--color-accent)] text-white font-semibold py-2 px-4 rounded-md hover:bg-[var(--color-accent-hover)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Update Profile
+      </button>
+    </form>
+  </div>
+
+  <!-- Products Section -->
+  <div *ngIf="showProductsSection" class="w-full">
+    <!-- Search + Sort -->
+    <div
+      class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 px-3"
+    >
+      <app-ui-search (search)="onSearch($event)"></app-ui-search>
+      <div class="flex justify-start md:justify-end gap-3">
+        <button
+          class="px-4 py-2 border rounded-md"
+          [class.bg-[var(--color-accent)]="sortOrder === 'low'"
+          (click)="setSort('low')"
+        >
+          Low to High
+        </button>
+        <button
+          class="px-4 py-2 border rounded-md"
+          [class.bg-[var(--color-accent)]="sortOrder === 'high'"
+          (click)="setSort('high')"
+        >
+          High to Low
+        </button>
+      </div>
+    </div>
+
+    <ngx-spinner
+      bdColor="rgba(51,51,51,0.8)"
+      size="medium"
+      color="#fff"
+      type="ball-scale-multiple"
+    ></ngx-spinner>
+
+    <!-- Product Grid -->
+    <div
+      class="my-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+    >
+      <div
+        *ngIf="!noProducts && products.length === 0"
+        class="col-span-full text-center text-gray-500 font-medium py-10"
+      >
+        Loading products...
+      </div>
+      <div
+        *ngIf="noProducts"
+        class="col-span-full text-center text-gray-500 font-medium py-10"
+      >
+        No products found
+      </div>
+
+      <app-product-card
+        *ngFor="let product of products"
+        [product]="product"
+      ></app-product-card>
+    </div>
+
+    <!-- Pagination -->
+  </div>
+  <div class="flex w-full justify-end mt-6">
+    <mat-paginator
+      [length]="totalItems"
+      [pageSize]="itemsPerPage"
+      [pageSizeOptions]="[itemsPerPage]"
+      [pageIndex]="currentPage - 1"
+      (page)="pageChanged($event)"
+    ></mat-paginator>
+  </div>
+</div>

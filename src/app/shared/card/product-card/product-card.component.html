@@ -1,0 +1,111 @@
+<div
+  class="relative flex flex-col items-center justify-center group w-full h-[350px] bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg shadow-md p-3 transition-colors duration-300"
+>
+  <!-- Product Image -->
+  <div class="relative overflow-hidden rounded-lg w-full h-52">
+    <img
+      [src]="product.images[0]"
+      alt="Product Image"
+      class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
+    />
+
+    <!-- Discount Badge from first active promotion -->
+    <span
+      *ngIf="getDiscountPercent() > 0"
+      class="absolute top-2 left-2 bg-[var(--color-accent)] text-white text-xs font-semibold px-2 py-1 rounded"
+    >
+      {{ getDiscountPercent() }}%
+    </span>
+
+ 
+
+    <!-- Favorite & View Icons -->
+    <div class="absolute top-2 right-2 flex flex-col gap-1">
+      <button
+        *ngIf="!isOwnProduct()"
+        mat-icon-button
+        class="!bg-[var(--color-accent)] !text-[var(--color-accent)] rounded-full p-1 shadow-md small-icon-btn"
+        (click)="addToWishlist(product._id)"
+      >
+        <mat-icon class="text-[16px]">favorite</mat-icon>
+      </button>
+
+      <a
+        [routerLink]="['/product/details', product._id]"
+        mat-icon-button
+        class="!bg-[var(--color-accent)] !text-[var(--color-accent)] rounded-full p-1 shadow-md small-icon-btn"
+      >
+        <mat-icon class="text-[16px]">visibility</mat-icon>
+      </a>
+    </div>
+
+    <!-- Add to Cart Button -->
+    <button
+      *ngIf="!isOwnProduct()"
+      class="absolute bottom-0 left-0 w-full bg-[var(--color-accent)] text-white py-2 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity"
+      (click)="addToCart(product)"
+    >
+      Add To Cart
+    </button>
+  </div>
+
+  <!-- Product Info -->
+  <div class="mt-3 w-full">
+    <div class="flex items-center justify-between">
+      <p class="font-medium text-sm text-[var(--color-text)] dark:text-[var(--color-text)]">
+        {{
+          product.name.split(" ").slice(0, 10).join(" ") +
+            (product.name.split(" ").length > 10 ? "..." : "")
+        }}
+      </p>
+
+         <!-- All active promotion badges -->
+    <div class="">
+      <span
+        *ngFor="let promo of getActivePromotions()"
+        class="bg-green-600 text-white text-xs font-semibold px-2 py-1 rounded"
+      >
+        {{ promo.planName }}
+      </span>
+    </div>
+    </div>
+
+    <!-- Product Description -->
+    <p class="text-[var(--color-text-secondary)] dark:text-[var(--color-text-secondary)] text-xs mt-1 line-clamp-2">
+      {{ product.description }}
+    </p>
+
+    <!-- Final Price -->
+    <p class="text-[var(--color-text-secondary)] dark:text-[var(--color-text-secondary)] text-sm mt-1">
+      Rs {{ getFinalPrice() | number:'1.0-0' }}
+    </p>
+
+    <!-- Rating -->
+    <div class="flex items-center mt-1 gap-1">
+      <ng-container *ngFor="let star of [1,2,3,4,5]; let i = index">
+        <mat-icon
+          [ngStyle]="{
+            color:
+              i + 1 <= product.averageRating
+                ? 'var(--color-accent)'
+                : i < product.averageRating && i + 1 > product.averageRating
+                ? 'var(--color-accent)'
+                : 'var(--color-text-secondary)'
+          }"
+        >
+          {{
+            i + 1 <= product.averageRating
+              ? 'star'
+              : i < product.averageRating && i + 1 > product.averageRating
+              ? 'star_half'
+              : 'star'
+          }}
+        </mat-icon>
+      </ng-container>
+
+      <span class="text-xs text-[var(--color-text-secondary)]">
+        ({{ product.averageRating }})
+      </span>
+    </div>
+  </div>
+</div>

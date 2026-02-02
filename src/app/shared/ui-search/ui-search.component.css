@@ -1,0 +1,11 @@
+.app-input {
+  width: 100%;
+}
+.app-input .mat-form-field-flex {
+  background: var(--color-card);
+  border-radius: 0.5rem;
+  padding: 0.125rem 0.5rem;
+}
+.mat-input-element {
+  color: var(--color-text) !important;
+}

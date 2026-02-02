@@ -1,0 +1,84 @@
+<main class="p-4 container mx-auto">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-5">
+    <!-- Contact Info Card -->
+    <app-ui-card [borderRadius]="borderRadius" class="p-4 h-[600px]">
+      <div class="flex flex-col gap-4 h-full">
+        <!-- Call -->
+        <div class="flex items-center gap-2 text-lg text-[var(--color-accent)]">
+          <mat-icon>phone</mat-icon>
+          <p>Call To Us</p>
+        </div>
+        <p>We are available 24/7, 7 days a week.</p>
+        <p>Phone: +8801611112222</p>
+        <hr class="border-[var(--color-border)] my-2" />
+
+        <!-- Email -->
+        <div class="flex items-center gap-2 text-lg text-[var(--color-accent)]">
+          <mat-icon>email</mat-icon>
+          <p>Write To Us</p>
+        </div>
+        <p>Fill out our form and we will contact you within 24 hours.</p>
+        <p>Emails: customer&#64;exclusive.com</p>
+        <p>Emails: support&#64;exclusive.com</p>
+      </div>
+    </app-ui-card>
+
+    <!-- Contact Form Card -->
+    <app-ui-card
+      [borderRadius]="borderRadius"
+      class="p-4 md:col-span-2 h-[600px]"
+    >
+      <form
+        [formGroup]="contactForm"
+        (ngSubmit)="submitForm()"
+        class="flex flex-col gap-4 h-full"
+      >
+        <div class="flex flex-col md:flex-row gap-2">
+          <app-ui-input
+            label="Your Name"
+            placeholder="Your Name"
+            controlName="name"
+          ></app-ui-input>
+          <app-ui-input
+            label="Your Email"
+            placeholder="Your Email"
+            controlName="email"
+          ></app-ui-input>
+          <app-ui-input
+            label="Your Phone"
+            placeholder="Your Phone"
+            controlName="phone"
+          ></app-ui-input>
+        </div>
+
+        <div class="flex-1 flex flex-col">
+          <label>Your Message</label>
+          <textarea
+            formControlName="message"
+            placeholder="Your Message"
+            class="w-full p-2 border rounded h-36 text-[var(--color-text)] bg-[var(--color-card)] border-[var(--color-border)] focus:outline-none flex-1"
+          ></textarea>
+          <div
+            class="text-red-500 mt-1"
+            *ngIf="
+              contactForm.controls['message'].invalid &&
+              (contactForm.controls['message'].touched ||
+                contactForm.controls['message'].dirty)
+            "
+          >
+            Message is required
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-auto">
+          <button
+            type="submit"
+            class="bg-[var(--color-accent)] text-white px-4 py-2 rounded hover:bg-[var(--color-accent-hover)] transition"
+          >
+            Send Message
+          </button>
+        </div>
+      </form>
+    </app-ui-card>
+  </div>
+</main>

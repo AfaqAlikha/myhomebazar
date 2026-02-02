@@ -1,0 +1,140 @@
+<main class="p-4 container mx-auto">
+  <app-ui-card [borderRadius]="borderRadius" class="p-4">
+    <table class="w-full border-collapse">
+      <thead class="bg-[var(--color-border)]">
+        <tr>
+          <th class="p-2 text-left">Product</th>
+          <th class="p-2 text-left">Price</th>
+          <th class="p-2 text-left">Quantity</th>
+          <th class="p-2 text-left">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+       <tr *ngFor="let item of cartItems" class="border-b">
+  <td class="p-2 flex items-center gap-2">
+    <div class="relative">
+      <img
+        [src]="item.image"
+        alt="{{ item.name }}"
+        class="w-10 h-10 object-cover rounded"
+      />
+      <button
+        (click)="deleteItem(item)"
+        class="absolute -top-1 -left-4 bg-[var(--color-accent)] text-white px-2 py-0 rounded-full"
+      >
+        &times;
+      </button>
+    </div>
+    <div class="flex flex-col">
+  <!-- Product Name with router link -->
+  <a 
+    [routerLink]="['/product/details', item.productId]" 
+    class="text-balck-600 hover:underline"
+  >
+    {{ item.name }}
+  </a>
+
+  <!-- Promotion Badge -->
+  <span *ngIf="getPromotionLabel(item)" class="text-xs text-green-600 font-semibold">
+    {{ getPromotionLabel(item) }}
+  </span>
+</div>
+  </td>
+
+  <td class="p-2">
+   $ {{ calculateItemTotal(item) }}
+  </td>
+
+  <td class="p-2">
+    <!-- BOGO read-only -->
+    <ng-container *ngIf="isBogo(item); else regularQty">
+      <input
+        type="number"
+        class="w-16 border rounded p-1 bg-gray-200 cursor-not-allowed"
+        [value]="getBogoQtys(item).buyQty + getBogoQtys(item).getQty"
+        readonly
+      />
+    </ng-container>
+
+    <ng-template #regularQty>
+      <input
+        type="number"
+        class="w-16 border rounded p-1"
+        [value]="item.quantity"
+        min="1"
+        (change)="updateQuantity(item, $event)"
+      />
+    </ng-template>
+  </td>
+
+  <td class="p-2">
+   $ {{ calculateItemTotal(item) }}
+  </td>
+</tr>
+
+      </tbody>
+    </table>
+
+    <!-- Cart Totals -->
+    <div class="mt-6 flex justify-end">
+      <app-ui-card [borderRadius]="borderRadius" class="p-4 w-72">
+        <h5 class="text-lg font-semibold mb-3">Cart Totals</h5>
+        <div class="flex justify-between font-bold mb-3">
+          <span>Total:</span>
+          <span>$ {{ calculateSubtotal() }}</span>
+        </div>
+        <button
+          (click)="proceedToCheckout()"
+          class="bg-[var(--color-accent)] text-white w-full py-2 rounded"
+        >
+          Proceed to Checkout
+        </button>
+      </app-ui-card>
+    </div>
+  </app-ui-card>
+</main>
+
+<!-- ✅ Order Modal -->
+<div
+  *ngIf="showModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
+  <app-ui-card [borderRadius]="borderRadius" class="p-6 w-full max-w-[800px]">
+    <h2 class="text-lg font-semibold mb-2">Enter Your Details</h2>
+    <form [formGroup]="orderForm" class="flex flex-col gap-2">
+      <app-ui-input label="Name" controlName="name"></app-ui-input>
+      <app-ui-input
+        label="Email"
+        controlName="email"
+        type="email"
+      ></app-ui-input>
+      <app-ui-input label="Phone" controlName="phone"></app-ui-input>
+      <app-ui-input label="City" controlName="city"></app-ui-input>
+      <app-ui-input label="Country" controlName="country"></app-ui-input>
+      <app-ui-input label="Address" controlName="address"></app-ui-input>
+
+      <div class="flex items-center gap-4 mt-2">
+        <label>
+          <input type="radio" formControlName="paymentMethod" value="COD" /> COD
+        </label>
+        <!-- <label>
+          <input type="radio" formControlName="paymentMethod" value="Online" />
+          Online
+        </label> -->
+      </div>
+
+      <div class="flex justify-end gap-2 mt-4">
+        <app-ui-button
+          label="Cancel"
+          (clicked)="showModal = false"
+          variant="danger"
+        ></app-ui-button>
+        <app-ui-button
+          label="Confirm Order"
+          (clicked)="confirmOrder()"
+          variant="accent"
+        ></app-ui-button>
+      </div>
+    </form>
+  </app-ui-card>
+</div>

@@ -1,0 +1,21 @@
+<div class="relative w-full">
+  <div class="relative w-full">
+    <input
+      type="text"
+      [value]="value"
+      (input)="onInput($any($event.target).value)"
+      (keydown)="onEnter($event)"
+      (blur)="onTouched()"
+      [disabled]="disabled"
+      placeholder="{{ label }}"
+      class="w-full px-4 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] dark:bg-gray-800 dark:text-white dark:border-gray-700"
+    />
+    <button
+      type="button"
+      (click)="onSearchClick()"
+      class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[var(--color-accent)]"
+    >
+      🔍
+    </button>
+  </div>
+</div>

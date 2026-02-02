@@ -1,0 +1,39 @@
+/* Card hover shadow */
+.group:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* Smooth icon hover transitions */
+.group button,
+.group a {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Add to Cart button fade in */
+.group button:last-child {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.group:hover button:last-child {
+  opacity: 1;
+}
+
+.small-icon-btn {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.small-icon-btn mat-icon {
+  font-size: 23px; /* icon chhota kare */
+  line-height: 1 !important;
+  color: white;
+}

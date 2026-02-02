@@ -1,0 +1,11 @@
+/* global-styles.css ya signup.component.css */
+/* Global ya component CSS */
+::ng-deep .mat-internal-form-field > label {
+  color: var(--color-text) !important;
+  transition: color 0.3s ease;
+}
+
+/* Agar dark mode class body/html pe hai */
+:host-context(.dark) ::ng-deep .mat-internal-form-field > label {
+  color: var(--color-text) !important;
+}

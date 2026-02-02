@@ -1,1 +1,77 @@
 /* You can add global styles to this file, and also import other style files */
+/* You can add global styles to this file, and also import other style files */
+
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+:root {
+  --color-background: #f8fafc;
+  --color-card: #ffffff;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-accent: #f59e0b;
+  --color-accent-hover: #d97706;
+  --color-success: #10b981;
+  --color-danger: #ef4444;
+  --color-text: #1e293b;
+  --color-text-secondary: #475569;
+  --color-border: #e2e8f0;
+}
+
+.dark {
+  --color-background: #0f172a;
+  --color-card: #1e293b;
+  --color-primary: #3b82f6;
+  --color-primary-hover: #60a5fa;
+  --color-accent: #fbbf24;
+  --color-accent-hover: #f59e0b;
+  --color-success: #34d399;
+  --color-danger: #f87171;
+  --color-text: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-border: #334155;
+}
+
+/* basic body / background */
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  margin: 0;
+}
+
+/* small Material overrides to respect variables (global) */
+.app-input .mat-form-field-flex {
+  background: var(--color-card);
+}
+.mat-input-element {
+  color: var(--color-text) !important;
+}
+.mat-form-field-outline {
+  border-color: var(--color-border) !important;
+}
+
+/* button hover: use variable if not overridden inline */
+.ui-btn:hover {
+  filter: brightness(0.95);
+}
+
+.app-container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* styles.scss */
+html {
+  --mdc-checkbox-label-color: var(--color-text);
+  --mdc-checkbox-selected-icon-color: var(--color-accent);
+  --mdc-checkbox-unselected-icon-color: var(--color-text);
+}

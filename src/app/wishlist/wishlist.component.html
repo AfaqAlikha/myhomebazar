@@ -1,0 +1,61 @@
+<div class="container mx-auto min-h-screen flex flex-col py-4 px-10">
+  <!-- Top Bar: Search + Sort -->
+  <div
+    class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6"
+  >
+    <!-- Search -->
+    <div class="">
+      <app-ui-search (search)="onSearch($event)"></app-ui-search>
+    </div>
+
+    <!-- Sort -->
+    <div class="flex gap-3">
+      <button
+        class="px-3 py-1 border rounded-md"
+        [ngClass]="{ 'bg-[var(--color-accent)] text-white': sortOrder === 'low' }"
+        (click)="setSort('low')"
+      >
+        Low to High
+      </button>
+
+      <button
+        class="px-3 py-1 border rounded-md"
+        [ngClass]="{ 'bg-[var(--color-accent)] text-white': sortOrder === 'high' }"
+        (click)="setSort('high')"
+      >
+        High to Low
+      </button>
+    </div>
+  </div>
+
+  <!-- Wishlist Products -->
+  <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-20">
+    <!-- Products -->
+    <ng-container *ngIf="!isLoading">
+      <app-product-card
+        *ngFor="let product of products"
+        [product]="product"
+      ></app-product-card>
+    </ng-container>
+
+    <!-- Skeletons -->
+    <ng-container *ngIf="isLoading">
+      <div
+        *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]"
+        class="p-4 bg-gray-200 rounded animate-pulse h-80 w-full"
+      ></div>
+    </ng-container>
+  </div>
+
+  <!-- Pagination Fixed at Bottom-Right -->
+  <div class="absolute bottom-80 right-4  bg-white w-[350px] dark:bg-gray-800 p-2 rounded shadow-lg">
+    <mat-paginator
+      [length]="totalItems"
+      [pageSize]="itemsPerPage"
+      [pageSizeOptions]="[itemsPerPage]"
+      [pageIndex]="currentPage - 1"
+      (page)="pageChanged($event)"
+    >
+    </mat-paginator>
+  </div>
+</div>

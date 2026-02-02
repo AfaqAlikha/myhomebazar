@@ -1,0 +1,76 @@
+<ngx-slick-carousel class="carousel" [config]="slideConfig">
+  <div
+    ngxSlickItem
+    *ngFor="let slide of slidesToShowList"
+    class="relative w-full h-[450px] md:h-[650px] overflow-hidden shadow-2xl"
+  >
+    <!-- Full Background Image -->
+    <img
+      [src]="slide.images[0]"
+      alt="banner"
+      class="absolute top-0 left-0 w-full h-full object-fill scale-105 hover:scale-110 transition-transform duration-700"
+    />
+
+    <!-- Dark Gradient Overlay -->
+    <div
+      class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-black/80 via-black/50 to-transparent"
+      *ngIf="!isDefault(slide)"
+    ></div>
+
+    <!-- Content Overlay for Featured Products ONLY -->
+    <div
+      *ngIf="!isDefault(slide)"
+      class="absolute top-[20px] md:top-24 -left-6 md:left-0 h-full flex flex-col justify-center px-12 text-white gap-2 max-w-xl"
+    >
+      <!-- Category / Brand -->
+      <span
+        class="text-sm tracking-widest uppercase text-[var(--color-accent)] font-semibold"
+        *ngIf="slide.catName"
+      >
+        {{ slide.catName }}
+      </span>
+
+      <!-- Product Name -->
+      <h2 class="text-5xl font-extrabold drop-shadow-lg leading-tight">
+        {{ slide.name }}
+      </h2>
+
+      <!-- Description -->
+      <p class="text-lg text-gray-200 leading-relaxed line-clamp-3" *ngIf="slide.description">
+        {{ slide.description }}
+      </p>
+
+      <!-- Price + Tag -->
+      <div class="flex items-center gap-4" *ngIf="slide.price">
+        <p class="text-3xl font-bold text-[var(--color-accent)] drop-shadow">
+          Rs {{ slide.discountPrice || slide.price }}
+        </p>
+
+        <span
+          *ngIf="slide.promotion?.isActive || slide.isFeatured"
+          class="px-3 py-1 text-xs rounded-full font-semibold text-white shadow-lg"
+          [ngClass]="slide.promotion?.isActive ? 'bg-green-500' : 'bg-blue-500'"
+        >
+          {{ slide.promotion?.isActive ? 'Promotion' : 'Featured' }}
+        </span>
+
+        <span
+          *ngIf="!slide.promotion?.isActive && slide.discountPrice"
+          class="px-3 py-1 text-xs rounded-full bg-red-500 text-white font-semibold shadow-lg"
+        >
+          {{ getDiscount(slide) }}% OFF
+        </span>
+      </div>
+
+      <!-- Shop Now Button -->
+      <span class="mt-2" *ngIf="slide._id">
+        <a
+          [routerLink]="'/product/details/' + slide._id"
+          class="inline-block px-4 md:px-8 py-2 md:py-3 bg-[var(--color-accent)] text-white rounded-full font-semibold text-lg hover:bg-[var(--color-accent-hover)] transition transform hover:scale-105 shadow-lg"
+        >
+          Shop Now →
+        </a>
+      </span>
+    </div>
+  </div>
+</ngx-slick-carousel>

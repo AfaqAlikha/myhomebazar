@@ -1,0 +1,77 @@
+<main class="p-4 container mx-auto">
+  <!-- Our Story Section -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+    <div [@fadeRight]>
+      <app-ui-card [borderRadius]="borderRadius" class="p-6">
+        <h1 class="text-3xl font-bold mb-4">Our Story</h1>
+        <p class="mb-2">
+          Launched in 2015, Exclusive is South Asia’s premier online shopping
+          marketplace with an active presence in Bangladesh.
+        </p>
+        <p class="mb-2">
+          Supported by a wide range of marketing, data, and service solutions,
+          Exclusive has 10,500 sellers and 300 brands serving millions of
+          customers.
+        </p>
+        <p>
+          Exclusive offers over 1 million products and a diverse assortment
+          across consumer categories.
+        </p>
+      </app-ui-card>
+    </div>
+    <div [@fadeLeft]>
+      <img
+        src="/portrait-two-african-females-holding-shopping-bags-while-reacting-something-their-smartphone 1.png"
+        alt="Our Story"
+        class="w-full rounded-lg shadow-md"
+      />
+    </div>
+  </div>
+
+  <!-- Delivery Stats Section -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+    <div *ngFor="let stat of deliveryStats" [@fadeIn]>
+      <app-ui-card
+        [borderRadius]="borderRadius"
+        class="p-4 flex flex-col items-center text-center"
+      >
+        <span class="material-icons text-[var(--color-accent)] text-3xl mb-2">{{
+          stat.icon
+        }}</span>
+        <p class="font-bold text-xl">{{ stat.title }}</p>
+        <p class="text-sm text-[var(--color-text)]">{{ stat.description }}</p>
+      </app-ui-card>
+    </div>
+  </div>
+
+  <!-- Owners Section -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+    <div *ngFor="let owner of owners" [@fadeIn]>
+      <app-ui-card [borderRadius]="borderRadius" class="p-4 text-center">
+        <img
+          [src]="owner.img"
+          alt="{{ owner.name }}"
+          class="w-32 h-32 mx-auto rounded-full mb-2"
+        />
+        <p class="font-semibold text-lg">{{ owner.name }}</p>
+        <p class="text-sm text-[var(--color-text)]">{{ owner.role }}</p>
+      </app-ui-card>
+    </div>
+  </div>
+
+  <!-- Delivery Features Section -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div *ngFor="let feature of deliveryFeatures" [@fadeIn]>
+      <app-ui-card
+        [borderRadius]="borderRadius"
+        class="p-4 flex flex-col items-center text-center"
+      >
+        <span class="material-icons text-[var(--color-accent)] text-4xl mb-2">{{
+          feature.icon
+        }}</span>
+        <p class="font-bold">{{ feature.title }}</p>
+        <p class="text-sm text-[var(--color-text)]">{{ feature.desc }}</p>
+      </app-ui-card>
+    </div>
+  </div>
+</main>

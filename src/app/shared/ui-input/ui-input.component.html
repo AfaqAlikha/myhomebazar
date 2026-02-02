@@ -1,0 +1,18 @@
+<div class="form-group w-full">
+  <label *ngIf="label">{{ label }}</label>
+  <input
+    [type]="type"
+    [placeholder]="placeholder"
+    [formControlName]="controlName"
+    [disabled]="disabled"
+    class="form-input w-full border rounded p-2 dark:text-black"
+  />
+
+  <div class="text-red-500 mt-1" *ngIf="showError">
+    <span *ngIf="control.errors?.['required']"> {{ label }} is required </span>
+    <span *ngIf="control.errors?.['email']"> Please enter a valid email </span>
+    <span *ngIf="control.errors?.['minlength']">
+      Minimum length is {{ control.errors?.['minlength'].requiredLength }}
+    </span>
+  </div>
+</div>

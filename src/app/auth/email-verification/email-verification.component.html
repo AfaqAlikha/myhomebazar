@@ -1,0 +1,89 @@
+<div
+  class="flex flex-col items-center justify-center min-h-screen px-4 bg-[var(--color-background)] text-[var(--color-text)]"
+>
+  <div
+    class="verification-card w-full max-w-lg p-8 rounded-2xl shadow-xl flex flex-col items-center justify-center text-center transition-all duration-500"
+    [ngClass]="{
+      'bg-success/10 border-success': status() === 'success',
+      'bg-danger/10 border-danger': status() === 'error',
+      'bg-primary/10 border-primary': status() === 'loading'
+    }"
+  >
+    <!-- Animated Icon -->
+    <div class="mb-6">
+      <ng-container [ngSwitch]="status()">
+        <div
+          *ngSwitchCase="'loading'"
+          class="animate-spin text-primary text-6xl"
+        >
+          ⏳
+        </div>
+        <div
+          *ngSwitchCase="'success'"
+          class="text-success text-6xl animate-bounce"
+        >
+          🎉
+        </div>
+        <div *ngSwitchCase="'error'" class="text-danger text-6xl animate-shake">
+          ⚠️
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Heading -->
+    <h1 class="text-2xl font-bold mb-4">
+      {{
+        status() === "success"
+          ? "Email Verified!"
+          : status() === "error"
+          ? "Verification Failed"
+          : "Verifying..."
+      }}
+    </h1>
+
+    <!-- Description -->
+    <p class="text-[var(--color-text-secondary)] mb-6">
+      <ng-container [ngSwitch]="status()">
+        <span *ngSwitchCase="'loading'">
+          We are verifying your email to complete your account setup. Please
+          wait...
+        </span>
+        <span *ngSwitchCase="'success'">
+          Thank you for verifying your email! Now you can start shopping and
+          enjoy exclusive offers, deals, and a seamless checkout experience.
+        </span>
+        <span *ngSwitchCase="'error'">
+          Oops! Something went wrong. Please check your verification link or
+          request a new one.
+        </span>
+      </ng-container>
+    </p>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4">
+      <a
+        *ngIf="status() === 'success'"
+        routerLink="/login"
+        class="px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-hover transition-colors"
+      >
+        Go to Login
+      </a>
+
+      <a
+        *ngIf="status() === 'error'"
+        routerLink="/resend-verification"
+        class="px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-hover transition-colors"
+      >
+        Resend Verification Email
+      </a>
+    </div>
+
+    <!-- Extra Info -->
+    <p class="text-sm text-[var(--color-text-secondary)] mt-6">
+      If you did not receive an email, check your spam folder or contact our
+      <a href="/support" class="text-primary hover:text-primary-hover underline"
+        >support team</a
+      >.
+    </p>
+  </div>
+</div>

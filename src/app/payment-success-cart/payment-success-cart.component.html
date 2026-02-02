@@ -1,0 +1,27 @@
+<div class="payment-success-container">
+  <div *ngIf="success === null" class="spinner-wrapper">
+    <!-- Animated spinner placeholder -->
+    <div class="loader"></div>
+    <h2>Verifying your payment...</h2>
+    <p>Please wait a moment.</p>
+  </div>
+
+  <div
+    *ngIf="success !== null"
+    class="result-card"
+    [ngClass]="success ? 'success' : 'error'"
+  >
+    <div class="icon">
+      <ng-container *ngIf="success; else failIcon"> ✅ </ng-container>
+      <ng-template #failIcon>❌</ng-template>
+    </div>
+    <h2>
+      {{
+        success
+          ? "Your order has been placed successfully!"
+          : error || "Payment verification failed."
+      }}
+    </h2>
+    <button (click)="goHome()">Go to Home</button>
+  </div>
+</div>

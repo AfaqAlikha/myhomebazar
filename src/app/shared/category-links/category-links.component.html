@@ -1,0 +1,29 @@
+<!-- <div class="ui-card category-links flex flex-wrap gap-3 bg-[var(--color-card)]">
+  <a
+    *ngFor="let category of categories"
+    [routerLink]="['/category', category.name, category._id]"
+    routerLinkActive="active-link"
+    class="nav-link px-3 py-2 rounded hover:bg-[var(--color-accent-hover)] transition"
+  >
+    {{ category.name }}
+  </a>
+</div> -->
+<div class="flex flex-wrap gap-4">
+  <a
+    *ngFor="let category of categories"
+    [routerLink]="['/category', category.name, category._id]"
+    routerLinkActive="active-link"
+    [routerLinkActiveOptions]="{ exact: true }"
+    class="w-36 h-36 rounded-lg shadow-md flex flex-col items-center justify-center text-white font-semibold transition-transform transform hover:scale-105"
+    [ngStyle]="{ 'background-color': category.color || '#888' }"
+  >
+    <img 
+      *ngIf="category.images && category.images.length > 0"
+      [src]="category.images[0]" 
+      alt="{{ category.name }}" 
+      class="w-16 h-16 object-cover rounded-full mb-2"
+    />
+    <span class="text-center px-2">{{ category.name }}</span>
+  </a>
+</div>
+

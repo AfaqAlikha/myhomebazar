@@ -1,0 +1,18 @@
+.p-rating {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--p-rating-gap);
+  gap: 5px;
+}
+
+/* product-details.component.css */
+div.p-rating-option {
+  font-size: 2rem; /* size of stars */
+  margin-right: 8px; /* gap between stars */
+  color: var(--color-gray, #ccc); /* inactive stars */
+}
+
+div.p-rating-option.p-rating-option-active {
+  color: var(--color-accent); /* active stars */
+}
