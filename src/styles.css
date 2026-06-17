@@ -1,14 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 /* You can add global styles to this file, and also import other style files */
 
-@import "tailwindcss";
-
+/* @import 'tailwindcss'; */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-
-
 :root {
   --color-background: #f8fafc;
   --color-card: #ffffff;
@@ -41,7 +37,7 @@
 body {
   background: var(--color-background);
   color: var(--color-text);
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
   margin: 0;
 }
 

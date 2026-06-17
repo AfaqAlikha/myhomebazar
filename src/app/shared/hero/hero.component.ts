@@ -13,30 +13,6 @@ import { RouterModule } from '@angular/router';
 export class HomeHeroComponent {
   @Input() featured: any[] = [];
 
-  defaultSlides = [
-    {
-      images: ['/slider1.jpeg'],
-      name: 'Default Slide 1',
-      catName: '',
-      description: '',
-      price: 0,
-    },
-    {
-      images: ['/slider2.jpeg'],
-      name: 'Default Slide 2',
-      catName: '',
-      description: '',
-      price: 0,
-    },
-    {
-      images: ['/slider3.jpeg'],
-      name: 'Default Slide 3',
-      catName: '',
-      description: '',
-      price: 0,
-    },
-  ];
-
   slideConfig = {
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -52,13 +28,5 @@ export class HomeHeroComponent {
   getDiscount(slide: any) {
     if (slide.promotion?.isActive) return slide.promotion.discountPercent;
     return Math.round(((slide.price - slide.discountPrice) / slide.price) * 100);
-  }
-
-  get slidesToShowList() {
-    return this.featured && this.featured.length ? this.featured : this.defaultSlides;
-  }
-
-  isDefault(slide: any) {
-    return !slide.price && !slide.name; // fallback images
   }
 }
