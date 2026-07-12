@@ -313,11 +313,11 @@
               *ngIf="product.activePromotions?.[0]?.discountPercent > 0"
               class="text-gray-500 line-through decoration-red-500"
             >
-              $ {{ getOriginalPrice() | number }}
+              {{ getOriginalPrice() | number }}
             </span>
 
             <span class="text-lg font-semibold text-green-600">
-              $ {{ getDiscountedPrice() | number }}
+              {{ getDiscountedPrice() | number }}
             </span>
 
             <span
