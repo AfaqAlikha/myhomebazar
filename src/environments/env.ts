@@ -4,6 +4,6 @@
 // };
 
 export const env = {
-  BASE_URL: 'https://myhomebazar.com/api',
-  WEBSOCET_URL: 'https://myhomebazar.com',
+  BASE_URL: 'https://api.myhomebazar.com/api',
+  WEBSOCET_URL: 'wss://api.myhomebazar.com',
 };
