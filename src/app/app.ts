@@ -112,7 +112,7 @@ export class AppComponent implements OnInit {
     setTimeout(() => {
       this.auth.logout();
       this.spinnerService.hide();
-      this.router.navigate(['/home']);
+      this.router.navigate(['']);
     }, 1000); // 1000ms = 1 second
   }
 
