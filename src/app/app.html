@@ -1,15 +1,11 @@
 <mat-sidenav-container class="min-h-screen">
   <!-- Drawer -->
-  <mat-sidenav
-    #drawer
-    mode="over"
-    class="custom-sidenav bg-[var(--color-card)]"
-  >
+  <mat-sidenav #drawer mode="over" class="custom-sidenav bg-[var(--color-card)]">
     <nav class="flex flex-col p-6 gap-4">
       <ul class="flex flex-col gap-3">
         <li>
           <a
-            routerLink="/home"
+            routerLink=""
             routerLinkActive="active-link"
             [routerLinkActiveOptions]="{ exact: true }"
             class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
@@ -30,6 +26,18 @@
           >
             <mat-icon>storefront</mat-icon>
             Shop
+          </a>
+        </li>
+        <li>
+          <a
+            routerLink="/order-history"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
+            (click)="drawer.close()"
+          >
+            <mat-icon>shopping_bag</mat-icon>
+            Order History
           </a>
         </li>
 
@@ -86,57 +94,57 @@
         </li>
 
         <!-- 🔹 Auth Section -->
-        @if(token) {
-        <li>
-          <a
-            mat-flat-button
-            [routerLink]="['/profile', user?.name]"
-            routerLinkActive="active-link"
-            [routerLinkActiveOptions]="{ exact: true }"
-            class="flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)]"
-            (click)="drawer.close()"
-          >
-            <mat-icon>person</mat-icon>
-            Profile
-          </a>
-        </li>
+        @if (token) {
+          <li>
+            <a
+              mat-flat-button
+              [routerLink]="['/profile', user?.name]"
+              routerLinkActive="active-link"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)]"
+              (click)="drawer.close()"
+            >
+              <mat-icon>person</mat-icon>
+              Profile
+            </a>
+          </li>
 
-        <li>
-          <button
-            mat-flat-button
-            (click)="logout(); drawer.close()"
-            class="flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)]"
-          >
-            <mat-icon>logout</mat-icon>
-            Logout
-          </button>
-        </li>
+          <li>
+            <button
+              mat-flat-button
+              (click)="logout(); drawer.close()"
+              class="flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)]"
+            >
+              <mat-icon>logout</mat-icon>
+              Logout
+            </button>
+          </li>
         } @else {
-        <li>
-          <a
-            routerLink="/signin"
-            routerLinkActive="active-link"
-            mat-flat-button
-            class="flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)]"
-            (click)="drawer.close()"
-          >
-            <mat-icon>login</mat-icon>
-            Sign In
-          </a>
-        </li>
+          <li>
+            <a
+              routerLink="/signin"
+              routerLinkActive="active-link"
+              mat-flat-button
+              class="flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)]"
+              (click)="drawer.close()"
+            >
+              <mat-icon>login</mat-icon>
+              Sign In
+            </a>
+          </li>
 
-        <li>
-          <a
-            routerLink="/signup"
-            routerLinkActive="active-link"
-            mat-flat-button
-            class="flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)]"
-            (click)="drawer.close()"
-          >
-            <mat-icon>person_add</mat-icon>
-            Sign Up
-          </a>
-        </li>
+          <li>
+            <a
+              routerLink="/signup"
+              routerLinkActive="active-link"
+              mat-flat-button
+              class="flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)]"
+              (click)="drawer.close()"
+            >
+              <mat-icon>person_add</mat-icon>
+              Sign Up
+            </a>
+          </li>
         }
       </ul>
     </nav>
