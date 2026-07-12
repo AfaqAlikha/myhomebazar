@@ -33,12 +33,14 @@ export class ShopComponent implements OnInit {
 
   categories: Category[] = [];
   subCategories: any[] = [];
+  childSubCategories: any[] = [];
 
+  selectedChildSubCategories: string[] = [];
   products: any[] = [];
   totalItems = 0;
   itemsPerPage = 0;
   currentPage = 1; // backend is 1-based
-
+  selectedSubCategoryId = '';
   sortOrder: 'low' | 'high' | '' = '';
   selectedCategoryId = '';
   selectedCategoryName = '';
@@ -48,7 +50,7 @@ export class ShopComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
   ) {}
 
   ngOnInit(): void {
@@ -69,8 +71,11 @@ export class ShopComponent implements OnInit {
 
     this.productService
       .getProducts({
-        catName: this?.selectedCategoryName, // 👈 backend expects "catName"
-        subCatName: this?.selectedSubCategory,
+        category: this.selectedCategoryId,
+
+        subCategory: this.selectedSubCategoryId,
+
+        childSubCategory: this.selectedChildSubCategories.join(','),
         page: this.currentPage,
         limit: this.itemsPerPage > 0 ? this.itemsPerPage : 6,
         sort: this.sortOrder,
@@ -103,36 +108,109 @@ export class ShopComponent implements OnInit {
     this.fetchProducts();
   }
 
-  // ✅ Category filter
   selectCategory(cat: Category) {
-    this.selectedCategoryId = cat._id;
+    // Agar same category dobara click ho to deselect
+    if (this.selectedCategoryId === cat._id) {
+      this.showAllProducts();
+      return;
+    }
 
-    // 👇 Backend ke liye catName use karna hoga (lekin Category model me "name" hai)
+    this.selectedCategoryId = cat._id;
     this.selectedCategoryName = cat.name;
 
+    this.selectedSubCategoryId = '';
     this.selectedSubCategory = '';
+
+    this.subCategories = [];
+    this.childSubCategories = [];
+    this.selectedChildSubCategories = [];
+
     this.currentPage = 1;
 
     this.categoryService.getSubCategories(cat._id).subscribe({
-      next: (subs) => (this.subCategories = subs),
-      error: (err) => console.error('Error loading subcategories', err),
+      next: (subs) => {
+        this.subCategories = subs;
+      },
+    });
+
+    this.fetchProducts();
+  }
+  selectSubCategory(sub?: any) {
+    // All par click ya deselect
+    if (!sub) {
+      this.selectedSubCategoryId = '';
+      this.selectedSubCategory = '';
+      this.childSubCategories = [];
+      this.selectedChildSubCategories = [];
+      this.currentPage = 1;
+      this.fetchProducts();
+      return;
+    }
+
+    // Same subcategory dobara click
+    if (this.selectedSubCategoryId === sub._id) {
+      this.selectedSubCategoryId = '';
+      this.selectedSubCategory = '';
+      this.childSubCategories = [];
+      this.selectedChildSubCategories = [];
+      this.currentPage = 1;
+      this.fetchProducts();
+      return;
+    }
+
+    this.selectedSubCategoryId = sub._id;
+    this.selectedSubCategory = sub.subCategory;
+    this.selectedChildSubCategories = [];
+
+    this.currentPage = 1;
+
+    this.categoryService.getChildSubCategories(sub._id).subscribe({
+      next: (res) => {
+        this.childSubCategories = res;
+      },
     });
 
     this.fetchProducts();
   }
 
-  // ✅ Subcategory filter
-  selectSubCategory(sub: string) {
-    this.selectedSubCategory = sub;
+  toggleChildSubCategory(id: string) {
+    const index = this.selectedChildSubCategories.indexOf(id);
+
+    if (index > -1) {
+      this.selectedChildSubCategories.splice(index, 1);
+    } else {
+      this.selectedChildSubCategories.push(id);
+    }
+
     this.currentPage = 1;
     this.fetchProducts();
   }
 
+  // showAllProducts() {
+  //   this.selectedCategoryId = '';
+  //   this.selectedCategoryName = '';
+  //   this.selectedSubCategory = '';
+  //   this.currentPage = 1;
+  //   this.fetchProducts();
+  // }
+
   showAllProducts() {
     this.selectedCategoryId = '';
+
     this.selectedCategoryName = '';
+
+    this.selectedSubCategoryId = '';
+
     this.selectedSubCategory = '';
+
+    this.subCategories = [];
+
+    this.childSubCategories = [];
+
+    this.selectedChildSubCategories = [];
+
     this.currentPage = 1;
+
     this.fetchProducts();
   }
 

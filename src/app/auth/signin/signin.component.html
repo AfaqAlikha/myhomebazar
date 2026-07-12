@@ -1,10 +1,26 @@
-<div
-  class="app-container flex flex-col items-center justify-center min-h-screen px-4"
->
+<div class="app-container flex flex-col items-center justify-center min-h-screen px-4">
   <app-ui-card borderRadius="0.5rem" class="w-full max-w-xl">
     <div class="flex flex-col items-center justify-center my-2">
-      <img class= " w-[200px] md:w-[120px] " src="logo.png" />
-      <h3 class="text-center text-xl font-semibold mb-4">LOGIN TO MY HOUSE BAZAR</h3>
+      <img
+        *ngIf="logo?.image"
+        [src]="logo.image"
+        [alt]="logo.name || 'Logo'"
+        class="w-[40px] h-[40px] md:w-[70px] md:h-[70px] rounded-full object-cover"
+      />
+      <h3 class="text-center text-xl font-semibold mb-4">LOGIN TO MY HOME BAZAR</h3>
+      <div class="w-full my-4 rounded-lg border border-green-300 bg-green-50 p-4 text-center">
+        <h4 class="mb-2 text-lg font-bold text-green-700">📧 Note</h4>
+
+        <p class="text-sm leading-6 text-gray-700">
+          A verification email has been sent to your email address. If you don't receive it within a
+          few minutes (even after checking your Spam/Junk folder), you may have entered an incorrect
+          email address.
+          <span class="font-semibold">
+            Unverified accounts are automatically removed after
+            <span class="text-red-600">24 hours</span>.
+          </span>
+        </p>
+      </div>
     </div>
 
     <form
@@ -21,10 +37,7 @@
       ></app-ui-input>
 
       <!-- Password -->
-      <app-ui-password
-        label="Password"
-        [controlName]="'password'"
-      ></app-ui-password>
+      <app-ui-password label="Password" [controlName]="'password'"></app-ui-password>
 
       <!-- Links -->
       <div class="flex justify-between text-sm">

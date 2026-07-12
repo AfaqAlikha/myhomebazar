@@ -17,9 +17,9 @@ import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
 import { AuthService } from '../../auth/auth.service';
 import { Subscription } from 'rxjs';
 import { SpinnerService } from '../../shared/spinner.service';
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, NgIf } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
-
+import { ProductService } from '../../services/product.service';
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -32,6 +32,7 @@ import { PLATFORM_ID } from '@angular/core';
     MatButtonModule,
     MatDividerModule,
     UiCardComponent,
+    NgIf,
   ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
@@ -39,7 +40,7 @@ import { PLATFORM_ID } from '@angular/core';
 export class HeaderComponent implements OnInit, OnDestroy {
   isSticky = false;
   isDarkMode = false;
-
+  logo: any = null;
   user: any = null;
   token: string | null = null;
   unreadCount = 5;
@@ -53,7 +54,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private auth: AuthService,
     private spinnerService: SpinnerService,
     private router: Router,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private productService: ProductService,
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -65,12 +67,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.isSticky = window.scrollY > 50;
     }
   }
+  loadLogo(): void {
+    this.productService.getAppLogo().subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.logo = res.logo;
+        }
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
+  }
 
   ngOnInit(): void {
     this.subs.push(
       this.auth.user$.subscribe((u) => (this.user = u)),
-      this.auth.token$.subscribe((t) => (this.token = t))
+      this.auth.token$.subscribe((t) => (this.token = t)),
     );
+    this.loadLogo();
   }
 
   logout() {
@@ -80,7 +95,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       setTimeout(() => {
         this.auth.logout();
         this.spinnerService.hide();
-        this.router.navigate(['/home']);
+        this.router.navigate(['']);
       }, 1000);
     }
   }

@@ -21,7 +21,7 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'home',
+    path: '',
     loadComponent: () => import('./home/home.component').then((m) => m.HomeComponent),
   },
   {
@@ -70,6 +70,12 @@ export const routes: Routes = [
     path: 'my-acount',
     loadComponent: () =>
       import('./my-account/my-account.component').then((m) => m.MyAccountComponent),
+  },
+  {
+    path: 'order-history',
+    loadComponent: () =>
+      import('./buyer/order-history/order-history').then((m) => m.OrderHistoryComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'profile/:id',

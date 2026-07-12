@@ -1,10 +1,25 @@
-<div
-  class="app-container flex flex-col items-center justify-center min-h-screen px-4 py-4"
->
+<div class="app-container flex flex-col items-center justify-center min-h-screen px-4 py-4">
   <app-ui-card borderRadius="0.5rem" class="w-full max-w-xl h-full max-h-xl">
     <div class="flex flex-col items-center justify-center my-2">
-      <img class= " w-[200px] md:w-[120px] " src="logo.png" />
-      <h3 class="text-center text-xl font-semibold mb-4">REGISTER TO MY HOUSE BAZAR</h3>
+      <img
+        *ngIf="logo?.image"
+        [src]="logo.image"
+        [alt]="logo.name || 'Logo'"
+        class="w-[40px] h-[40px] md:w-[70px] md:h-[70px] rounded-full object-cover"
+      />
+      <h3 class="text-center text-xl font-semibold mb-4">REGISTER TO MY HOME BAZAR</h3>
+      <div
+        class="w-full my-4 p-4 rounded-lg border border-green-300 bg-green-100 text-green-800 text-center"
+      >
+        <strong class="block mb-2">Verification Required</strong>
+
+        <p class="text-sm leading-6">
+          After signing up, please verify your email address. If you don't receive the verification
+          email within a few minutes (including your Spam/Junk folder), it is likely that the email
+          address was entered incorrectly. Unverified accounts are automatically deleted after
+          <strong>24 hours</strong>, and you can sign up again using the correct email address.
+        </p>
+      </div>
     </div>
 
     <form
@@ -29,11 +44,7 @@
       ></app-ui-input>
 
       <!-- Password -->
-      <app-ui-password
-        label="Password"
-        [controlName]="'password'"
-      ></app-ui-password>
-
+      <app-ui-password label="Password" [controlName]="'password'"></app-ui-password>
 
       <app-ui-input
         label="Country"
@@ -41,13 +52,13 @@
         placeholder="Enter your country name"
         [controlName]="'country'"
       ></app-ui-input>
-       <app-ui-input
+      <app-ui-input
         label="State"
         type="text"
         placeholder="Enter your state name"
         [controlName]="'state'"
       ></app-ui-input>
-       <app-ui-input
+      <app-ui-input
         label="City"
         type="text"
         placeholder="Enter your city name"
@@ -55,11 +66,7 @@
       ></app-ui-input>
 
       <!-- Terms -->
-      <mat-checkbox formControlName="terms">
-        Accept Terms & Conditions
-      </mat-checkbox>
-
-    
+      <mat-checkbox formControlName="terms"> Accept Terms & Conditions </mat-checkbox>
 
       <!-- Submit -->
       <app-ui-button
@@ -69,7 +76,7 @@
         variant="accent"
       ></app-ui-button>
 
-        <!-- Links -->
+      <!-- Links -->
       <div class="flex justify-center text-sm">
         <a
           routerLink="/signin"

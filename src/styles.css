@@ -1,7 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 /* You can add global styles to this file, and also import other style files */
-
+@import 'swiper/css';
+@import 'swiper/css/navigation';
+@import 'swiper/css/pagination';
 /* @import 'tailwindcss'; */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -71,4 +74,138 @@ html {
   --mdc-checkbox-label-color: var(--color-text);
   --mdc-checkbox-selected-icon-color: var(--color-accent);
   --mdc-checkbox-unselected-icon-color: var(--color-text);
+}
+
+:host {
+  display: block;
+}
+
+/* Swiper */
+.swiper {
+  width: 100%;
+  height: 450px;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .swiper {
+    height: 650px;
+  }
+}
+
+/* Slides */
+.swiper-slide {
+  position: relative;
+  overflow: hidden;
+}
+
+.swiper-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* ===========================
+   Navigation Buttons
+=========================== */
+
+.hero-prev,
+.hero-next {
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 50% !important;
+  background: #dab41e !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  --swiper-navigation-size: 18px;
+  --swiper-navigation-color: #ffffff;
+}
+
+.hero-prev:hover,
+.hero-next:hover {
+  background: #cf9e0b !important;
+  transform: scale(1.08);
+}
+
+/* Swiper Default Icons */
+
+.hero-prev::after,
+.hero-next::after,
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  font-size: 18px !important;
+  font-weight: bold;
+  color: #ffffff !important;
+  line-height: 1 !important;
+}
+
+/* ===========================
+   Pagination
+=========================== */
+
+.hero-pagination {
+  bottom: 20px !important;
+}
+
+.hero-pagination .swiper-pagination-bullet {
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.45);
+  opacity: 1;
+  transition: 0.3s;
+}
+
+.hero-pagination .swiper-pagination-bullet-active {
+  width: 28px;
+  border-radius: 20px;
+  background: var(--color-accent);
+}
+
+/* ===========================
+   Image Zoom Animation
+=========================== */
+
+.swiper-slide-active img {
+  animation: heroZoom 5s linear forwards;
+}
+
+@keyframes heroZoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+/* ===========================
+   Mobile
+=========================== */
+
+@media (max-width: 768px) {
+  .swiper {
+    height: 450px;
+  }
+
+  .hero-prev,
+  .hero-next {
+    width: 40px !important;
+    height: 40px !important;
+
+    --swiper-navigation-size: 14px;
+  }
+
+  .hero-prev::after,
+  .hero-next::after,
+  .swiper-button-prev::after,
+  .swiper-button-next::after {
+    font-size: 14px !important;
+  }
 }

@@ -7,8 +7,8 @@ import { env } from '../../environments/env';
 export interface Category {
   _id: string;
   name: string;
-  color?: string;          
-  images?: string[];       
+  color?: string;
+  images?: string[];
   subCategory?: { _id: string; subCategory: string }[];
 }
 
@@ -28,9 +28,15 @@ export class CategoryService {
 
   getSubCategories(categoryId: string): Observable<any[]> {
     return this.http
-      .get<{ success: boolean; subcategories: any[] }>(
-        `${this.apiUrl}/${categoryId}/subcategories`
-      )
+      .get<{ success: boolean; subcategories: any[] }>(`${this.apiUrl}/${categoryId}/subcategories`)
       .pipe(map((res) => res.subcategories));
+  }
+  getChildSubCategories(subCategoryId: string): Observable<any[]> {
+    return this.http
+      .get<{
+        success: boolean;
+        childSubCategories: any[];
+      }>(`${this.apiUrl}/${subCategoryId}/child-subcategories`)
+      .pipe(map((res) => res.childSubCategories));
   }
 }

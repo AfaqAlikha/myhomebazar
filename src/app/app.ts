@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, Inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,7 +17,9 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { SpinnerService } from './shared/spinner.service';
 import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
+import { ProductService } from './services/product.service';
+import { DOCUMENT } from '@angular/common';
+import { Title } from '@angular/platform-browser';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -45,7 +47,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class AppComponent implements OnInit {
   loading = true;
   private router = inject(Router);
-  title = signal('E-commerce App');
 
   user: any = null;
   token: string | null = null;
@@ -55,6 +56,9 @@ export class AppComponent implements OnInit {
   constructor(
     private auth: AuthService,
     private spinnerService: SpinnerService,
+    private productService: ProductService,
+    private pageTitle: Title,
+    @Inject(DOCUMENT) private document: Document,
   ) {}
 
   ngOnInit(): void {
@@ -63,6 +67,42 @@ export class AppComponent implements OnInit {
       this.auth.user$.subscribe((u) => (this.user = u)),
       this.auth.token$.subscribe((t) => (this.token = t)),
     );
+    this.loadLogo();
+  }
+
+  loadLogo(): void {
+    this.productService.getAppLogo().subscribe({
+      next: (res: any) => {
+        if (!res.success || !res.logo) return;
+
+        const logo = res.logo;
+
+        // ✅ Page Title
+        this.pageTitle.setTitle(logo.siteName || 'MyHomeBazar');
+
+        // ✅ Favicon
+        let favicon = this.document.querySelector("link[rel='icon']") as HTMLLinkElement;
+
+        if (!favicon) {
+          favicon = this.document.createElement('link');
+          favicon.rel = 'icon';
+          this.document.head.appendChild(favicon);
+        }
+
+        favicon.href = logo.image;
+
+        // ✅ Theme Color
+        let metaTheme = this.document.querySelector("meta[name='theme-color']") as HTMLMetaElement;
+
+        if (!metaTheme) {
+          metaTheme = this.document.createElement('meta');
+          metaTheme.name = 'theme-color';
+          this.document.head.appendChild(metaTheme);
+        }
+
+        metaTheme.content = logo.themeColor || '#16a34a';
+      },
+    });
   }
 
   logout() {

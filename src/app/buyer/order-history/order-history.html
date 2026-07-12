@@ -1,0 +1,197 @@
+<div class="container mx-auto px-4 py-6">
+  <h2 class="text-2xl font-bold mb-6">My Orders</h2>
+
+  <!-- Loading -->
+
+  <div *ngIf="loading" class="text-center py-20">Loading Orders...</div>
+
+  <!-- No Orders -->
+
+  <div *ngIf="!loading && orders.length == 0" class="text-center py-20 text-gray-500">
+    You haven't placed any orders yet.
+  </div>
+
+  <!-- Orders -->
+
+  <div class="space-y-6" *ngIf="orders.length">
+    <app-ui-card *ngFor="let order of orders" borderRadius="12px">
+      <div class="flex flex-col lg:flex-row gap-6 justify-between">
+        <!-- LEFT -->
+
+        <div class="flex gap-5">
+          <!-- Image -->
+
+          <img [src]="order.product.images[0]" class="w-32 h-32 rounded-lg object-cover border" />
+
+          <!-- Product -->
+
+          <div>
+            <h3 class="text-xl font-semibold mb-2">
+              {{ order.product.name }}
+            </h3>
+
+            <p class="text-sm opacity-70 mb-1">
+              Order ID :
+              {{ order._id }}
+            </p>
+
+            <p class="mb-1">
+              Quantity :
+              <strong>{{ order.quantity }}</strong>
+            </p>
+
+            <p class="mb-1">
+              Price :
+              <strong> Rs {{ order.product.price }} </strong>
+            </p>
+
+            <p class="mb-1">
+              Total :
+              <strong> Rs {{ order.totalPrice }} </strong>
+            </p>
+
+            <p class="mb-1">
+              Payment :
+              {{ order.paymentMethod }}
+            </p>
+
+            <p>
+              Ordered :
+              {{ order.createdAt | date: 'medium' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+
+        <div class="flex flex-col justify-between items-end">
+          <!-- STATUS -->
+
+          <span
+            class="px-4 py-2 rounded-full text-white text-sm"
+            [ngClass]="{
+              'bg-yellow-500': order.status == 'pending',
+
+              'bg-blue-500': order.status == 'accepted',
+
+              'bg-purple-500': order.status == 'shipped',
+
+              'bg-green-600': order.status == 'delivered',
+
+              'bg-red-500': order.status == 'cancelled',
+
+              'bg-gray-600': order.status == 'completed',
+            }"
+          >
+            {{ order.status | uppercase }}
+          </span>
+
+          <!-- BUTTONS -->
+
+          <div class="flex flex-wrap justify-end gap-3 mt-6">
+            <a [routerLink]="['/product/details', order.product._id]">
+              <app-ui-button variant="accent" label="View Product Details"> </app-ui-button>
+            </a>
+
+            <!-- Cancel -->
+
+            <app-ui-button
+              *ngIf="order.status === 'pending'"
+              variant="danger"
+              label="Cancel Order"
+              (clicked)="cancelOrder(order)"
+            >
+            </app-ui-button>
+
+            <!-- Complete -->
+
+            <app-ui-button
+              *ngIf="order.status == 'delivered'"
+              label="Complete Order"
+              variant="success"
+              (clicked)="reviewOrder(order)"
+            >
+            </app-ui-button>
+
+            <!-- Review -->
+          </div>
+        </div>
+      </div>
+    </app-ui-card>
+  </div>
+  <!-- Pagination -->
+
+  <div class="flex justify-center md:justify-end mt-8" *ngIf="totalItems > itemsPerPage">
+    <mat-paginator
+      [length]="totalItems"
+      [pageSize]="itemsPerPage"
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      [pageIndex]="currentPage - 1"
+      (page)="pageChanged($event)"
+    >
+    </mat-paginator>
+  </div>
+</div>
+
+<!-- ========================= -->
+
+<!-- REVIEW MODAL -->
+
+<!-- ========================= -->
+
+<div
+  *ngIf="reviewModal"
+  class="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4"
+>
+  <app-ui-card borderRadius="12px" class="w-full max-w-lg">
+    <h2 class="text-2xl font-bold mb-5">Rate Product</h2>
+
+    <form [formGroup]="reviewForm">
+      <div class="mb-5">
+        <p-rating formControlName="rating"></p-rating>
+      </div>
+
+      <textarea
+        rows="5"
+        formControlName="comment"
+        class="w-full border rounded-lg p-3"
+        placeholder="Write your review"
+      ></textarea>
+
+      <div class="flex justify-end gap-3 mt-6">
+        <app-ui-button variant="danger" label="Close" (click)="closeReviewModal()"> </app-ui-button>
+
+        <app-ui-button variant="accent" label="Submit" (click)="submitReview()"> </app-ui-button>
+      </div>
+    </form>
+  </app-ui-card>
+</div>
+
+<!-- ========================= -->
+<!-- CANCEL MODAL -->
+<!-- ========================= -->
+
+<div
+  *ngIf="cancelModal"
+  class="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4"
+>
+  <app-ui-card borderRadius="12px" class="w-full max-w-lg">
+    <h2 class="text-2xl font-bold mb-5">Cancel Order</h2>
+
+    <form [formGroup]="cancelForm">
+      <textarea
+        rows="5"
+        formControlName="cancelReason"
+        class="w-full border rounded-lg p-3"
+        placeholder="Please tell us why you're cancelling this order..."
+      ></textarea>
+
+      <div class="flex justify-end gap-3 mt-6">
+        <app-ui-button variant="danger" label="Close" (click)="closeCancelModal()"> </app-ui-button>
+
+        <app-ui-button variant="accent" label="Submit" (click)="submitCancelOrder()">
+        </app-ui-button>
+      </div>
+    </form>
+  </app-ui-card>
+</div>

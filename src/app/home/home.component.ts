@@ -35,7 +35,7 @@ export class HomeComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private spinnerService: SpinnerService,
-    private seo: SeoService
+    private seo: SeoService,
   ) {}
 
   ngOnInit(): void {
@@ -43,7 +43,6 @@ export class HomeComponent implements OnInit {
     this.loadHomeProducts();
     this.loadFeaturedProducts();
   }
-  
 
   loadHomeProducts() {
     this.isLoading = true;
@@ -67,24 +66,69 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  // loadFeaturedProducts() {
+  //   this.isLoading = true;
+  //   this.spinnerService.show();
+  //   this.productService.getFeaturedProducts().subscribe({
+  //     next: (res) => {
+  //       this.featured = res.products;
+  //       this.isLoading = false;
+  //       this.spinnerService.hide();
+  //     },
+  //     error: (err) => {
+  //       console.error(err);
+  //       this.isLoading = true;
+  //       this.spinnerService.hide();
+  //     },
+  //   });
+  // }
+
   loadFeaturedProducts() {
     this.isLoading = true;
     this.spinnerService.show();
+
     this.productService.getFeaturedProducts().subscribe({
-      next: (res) => {
-        this.featured = res.products;
+      next: (res: any) => {
+        const banners = res.banners || [];
+
+        const productBanners: any[] = [];
+        const imageBanners: any[] = [];
+
+        banners.forEach((banner: any) => {
+          // Product Banner
+          if (banner.productId) {
+            productBanners.push({
+              ...banner.productId, // product ki sari fields
+              bannerType: 'product',
+              bannerImage: banner.productId.images?.[0], // sirf first image
+            });
+          }
+
+          // Normal Banner
+          else {
+            banner.images.forEach((img: string) => {
+              imageBanners.push({
+                bannerType: 'image',
+                bannerImage: img,
+              });
+            });
+          }
+        });
+
+        // Product banners pehle, normal banners baad me
+        this.featured = [...productBanners, ...imageBanners];
+
         this.isLoading = false;
         this.spinnerService.hide();
       },
       error: (err) => {
         console.error(err);
-        this.isLoading = true;
+        this.isLoading = false;
         this.spinnerService.hide();
       },
     });
   }
 
-  
   pageChanged(event: PageEvent) {
     // Angular Material pageIndex is 0-based, backend uses 1-based
     this.page = event.pageIndex + 1;

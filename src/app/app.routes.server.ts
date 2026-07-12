@@ -7,7 +7,7 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server,
   },
   {
-    path: 'home',
+    path: '',
     renderMode: RenderMode.Server,
   },
   {
@@ -52,6 +52,10 @@ export const serverRoutes: ServerRoute[] = [
   },
   {
     path: 'my-acount',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'order-history',
     renderMode: RenderMode.Client,
   },
 

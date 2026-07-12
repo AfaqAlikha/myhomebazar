@@ -4,7 +4,19 @@ import { ToastrService } from 'ngx-toastr';
 import { env } from '../../environments/env';
 import { catchError, map, throwError, BehaviorSubject, Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { jwtDecode } from 'jwt-decode';
 
+export interface JwtUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  country: string;
+  state: string;
+  city: string;
+  exp: number;
+  iat: number;
+}
 export interface SignupData {
   name: string;
   email: string;
@@ -34,15 +46,14 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private toastr: ToastrService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
 
     const token = this.getCookie('token');
-    const user = this.getCookie('user');
 
     this.tokenSubject = new BehaviorSubject<string | null>(token);
-    this.userSubject = new BehaviorSubject<any>(user ? JSON.parse(user) : null);
+    this.userSubject = new BehaviorSubject<any>(this.getUser());
 
     this.token$ = this.tokenSubject.asObservable();
     this.user$ = this.userSubject.asObservable();
@@ -76,12 +87,25 @@ export class AuthService {
     return this.tokenSubject.value;
   }
 
-  getUser(): any {
-    if (this.isBrowser) {
-      const user = this.getCookie('user');
-      return user ? JSON.parse(user) : null;
+  getUser(): JwtUser | null {
+    const token = this.getToken();
+
+    if (!token) return null;
+
+    try {
+      const decoded = jwtDecode<JwtUser>(token);
+
+      // Token Expired
+      if (decoded.exp * 1000 < Date.now()) {
+        this.logout();
+        return null;
+      }
+
+      return decoded;
+    } catch (err) {
+      this.logout();
+      return null;
     }
-    return this.userSubject.value;
   }
 
   isLoggedIn(): boolean {
@@ -91,7 +115,6 @@ export class AuthService {
   logout(): void {
     if (this.isBrowser) {
       this.deleteCookie('token');
-      this.deleteCookie('user');
     }
     this.tokenSubject.next(null);
     this.userSubject.next(null);
@@ -115,7 +138,7 @@ export class AuthService {
       catchError((err) => {
         this.toastr.error(err?.error?.message || 'Signup failed');
         return throwError(() => err);
-      })
+      }),
     );
   }
 
@@ -129,9 +152,13 @@ export class AuthService {
           this.tokenSubject.next(res.token);
         }
 
-        if (res.user) {
-          if (this.isBrowser) this.setCookie('user', JSON.stringify(res.user));
-          this.userSubject.next(res.user);
+        if (res.token) {
+          if (this.isBrowser) {
+            this.setCookie('token', res.token);
+          }
+
+          this.tokenSubject.next(res.token);
+          this.userSubject.next(this.getUser());
         }
 
         return res;
@@ -139,62 +166,54 @@ export class AuthService {
       catchError((err) => {
         this.toastr.error(err?.error?.message || 'Login failed');
         return throwError(() => err);
-      })
+      }),
     );
   }
 
   verifyEmail(token: string) {
-    return this.http
-      .get(`${this.baseUrl}/user/verify-email`, { params: { token } })
-      .pipe(
-        map((res: any) => {
-          this.toastr.success(res.message || 'Email verified successfully!');
-          return res;
-        }),
-        catchError((err) => {
-          this.toastr.error(err?.error?.message || 'Email verification failed');
-          return throwError(() => err);
-        })
-      );
+    return this.http.get(`${this.baseUrl}/user/verify-email`, { params: { token } }).pipe(
+      map((res: any) => {
+        this.toastr.success(res.message || 'Email verified successfully!');
+        return res;
+      }),
+      catchError((err) => {
+        this.toastr.error(err?.error?.message || 'Email verification failed');
+        return throwError(() => err);
+      }),
+    );
   }
 
   // ----------------------
   // Profile APIs
   // ----------------------
   getMyProfile() {
-    return this.http
-      .get(`${this.baseUrl}/user/profile`, this.getAuthHeaders())
-      .pipe(
-        map((res: any) => res.user),
-        catchError((err) => {
-          this.toastr.error(err?.error?.message || 'Failed to fetch profile');
-          return throwError(() => err);
-        })
-      );
+    return this.http.get(`${this.baseUrl}/user/profile`, this.getAuthHeaders()).pipe(
+      map((res: any) => res.user),
+      catchError((err) => {
+        this.toastr.error(err?.error?.message || 'Failed to fetch profile');
+        return throwError(() => err);
+      }),
+    );
   }
 
   getUserProfile(userId: string) {
-    return this.http
-      .get(`${this.baseUrl}/user/profile/${userId}`, this.getAuthHeaders())
-      .pipe(
-        map((res: any) => res.user),
-        catchError((err) => {
-          this.toastr.error(err?.error?.message || 'Failed to fetch user profile');
-          return throwError(() => err);
-        })
-      );
+    return this.http.get(`${this.baseUrl}/user/profile/${userId}`, this.getAuthHeaders()).pipe(
+      map((res: any) => res.user),
+      catchError((err) => {
+        this.toastr.error(err?.error?.message || 'Failed to fetch user profile');
+        return throwError(() => err);
+      }),
+    );
   }
 
   getPublicProfile(userId: string): Observable<any> {
-    return this.http
-      .get<any>(`${this.baseUrl}/user/public-profile/${userId}`)
-      .pipe(
-        map((res) => res.user),
-        catchError((err) => {
-          this.toastr.error(err?.error?.message || 'Failed to fetch public profile');
-          return throwError(() => err);
-        })
-      );
+    return this.http.get<any>(`${this.baseUrl}/user/public-profile/${userId}`).pipe(
+      map((res) => res.user),
+      catchError((err) => {
+        this.toastr.error(err?.error?.message || 'Failed to fetch public profile');
+        return throwError(() => err);
+      }),
+    );
   }
 
   updateProfile(userId: string, data: { name?: string; bio?: string }) {
@@ -214,7 +233,7 @@ export class AuthService {
         catchError((err) => {
           this.toastr.error(err?.error?.message || 'Failed to update profile');
           return throwError(() => err);
-        })
+        }),
       );
   }
 }

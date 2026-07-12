@@ -2,14 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { env } from '../../environments/env';
-
+import { AuthService } from '../auth/auth.service';
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
   private baseUrl = `${env.BASE_URL}/products`;
-
-  constructor(private http: HttpClient) {}
+  private baseUrlbanner = `${env.BASE_URL}/app-assets`;
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+  ) {}
 
   // Get all products with filters and pagination
   getProducts(params?: any): Observable<any> {
@@ -45,16 +48,18 @@ export class ProductService {
 
   // Get home products (Featured → Promotion → Rated)
   getHomeProducts(page: number = 1): Observable<any> {
-    return this.http.get(`${this.baseUrl}/home-products`, {
+    return this.http.get(`${this.baseUrl}`, {
       params: { page },
     });
   }
 
   // Get only Featured products
   getFeaturedProducts(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/banner-products`);
+    return this.http.get(`${this.baseUrlbanner}/public/banners`);
   }
-
+  getAppLogo(): Observable<any> {
+    return this.http.get(`${this.baseUrlbanner}/public/logo`);
+  }
   getProductsByCategoryName(filters: {
     catName?: string;
     subCatName?: string;
@@ -66,8 +71,7 @@ export class ProductService {
     let params = new HttpParams();
 
     if (filters.catName) params = params.set('catName', filters.catName);
-    if (filters.subCatName)
-      params = params.set('subCatName', filters.subCatName);
+    if (filters.subCatName) params = params.set('subCatName', filters.subCatName);
     if (filters.page) params = params.set('page', filters.page.toString());
     if (filters.limit) params = params.set('limit', filters.limit.toString());
     if (filters.sort) params = params.set('sort', filters.sort);
@@ -82,22 +86,21 @@ export class ProductService {
   }
 
   // Get public products by seller ID
-  getProductsBySeller(
-    sellerId: string,
-    page: number = 1,
-    limit: number = 10
-  ): Observable<any> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('limit', limit.toString());
+  getProductsBySeller(sellerId: string, page: number = 1, limit: number = 10): Observable<any> {
+    const params = new HttpParams().set('page', page.toString()).set('limit', limit.toString());
 
     return this.http.get<any>(`${this.baseUrl}/seller/${sellerId}`, { params });
   }
 
-  // ✅ Private Helpers
   private getHeaders(): HttpHeaders {
-    return new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-    });
+    const token = this.authService.getToken();
+
+    let headers = new HttpHeaders();
+
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return headers;
   }
 }

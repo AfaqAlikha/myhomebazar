@@ -60,7 +60,6 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
   id = '';
 
   orderForm!: FormGroup;
-  reviewForm!: FormGroup;
 
   isLoading = false;
   currentUserId = '';
@@ -91,12 +90,6 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
       country: ['', Validators.required],
       address: ['', Validators.required],
       paymentMethod: ['COD', Validators.required],
-    });
-
-    // Review Form
-    this.reviewForm = this.fb.group({
-      rating: [0, Validators.required],
-      comment: ['', Validators.required],
     });
   }
 
@@ -283,55 +276,4 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
   }
 
   // ================= COMPLETE / CANCEL ORDER =================
-  completeOrder() {
-    if (this.reviewForm.invalid) {
-      this.reviewForm.markAllAsTouched();
-      return;
-    }
-    this.updateOrderStatus('completed');
-  }
-
-  cancelOrder() {
-    if (this.reviewForm.invalid) {
-      this.reviewForm.markAllAsTouched();
-      return;
-    }
-    this.updateOrderStatus('cancelled');
-  }
-
-  private updateOrderStatus(status: 'completed' | 'cancelled') {
-    this.isLoading = true;
-    this.spinnerService.show();
-
-    const { rating, comment } = this.reviewForm.value;
-
-    this.productOrderService.getOrderByProduct(this.product._id).subscribe({
-      next: (res: any) => {
-        const orderId = res.orderId;
-
-        this.productOrderService
-          .updateOrderStatus(orderId, {
-            status,
-            rating,
-            comment,
-          })
-          .subscribe({
-            next: () => {
-              this.product.isAwaitingReview = false;
-              this.reviewForm.reset({ rating: 0, comment: '' });
-              this.isLoading = false;
-              this.spinnerService.hide();
-            },
-            error: () => {
-              this.isLoading = false;
-              this.spinnerService.hide();
-            },
-          });
-      },
-      error: () => {
-        this.isLoading = false;
-        this.spinnerService.hide();
-      },
-    });
-  }
 }

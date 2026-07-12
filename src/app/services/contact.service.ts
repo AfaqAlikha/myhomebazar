@@ -12,7 +12,10 @@ import { ToastrService } from 'ngx-toastr';
 export class ContactService {
   private baseUrl = `${env.BASE_URL}/contact`;
 
-  constructor(private http: HttpClient, private toastr: ToastrService) {}
+  constructor(
+    private http: HttpClient,
+    private toastr: ToastrService,
+  ) {}
 
   // ✅ Submit contact form
   submitContact(data: {
@@ -25,9 +28,7 @@ export class ContactService {
       tap((res) => {
         if (res?.message) this.toastr.success(res.message);
       }),
-      catchError((error) =>
-        this.handleError(error, 'Failed to send contact message')
-      )
+      catchError((error) => this.handleError(error, 'Failed to send contact message')),
     );
   }
 

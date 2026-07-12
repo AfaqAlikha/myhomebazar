@@ -377,47 +377,6 @@
             You cannot order your own product.
           </p>
         </app-ui-card>
-
-        <!-- ✅ Leave a Review Form: Show only if awaiting review -->
-
-        <app-ui-card
-          *ngIf="product.isAwaitingReview"
-          [borderRadius]="borderRadius"
-          class="p-4 mt-4"
-        >
-          <h3 class="font-semibold mb-3 text-lg">Order Action</h3>
-
-          <!-- Review Form (Required for both actions) -->
-          <form [formGroup]="reviewForm" class="flex flex-col gap-2">
-            <p-rating formControlName="rating" [stars]="5" class="mb-2 rating-custom"></p-rating>
-
-            <textarea
-              formControlName="comment"
-              placeholder="Write your review"
-              class="w-full border rounded p-2 dark:text-black"
-              rows="3"
-            ></textarea>
-
-            <p *ngIf="reviewForm.invalid && reviewForm.touched" class="text-red-500 text-sm">
-              Please complete all required fields.
-            </p>
-
-            <!-- Action Buttons -->
-            <div class="flex gap-3 mt-4 justify-end">
-              <app-ui-button
-                label="Complete Order"
-                variant="accent"
-                (clicked)="completeOrder()"
-              ></app-ui-button>
-
-              <app-ui-button
-                label="Cancel Order"
-                variant="danger"
-                (clicked)="cancelOrder()"
-              ></app-ui-button>
-            </div>
-          </form>
-        </app-ui-card>
       </div>
     </div>
 

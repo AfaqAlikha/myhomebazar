@@ -1,12 +1,12 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, Inject, PLATFORM_ID } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
-import { CommonModule, NgIf, NgForOf } from '@angular/common';
+import { CommonModule, NgIf, NgForOf, isPlatformBrowser } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { WishlistService } from '../../../services/wishlist.service';
 import { SpinnerService } from '../../spinner.service';
 import { CartService } from '../../../services/cart.service';
-
+import { getUser } from '../../../utils/auth';
 interface Promotion {
   _id: string;
   startDate: string;
@@ -46,19 +46,34 @@ export class ProductCardComponent {
   @Input() product!: Product;
   currentUser: any;
 
+  // constructor(
+  //   private WishlistService: WishlistService,
+  //   private spinner: SpinnerService,
+  //   private CartService: CartService,
+  // ) {
+  //   const userStr = localStorage.getItem('user');
+  //   if (userStr) {
+  //     this.currentUser = JSON.parse(userStr);
+  //   }
+  // }
+
   constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
     private WishlistService: WishlistService,
     private spinner: SpinnerService,
-    private CartService: CartService
+    private CartService: CartService,
   ) {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      this.currentUser = JSON.parse(userStr);
+    if (isPlatformBrowser(this.platformId)) {
+      this.currentUser = getUser();
     }
   }
 
+  // isOwnProduct(): boolean {
+  //   return this.currentUser && this.product?.user === this.currentUser.id;
+  // }
+
   isOwnProduct(): boolean {
-    return this.currentUser && this.product?.user === this.currentUser.id;
+    return !!this.currentUser && this.product?.user === this.currentUser.id;
   }
 
   addToWishlist(productId: string) {
@@ -94,21 +109,21 @@ export class ProductCardComponent {
 
   /** Return all currently active promotions based on current date */
   getActivePromotions(): Promotion[] {
-  const now = new Date();
-  const activePromos = this.product.activePromotions?.filter(p => {
-    const start = new Date(p.startDate);
-    const end = new Date(p.endDate);
-    return now >= start && now <= end;
-  }) || [];
+    const now = new Date();
+    const activePromos =
+      this.product.activePromotions?.filter((p) => {
+        const start = new Date(p.startDate);
+        const end = new Date(p.endDate);
+        return now >= start && now <= end;
+      }) || [];
 
-  // fallback: if promotionFlag is set, show at least first promo
-  if (activePromos.length === 0 && this.product.promotionFlag) {
-    return this.product.activePromotions?.slice(0, 1) || [];
+    // fallback: if promotionFlag is set, show at least first promo
+    if (activePromos.length === 0 && this.product.promotionFlag) {
+      return this.product.activePromotions?.slice(0, 1) || [];
+    }
+
+    return activePromos;
   }
-
-  return activePromos;
-}
-
 
   /** Show discount from first active promotion (or 0 if none) */
   getDiscountPercent(): number {

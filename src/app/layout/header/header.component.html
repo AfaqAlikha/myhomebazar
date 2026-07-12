@@ -12,14 +12,24 @@
       <div class="container mx-auto flex items-center justify-between py-3 px-3">
         <!-- Left: Mobile Button + Logo -->
         <div class="flex items-center gap-4">
-         
-
           <!-- Logo -->
           <a
             routerLink="/"
             class="text-2xl font-bold text-[var(--color-text)] dark:text-[var(--color-text)]"
           >
-            <img class= " w-[200px] md:w-[120px] " src="logo.png" />
+            <img
+              *ngIf="logo?.image"
+              [src]="logo.image"
+              [alt]="logo.name || 'Logo'"
+              class="w-[40px] h-[40px] md:w-[70px] md:h-[70px] rounded-full object-cover"
+            />
+
+            <img
+              *ngIf="!logo?.image"
+              src="logo.png"
+              alt="Logo"
+              class="w-[40px] h-[40px] md:w-[70px] md:h-[70px] rounded-full object-cover"
+            />
           </a>
         </div>
 
@@ -28,7 +38,7 @@
           <ul class="hidden md:flex items-center gap-6">
             <li>
               <a
-                routerLink="/home"
+                routerLink="/"
                 routerLinkActive="active-link"
                 [routerLinkActiveOptions]="{ exact: true }"
                 class="nav-link"
@@ -44,38 +54,23 @@
                 >Shop</a
               >
             </li>
-            <li>
-              <a
-                routerLink="/contact"
-                routerLinkActive="active-link"
-                class="nav-link"
-                >Contact</a
-              >
-            </li>
-            <li>
-              <a
-                routerLink="/cart"
-                routerLinkActive="active-link"
-                class="nav-link"
-                >Cart</a
-              >
-            </li>
-            <li>
-              <a
-                routerLink="/wishlist"
-                routerLinkActive="active-link"
-                class="nav-link"
-                >Wishlist</a
-              >
-            </li>
 
             <li>
-              <a
-                routerLink="/about"
-                routerLinkActive="active-link"
-                class="nav-link"
-                >About</a
+              <a routerLink="/cart" routerLinkActive="active-link" class="nav-link">Cart</a>
+            </li>
+            <li>
+              <a routerLink="/wishlist" routerLinkActive="active-link" class="nav-link">Wishlist</a>
+            </li>
+            <li>
+              <a routerLink="/order-history" routerLinkActive="active-link" class="nav-link"
+                >Order History</a
               >
+            </li>
+            <li>
+              <a routerLink="/contact" routerLinkActive="active-link" class="nav-link">Contact</a>
+            </li>
+            <li>
+              <a routerLink="/about" routerLinkActive="active-link" class="nav-link">About</a>
             </li>
           </ul>
         </nav>
@@ -93,71 +88,62 @@
               <mat-icon>shopping_cart</mat-icon>
             </button>
           </a>
-         
-          <button
-            mat-icon-button
-            (click)="toggleTheme()"
-            class="flex items-center justify-center"
-          >
-            <mat-icon>{{ isDarkMode ? "light_mode" : "dark_mode" }}</mat-icon>
+
+          <button mat-icon-button (click)="toggleTheme()" class="flex items-center justify-center">
+            <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
           </button>
-  <!-- Mobile Menu Button -->
+          <!-- Mobile Menu Button -->
           <div class="md:hidden">
             <button mat-icon-button (click)="openDrawer()">
               <mat-icon>menu</mat-icon>
             </button>
           </div>
           <!-- Auth Links (Desktop Only) -->
-          @if(token){
-          <div class="hidden md:flex items-center gap-3">
-            <!-- Profile Circle -->
-            <div
-              class="flex items-center cursor-pointer"
-              [matMenuTriggerFor]="profileMenu"
-            >
+          @if (token) {
+            <div class="hidden md:flex items-center gap-3">
               <!-- Profile Circle -->
-              <div
-                class="w-8 h-8 rounded-full flex items-center justify-center !bg-[var(--color-accent)] text-white font-semibold text-lg"
-              >
-                {{ user?.name?.charAt(0) }}
+              <div class="flex items-center cursor-pointer" [matMenuTriggerFor]="profileMenu">
+                <!-- Profile Circle -->
+                <div
+                  class="w-8 h-8 rounded-full flex items-center justify-center !bg-[var(--color-accent)] text-white font-semibold text-lg"
+                >
+                  {{ user?.name?.charAt(0) }}
+                </div>
+
+                <!-- Dropdown Arrow Icon -->
+                <mat-icon class="text-gray-600 dark:text-gray-300">arrow_drop_down</mat-icon>
               </div>
 
-              <!-- Dropdown Arrow Icon -->
-              <mat-icon class="text-gray-600 dark:text-gray-300"
-                >arrow_drop_down</mat-icon
+              <!-- Dropdown Menu -->
+              <mat-menu #profileMenu="matMenu">
+                <button mat-menu-item [routerLink]="['/my-acount']">
+                  <span class="material-icons text-base mr-2">person</span>
+                  Profile
+                </button>
+                <button mat-menu-item (click)="logout()">
+                  <span class="material-icons text-base mr-2">logout</span>
+                  Logout
+                </button>
+              </mat-menu>
+            </div>
+          } @else {
+            <div class="hidden md:flex items-center gap-3">
+              <a
+                routerLink="/signin"
+                routerLinkActive="active-link"
+                mat-flat-button
+                class="!text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] dark:bg-[var(--color-accent)] dark:hover:bg-[var(--color-accent-hover)]"
+                >Sign In</a
+              >
+
+              <a
+                routerLink="/signup"
+                routerLinkActive="active-link"
+                mat-flat-button
+                class="!text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] dark:bg-[var(--color-accent)] dark:hover:bg-[var(--color-accent-hover)]"
+                >Sign Up</a
               >
             </div>
-
-            <!-- Dropdown Menu -->
-            <mat-menu #profileMenu="matMenu">
-              <button mat-menu-item [routerLink]="['/my-acount']">
-                <span class="material-icons text-base mr-2">person</span>
-                Profile
-              </button>
-              <button mat-menu-item (click)="logout()">
-                <span class="material-icons text-base mr-2">logout</span>
-                Logout
-              </button>
-            </mat-menu>
-          </div>
-          }@else {
-          <div class="hidden md:flex items-center gap-3">
-            <a
-              routerLink="/signin"
-              routerLinkActive="active-link"
-              mat-flat-button
-              class="!text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] dark:bg-[var(--color-accent)] dark:hover:bg-[var(--color-accent-hover)]"
-              >Sign In</a
-            >
-
-            <a
-              routerLink="/signup"
-              routerLinkActive="active-link"
-              mat-flat-button
-              class="!text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] dark:bg-[var(--color-accent)] dark:hover:bg-[var(--color-accent-hover)]"
-              >Sign Up</a
-            >
-          </div>
           }
         </div>
       </div>

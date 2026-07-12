@@ -1,73 +1,77 @@
-<div class="w-full">
-  <ngx-slick-carousel class="carousel" [config]="slideConfig">
-    <div
-      ngxSlickItem
-      *ngFor="let slide of featured"
-      class="relative w-full h-[450px] md:h-[650px] overflow-hidden shadow-2xl"
-    >
-      <!-- Full Background Image -->
+<div
+  class="swiper relative w-full h-[450px] md:h-[650px]"
+  #swiper
+  *ngIf="featured && featured.length"
+>
+  <div class="swiper-wrapper">
+    <div class="swiper-slide relative w-full h-[450px] md:h-[650px]" *ngFor="let slide of featured">
+      <!-- Background -->
       <img
-        [src]="slide.images[0]"
-        alt="banner"
-        class="absolute top-0 left-0 w-full h-full object-fill scale-105 hover:scale-110 transition-transform duration-700"
+        [src]="slide.bannerImage || slide.images?.[0]"
+        class="absolute inset-0 w-full h-full object-cover"
+        alt="{{ slide.name }}"
       />
 
-      <!-- Dark Gradient Overlay -->
+      <!-- Overlay -->
+      <!-- <div
+        class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"
+      ></div> -->
       <div
-        class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-black/80 via-black/50 to-transparent"
+        *ngIf="slide.bannerType === 'product'"
+        class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"
       ></div>
 
-      <!-- Content Overlay -->
+      <!-- Content -->
       <div
-        class="absolute top-[20px] md:top-24 -left-6 md:left-0 h-full flex flex-col justify-center px-12 text-white gap-2 max-w-xl"
+        *ngIf="slide.bannerType === 'product'"
+        class="absolute top-10 md:top-24 left-5 md:left-16 max-w-xl text-white z-10"
       >
-        <!-- Category / Brand -->
-        <span class="text-sm tracking-widest uppercase text-[var(--color-accent)] font-semibold">
+        <span class="uppercase tracking-widest text-[var(--color-accent)] text-sm">
           {{ slide.catName }}
         </span>
 
-        <!-- Product Name -->
-        <h2 class="text-5xl font-extrabold drop-shadow-lg leading-tight">
+        <h2 class="text-4xl md:text-6xl font-bold mt-3">
           {{ slide.name }}
         </h2>
 
-        <!-- Description -->
-        <p class="text-lg text-gray-200 leading-relaxed">
+        <p class="mt-5 text-lg text-gray-200">
           {{ slide.description }}
         </p>
 
-        <!-- Price + Tag -->
-        <div class="flex items-center gap-4">
-          <p class="text-3xl font-bold text-[var(--color-accent)] drop-shadow">
+        <div class="flex items-center gap-4 mt-5 flex-wrap">
+          <h3 class="text-3xl md:text-5xl font-bold text-[var(--color-accent)]">
             Rs {{ slide.discountPrice || slide.price }}
-          </p>
+          </h3>
 
           <span
-            *ngIf="slide.promotion?.isActive || slide.isFeatured"
-            class="px-3 py-1 text-xs rounded-full font-semibold text-white shadow-lg"
-            [ngClass]="slide.promotion?.isActive ? 'bg-green-500' : 'bg-blue-500'"
+            *ngIf="slide.promotion?.isActive"
+            class="bg-green-500 px-3 py-1 rounded-full text-white text-sm"
           >
-            {{ slide.promotion?.isActive ? 'Promotion' : 'Featured' }}
+            Promotion
           </span>
 
           <span
             *ngIf="!slide.promotion?.isActive && slide.discountPrice"
-            class="px-3 py-1 text-xs rounded-full bg-red-500 text-white font-semibold shadow-lg"
+            class="bg-red-500 px-3 py-1 rounded-full text-white text-sm"
           >
             {{ getDiscount(slide) }}% OFF
           </span>
         </div>
 
-        <!-- Shop Now Button -->
-        <span class="mt-2">
-          <a
-            [routerLink]="'/product/details/' + slide._id"
-            class="inline-block px-4 md:px-8 py-2 md:py-3 bg-[var(--color-accent)] text-white rounded-full font-semibold text-lg hover:bg-[var(--color-accent-hover)] transition transform hover:scale-105 shadow-lg"
-          >
-            Shop Now →
-          </a>
-        </span>
+        <a
+          [routerLink]="['/product/details', slide._id]"
+          class="inline-block mt-8 px-8 py-3 rounded-full bg-[var(--color-accent)] text-white hover:scale-105 duration-300"
+        >
+          Shop Now →
+        </a>
       </div>
     </div>
-  </ngx-slick-carousel>
+  </div>
+
+  <!-- Navigation -->
+  <div class="hero-prev swiper-button-prev"></div>
+  <div class="hero-next swiper-button-next"></div>
+
+  <!-- Pagination -->
+  <div class="hero-pagination swiper-pagination"></div>
 </div>

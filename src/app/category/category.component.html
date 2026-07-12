@@ -3,28 +3,33 @@
   <div class="md:col-span-3 mb-4 order-2 md:order-1">
     <app-ui-card [borderRadius]="borderRadius" class="mt-4 h-[400px] md:h-[500px] overflow-y-auto">
       <h2 class="text-lg font-semibold mb-3">Sub Categories</h2>
-      <ul class="space-y-2">
+      <div class="flex flex-wrap gap-4">
         <!-- ✅ All Products Button -->
-        <li
-          class="cursor-pointer font-medium"
-          [ngClass]="{ 'text-[var(--color-accent)]': !selectedSubCategory }"
-          (click)="showAllProducts()"
-        >
-          All Products
-        </li>
+        <div class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            class="w-4 h-4 accent-yellow-500 cursor-pointer"
+            [checked]="!selectedSubCategoryId"
+            (change)="showAllProducts()"
+          />
+
+          <label class="cursor-pointer" (click)="showAllProducts()"> See All Products </label>
+        </div>
 
         <!-- ✅ Sub Categories -->
-        <li
-          *ngFor="let sub of subCategories"
-          class="cursor-pointer hover:text-[var(--color-accent)]"
-          [ngClass]="{
-            'text-[var(--color-accent)]': selectedSubCategory === sub.subCategory,
-          }"
-          (click)="selectSubCategory(sub.subCategory)"
-        >
-          {{ sub.subCategory }}
-        </li>
-      </ul>
+        <div *ngFor="let sub of subCategories" class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            class="w-4 h-4 accent-yellow-500 cursor-pointer"
+            [checked]="selectedSubCategoryId === sub._id"
+            (change)="selectSubCategory(sub)"
+          />
+
+          <label class="cursor-pointer" (click)="selectSubCategory(sub)">
+            {{ sub.subCategory }}
+          </label>
+        </div>
+      </div>
     </app-ui-card>
   </div>
 

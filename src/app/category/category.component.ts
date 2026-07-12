@@ -31,7 +31,7 @@ export class CategoryComponent implements OnInit {
   borderRadius = '10px';
   isLoading = false;
   noProducts = false;
-
+  selectedSubCategoryId = '';
   categories: Category[] = [];
   subCategories: any[] = [];
 
@@ -50,7 +50,7 @@ export class CategoryComponent implements OnInit {
     private productService: ProductService,
     private categoryService: CategoryService,
     private route: ActivatedRoute,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
   ) {}
 
   ngOnInit(): void {
@@ -89,8 +89,8 @@ export class CategoryComponent implements OnInit {
 
     this.productService
       .getProducts({
-        catName: this.selectedCategoryName,
-        subCatName: this.selectedSubCategory,
+        category: this.selectedCategoryId,
+        subCategory: this.selectedSubCategoryId,
         page: this.currentPage,
         limit: this.itemsPerPage > 0 ? this.itemsPerPage : 6,
         sort: this.sortOrder,
@@ -126,8 +126,10 @@ export class CategoryComponent implements OnInit {
   }
 
   // Subcategory filter
-  selectSubCategory(sub: string) {
-    this.selectedSubCategory = sub;
+  selectSubCategory(sub: any) {
+    this.selectedSubCategoryId = sub._id;
+    this.selectedSubCategory = sub.subCategory;
+
     this.currentPage = 1;
     this.fetchProducts();
   }
