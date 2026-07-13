@@ -103,6 +103,14 @@
             >
             </app-ui-button>
 
+            <app-ui-button
+              *ngIf="order.status === 'delivered'"
+              variant="danger"
+              label="Cancel Order"
+              (clicked)="cancelOrder(order)"
+            >
+            </app-ui-button>
+
             <!-- Complete -->
 
             <app-ui-button
