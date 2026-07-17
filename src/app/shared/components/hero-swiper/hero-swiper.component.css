@@ -1,0 +1,45 @@
+.hero-skeleton {
+  width: 100%;
+  height: 450px;
+  background: var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .hero-skeleton {
+    height: 650px;
+  }
+}
+
+.hero-skeleton-inner {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-border) 25%,
+    var(--color-card) 50%,
+    var(--color-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.hero-swiper .hero-prev,
+.hero-swiper .hero-next {
+  background: var(--color-accent) !important;
+}
+
+.hero-swiper .hero-prev:hover,
+.hero-swiper .hero-next:hover {
+  background: var(--color-accent-hover) !important;
+}

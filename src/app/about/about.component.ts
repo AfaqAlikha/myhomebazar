@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
-import { UiCardComponent } from '../shared/ui-card/ui-card.component';
-
+import { Component, OnInit } from '@angular/core';
 import { trigger, style, animate, transition } from '@angular/animations';
 import { NgFor } from '@angular/common';
+import { UiCardComponent } from '../shared/ui-card/ui-card.component';
+import { SeoService } from '../services/seo';
 
 @Component({
   selector: 'app-about',
@@ -40,8 +40,14 @@ import { NgFor } from '@angular/common';
     ]),
   ],
 })
-export class AboutComponent {
+export class AboutComponent implements OnInit {
   borderRadius = '8px';
+
+  constructor(private seo: SeoService) {}
+
+  ngOnInit(): void {
+    this.seo.setAboutSeo();
+  }
 
   deliveryStats = [
     {

@@ -2,17 +2,22 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--p-rating-gap);
   gap: 5px;
 }
 
-/* product-details.component.css */
 div.p-rating-option {
-  font-size: 2rem; /* size of stars */
-  margin-right: 8px; /* gap between stars */
-  color: var(--color-gray, #ccc); /* inactive stars */
+  font-size: 2rem;
+  margin-right: 8px;
+  color: var(--color-gray, #ccc);
 }
 
 div.p-rating-option.p-rating-option-active {
-  color: var(--color-accent); /* active stars */
+  color: var(--color-accent);
+}
+
+@media (max-width: 767px) {
+  :host {
+    display: block;
+    overflow-x: hidden;
+  }
 }

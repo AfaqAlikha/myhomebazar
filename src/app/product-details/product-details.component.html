@@ -1,4 +1,4 @@
-<main class="container mx-auto py-4 px-10">
+<main class="container mx-auto py-4 px-4 sm:px-6 md:px-10 pb-10 overflow-x-hidden">
   <!-- Skeleton Loader -->
   <div *ngIf="isLoading">
     <!-- Breadcrumbs Skeleton -->
@@ -74,7 +74,12 @@
     </div>
   </div>
 
-  <div *ngIf="!isLoading">
+  <div *ngIf="!isLoading && loadError" class="text-center py-20 text-[var(--color-text-secondary)]">
+    Product not found or failed to load.
+    <a routerLink="/shop" class="block mt-4 text-[var(--color-accent)] hover:underline">Back to Shop</a>
+  </div>
+
+  <div *ngIf="!isLoading && product">
     <div class="flex items-center gap-1 mb-4 text-sm text-gray-500">
       <a routerLink="/" class="hover:underline">Account</a>
       <span>/</span>
@@ -102,32 +107,11 @@
         <ng-template #noSeller>
           <span class="text-gray-500 text-sm">Seller not available</span>
         </ng-template>
-        <div class="flex items-center mt-1 gap-1">
-          <ng-container *ngFor="let star of [1, 2, 3, 4, 5]; let i = index">
-            <mat-icon
-              [ngStyle]="{
-                color:
-                  i + 1 <= product.averageRating
-                    ? 'var(--color-accent)'
-                    : i < product.averageRating && i + 1 > product.averageRating
-                      ? 'var(--color-accent)'
-                      : 'var(--color-text-secondary)',
-              }"
-            >
-              {{
-                i + 1 <= product.averageRating
-                  ? 'star'
-                  : i < product.averageRating && i + 1 > product.averageRating
-                    ? 'star_half'
-                    : 'star'
-              }}
-            </mat-icon>
-          </ng-container>
-
-          <span class="text-xs text-[var(--color-text-secondary)]">
-            ({{ product.averageRating }})
-          </span>
-        </div>
+        <app-star-rating
+          [value]="product.averageRating"
+          [readonly]="true"
+          size="sm"
+        ></app-star-rating>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
           {{ bio }}
         </p>
@@ -135,26 +119,14 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-      <!-- Images + Thumbnails -->
+      <!-- Product Gallery -->
       <div class="md:col-span-6 gap-2">
-        <!-- Main Image -->
-        <div class="w-full">
-          <app-ui-card [borderRadius]="borderRadius" class="p-3">
-            <img [src]="mainImage" class="w-full h-[400px] md:h-[600px] object-cover rounded" />
-          </app-ui-card>
-        </div>
-
-        <!-- Thumbnails -->
-        <div class="flex w-full gap-2">
-          <div
-            *ngFor="let img of product.images"
-            class="cursor-pointer border rounded h-25 md:h-32 w-full"
-            [class.border-gray-600]="mainImage === img"
-            (click)="setMainImage(img)"
-          >
-            <img [src]="img" class="h-25 md:h-32 w-full object-fit rounded" />
-          </div>
-        </div>
+        <app-ui-card [borderRadius]="borderRadius" class="p-3">
+          <app-product-gallery
+            [images]="product.images"
+            [productName]="product.name"
+          ></app-product-gallery>
+        </app-ui-card>
 
         <!-- Customer Reviews (Desktop) -->
         <div class="p-4 mt-4 hidden md:block">
@@ -168,11 +140,12 @@
                   {{ review.user.name ? review.user.name.charAt(0) : '?' }}
                 </div>
                 <div>
-                  <ng-container *ngFor="let i of [1, 2, 3, 4, 5]; let idx = index">
-                    <span *ngIf="idx < review.rating">★</span>
-                    <span *ngIf="idx >= review.rating">☆</span>
-                  </ng-container>
-                  <span class="ml-2 text-gray-600">{{ review.rating }}/5</span>
+                  <app-star-rating
+                    [value]="review.rating"
+                    [readonly]="true"
+                    size="sm"
+                    [showValue]="true"
+                  ></app-star-rating>
                   <p class="text-gray-700 text-sm">{{ review.comment }}</p>
                   <small class="text-gray-500 text-xs">{{
                     review.createdAt | date: 'MM/dd/yyyy'
@@ -203,32 +176,11 @@
               ></ins>
             </div>
             <!-- Rating -->
-            <div class="flex items-center mt-1 gap-1">
-              <ng-container *ngFor="let star of [1, 2, 3, 4, 5]; let i = index">
-                <mat-icon
-                  [ngStyle]="{
-                    color:
-                      i + 1 <= product.averageRating
-                        ? 'var(--color-accent)'
-                        : i < product.averageRating && i + 1 > product.averageRating
-                          ? 'var(--color-accent)'
-                          : 'var(--color-text-secondary)',
-                  }"
-                >
-                  {{
-                    i + 1 <= product.averageRating
-                      ? 'star'
-                      : i < product.averageRating && i + 1 > product.averageRating
-                        ? 'star_half'
-                        : 'star'
-                  }}
-                </mat-icon>
-              </ng-container>
-
-              <span class="text-xs text-[var(--color-text-secondary)]">
-                ({{ product.averageRating }})
-              </span>
-            </div>
+            <app-star-rating
+              [value]="product.averageRating"
+              [readonly]="true"
+              size="sm"
+            ></app-star-rating>
           </div>
           <p class="text-gray-500 text-sm my-2">
             {{ product.brand }}
@@ -307,73 +259,124 @@
             </button>
           </div>
 
-          <!-- Quantity + Order -->
-          <div class="flex items-center gap-2 my-2">
-            <span
-              *ngIf="product.activePromotions?.[0]?.discountPercent > 0"
-              class="text-gray-500 line-through decoration-red-500"
-            >
-              Rs {{ getOriginalPrice() | number }}
-            </span>
-
-            <span class="text-lg font-semibold text-green-600">
-              Rs {{ getDiscountedPrice() | number }}
-            </span>
-
-            <span
-              *ngIf="product.activePromotions?.[0]?.discountPercent > 0"
-              class="text-sm text-red-500"
-            >
-              {{ product.activePromotions[0].discountPercent }}% OFF
-            </span>
-
-            <span
-              *ngIf="
-                isBogo &&
-                product.activePromotions?.[0]?.buyQty &&
-                product.activePromotions?.[0]?.getQty
+          <!-- Materials -->
+          <div *ngIf="product.materials?.length > 0" class="flex items-center gap-2 my-3 flex-wrap">
+            <span>Material:</span>
+            <button
+              *ngFor="let material of product.materials"
+              (click)="selectedMaterial = material"
+              [ngClass]="
+                selectedMaterial === material ? 'bg-red-500 text-white' : 'bg-white text-black'
               "
-              class="text-sm text-green-600 ml-2"
+              class="px-2 py-1 border rounded text-sm hover:opacity-80 transition"
             >
-              BOGO: Buy {{ bogoBuyQty }}, Get {{ bogoGetQty }} Free
-            </span>
+              {{ material }}
+            </button>
+          </div>
+
+          <!-- Styles -->
+          <div *ngIf="product.styles?.length > 0" class="flex items-center gap-2 my-3 flex-wrap">
+            <span>Style:</span>
+            <button
+              *ngFor="let style of product.styles"
+              (click)="selectedStyle = style"
+              [ngClass]="selectedStyle === style ? 'bg-red-500 text-white' : 'bg-white text-black'"
+              class="px-2 py-1 border rounded text-sm hover:opacity-80 transition"
+            >
+              {{ style }}
+            </button>
+          </div>
+
+          <!-- Capacity -->
+          <div *ngIf="product.capacities?.length > 0" class="flex items-center gap-2 my-3 flex-wrap">
+            <span>Capacity:</span>
+            <button
+              *ngFor="let capacity of product.capacities"
+              (click)="selectedCapacity = capacity"
+              [ngClass]="
+                selectedCapacity === capacity ? 'bg-red-500 text-white' : 'bg-white text-black'
+              "
+              class="px-2 py-1 border rounded text-sm hover:opacity-80 transition"
+            >
+              {{ capacity }}
+            </button>
+          </div>
+
+          <!-- Storage -->
+          <div *ngIf="product.storages?.length > 0" class="flex items-center gap-2 my-3 flex-wrap">
+            <span>Storage:</span>
+            <button
+              *ngFor="let storage of product.storages"
+              (click)="selectedStorage = storage"
+              [ngClass]="
+                selectedStorage === storage ? 'bg-red-500 text-white' : 'bg-white text-black'
+              "
+              class="px-2 py-1 border rounded text-sm hover:opacity-80 transition"
+            >
+              {{ storage }}
+            </button>
+          </div>
+
+          <!-- Price -->
+          <div class="my-2 space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-semibold text-[var(--color-success)]">
+                Rs {{ product.price | number }}
+              </span>
+              <span class="text-sm text-[var(--color-text-secondary)]">per item</span>
+            </div>
+            <div class="text-sm text-[var(--color-text-secondary)] flex justify-between max-w-xs">
+              <span>Subtotal (×{{ quantity }})</span>
+              <span>Rs {{ subtotal | number }}</span>
+            </div>
+            <div class="text-sm flex justify-between max-w-xs">
+              <span>Delivery</span>
+              <span [class.text-green-600]="getShippingFee() === 0">
+                {{ getShippingFee() === 0 ? 'FREE' : ('Rs ' + (getShippingFee() | number)) }}
+              </span>
+            </div>
+            <p *ngIf="getFreeShippingHint()" class="text-xs text-[var(--color-accent)] max-w-xs">
+              {{ getFreeShippingHint() }}
+            </p>
+            <div class="text-base font-semibold flex justify-between max-w-xs pt-1 border-t border-[var(--color-border)]">
+              <span>Total</span>
+              <span>Rs {{ totalPrice | number }}</span>
+            </div>
           </div>
 
           <!-- Quantity + Order -->
-          <div class="flex items-center gap-3 mt-4">
-            <button (click)="decrement()" class="px-3 py-1 border rounded" [disabled]="isBogo">
-              -
-            </button>
-            <input
-              type="text"
-              [value]="quantity"
-              [readonly]="isBogo"
-              class="w-12 text-center border rounded dark:text-black"
-            />
-            <button (click)="increment()" class="px-3 py-1 border rounded" [disabled]="isBogo">
-              +
-            </button>
-
-            <!-- <div class="ml-auto flex flex-col text-right">
-    <span class="font-semibold text-lg">PKR {{ totalPrice | number }}</span>
-    <span *ngIf="isBogo" class="text-sm text-green-600">
-      BOGO Active: Buy {{ bogoBuyQty }}, Get {{ bogoGetQty }} Free
-    </span>
-    <span *ngIf="isBogo && product.activePromotions[0].discountPercent > 0" class="text-sm text-red-500">
-      {{ product.activePromotions[0].discountPercent }}% Discount Applied
-    </span>
-  </div> -->
+          <div class="flex flex-wrap items-center gap-3 mt-4">
+            <ng-container *ngIf="canOrder">
+              <button
+                (click)="decrement()"
+                class="px-3 py-1 border border-[var(--color-border)] rounded bg-[var(--color-card)] text-[var(--color-text)]"
+              >
+                -
+              </button>
+              <input
+                type="text"
+                [value]="quantity"
+                readonly
+                class="w-12 text-center border border-[var(--color-border)] rounded bg-[var(--color-card)] text-[var(--color-text)]"
+              />
+              <button
+                (click)="increment()"
+                class="px-3 py-1 border border-[var(--color-border)] rounded bg-[var(--color-card)] text-[var(--color-text)]"
+              >
+                +
+              </button>
+            </ng-container>
 
             <app-ui-button
-              *ngIf="!product.isAwaitingReview && canOrder"
+              *ngIf="canOrder && !product.isAwaitingReview"
               label="Order Now"
               (clicked)="openModal()"
-              class="ml-2"
+              class="ml-2 flex-shrink-0"
               variant="accent"
             ></app-ui-button>
           </div>
 
-          <p *ngIf="!canOrder" class="text-red-500 text-sm mt-2">
+          <p *ngIf="!canOrder" class="text-[var(--color-danger)] text-sm mt-2">
             You cannot order your own product.
           </p>
         </app-ui-card>
@@ -398,16 +401,23 @@
           <app-ui-input label="Country" controlName="country"></app-ui-input>
           <app-ui-input label="Address" controlName="address"></app-ui-input>
 
-          <div class="flex items-center gap-4 mt-2">
-            <label><input type="radio" formControlName="paymentMethod" value="COD" /> COD</label>
-            <!-- <label
-              ><input
-                type="radio"
-                formControlName="paymentMethod"
-                value="Online"
-              />
-              Online</label
-            > -->
+          <div class="mt-4">
+            <app-payment-methods formControlName="paymentMethod"></app-payment-methods>
+          </div>
+
+          <div class="mt-3 p-3 rounded-lg bg-[var(--color-border)]/30 text-sm space-y-1">
+            <div class="flex justify-between">
+              <span>Subtotal</span>
+              <span>Rs {{ subtotal | number }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Delivery</span>
+              <span>{{ getShippingFee() === 0 ? 'FREE' : ('Rs ' + (getShippingFee() | number)) }}</span>
+            </div>
+            <div class="flex justify-between font-semibold pt-2 border-t border-[var(--color-border)]">
+              <span>Order Total</span>
+              <span>Rs {{ totalPrice | number }}</span>
+            </div>
           </div>
 
           <div class="flex justify-end gap-2 mt-4">
@@ -415,11 +425,13 @@
               label="Cancel"
               (clicked)="showModal = false"
               variant="danger"
+              [disabled]="orderSubmitting"
             ></app-ui-button>
             <app-ui-button
               label="Confirm Order"
               (clicked)="confirmOrder()"
               variant="accent"
+              [loading]="orderSubmitting"
             ></app-ui-button>
           </div>
         </form>

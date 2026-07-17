@@ -9,6 +9,17 @@
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <meta name="google-adsense-account" content="ca-pub-1353355245412217" />
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('myhomebazar-theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (stored === 'dark' || (!stored && prefersDark)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
     <script
       async
       src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1353355245412217"

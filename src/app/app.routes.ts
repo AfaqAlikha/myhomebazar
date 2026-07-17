@@ -14,6 +14,18 @@ export const routes: Routes = [
     canActivate: [GuestGuard],
   },
   {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./auth/forgot-password/forgot-password.component').then((m) => m.ForgotPasswordComponent),
+    canActivate: [GuestGuard],
+  },
+  {
+    path: 'change-password',
+    loadComponent: () =>
+      import('./auth/change-password/change-password.component').then((m) => m.ChangePasswordComponent),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'verify-email',
     loadComponent: () =>
       import('./auth/email-verification/email-verification.component').then(
@@ -41,6 +53,18 @@ export const routes: Routes = [
     loadComponent: () => import('./about/about.component').then((m) => m.AboutComponent),
   },
   {
+    path: 'privacy-policy',
+    loadComponent: () =>
+      import('./legal/privacy-policy/privacy-policy.component').then((m) => m.PrivacyPolicyComponent),
+  },
+  {
+    path: 'terms-and-conditions',
+    loadComponent: () =>
+      import('./legal/terms-and-conditions/terms-and-conditions.component').then(
+        (m) => m.TermsAndConditionsComponent,
+      ),
+  },
+  {
     path: 'product/details/:id',
     loadComponent: () =>
       import('./product-details/product-details.component').then((m) => m.ProductDetailsComponent),
@@ -53,6 +77,15 @@ export const routes: Routes = [
   {
     path: 'shop',
     loadComponent: () => import('./shop/shop.component').then((m) => m.ShopComponent),
+  },
+  {
+    path: 'sellers',
+    loadComponent: () => import('./sellers/sellers.component').then((m) => m.SellersComponent),
+  },
+  {
+    path: 'payment-return',
+    loadComponent: () =>
+      import('./payment-return/payment-return.component').then((m) => m.PaymentReturnComponent),
   },
   {
     path: 'payment-success',
@@ -70,11 +103,17 @@ export const routes: Routes = [
     path: 'my-acount',
     loadComponent: () =>
       import('./my-account/my-account.component').then((m) => m.MyAccountComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'order-history',
     loadComponent: () =>
       import('./buyer/order-history/order-history').then((m) => m.OrderHistoryComponent),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'my-claims',
+    loadComponent: () => import('./buyer/my-claims/my-claims').then((m) => m.MyClaimsComponent),
     canActivate: [AuthGuard],
   },
   {

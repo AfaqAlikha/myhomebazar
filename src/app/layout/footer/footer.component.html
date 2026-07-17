@@ -53,33 +53,43 @@
         <!-- Column 3 -->
         <div>
           <p class="text-xl font-semibold">Account</p>
+          @if (token) {
+            <div class="mt-2">
+              <a routerLink="/my-acount" class="block text-sm hover:underline">My Account</a>
+            </div>
+            <div class="mt-2">
+              <a routerLink="/cart" class="block text-sm hover:underline">Cart</a>
+            </div>
+            <div class="mt-2">
+              <a routerLink="/wishlist" class="block text-sm hover:underline">Wishlist</a>
+            </div>
+            <div class="mt-2">
+              <a routerLink="/order-history" class="block text-sm hover:underline">Order History</a>
+            </div>
+          } @else {
+            <div class="mt-2">
+              <a routerLink="/signin" class="block text-sm hover:underline">Login / Register</a>
+            </div>
+          }
           <div class="mt-2">
-            <a routerLink="my-acount" class="block text-sm hover:underline">My Account</a>
-          </div>
-          <div class="mt-2">
-            <a routerLink="signin" class="block text-sm hover:underline">Login / Register</a>
-          </div>
-          <div class="mt-2">
-            <a routerLink="cart" class="block text-sm hover:underline">Cart</a>
-          </div>
-          <div class="mt-2">
-            <a routerLink="wishlist" class="block text-sm hover:underline">Wishlist</a>
-          </div>
-          <div class="mt-2">
-            <a routerLink="shop" class="block text-sm hover:underline">Shop</a>
+            <a routerLink="/shop" class="block text-sm hover:underline">Shop</a>
           </div>
         </div>
 
         <!-- Column 4 -->
         <div>
-          <p class="text-xl font-semibold">Account</p>
-          <p class="mt-2 text-sm opacity-90">Save $3 with App New User Only</p>
-          <div class="flex items-center gap-2 mt-3">
-            <img src="/Qr Code.png" alt="Qr code" class="w-16 h-16 bg-white rounded" />
-            <div class="flex flex-col gap-2">
-              <img src="/GooglePlay.png" alt="google play" class="h-8 rounded" />
-              <img src="/AppStore.png" alt="app store" class="h-8 rounded" />
-            </div>
+          <p class="text-xl font-semibold">Quick Links</p>
+          <div class="mt-2">
+            <a routerLink="/about" class="block text-sm hover:underline">About Us</a>
+          </div>
+          <div class="mt-2">
+            <a routerLink="/contact" class="block text-sm hover:underline">Contact</a>
+          </div>
+          <div class="mt-2">
+            <a routerLink="/privacy-policy" class="block text-sm hover:underline">Privacy Policy</a>
+          </div>
+          <div class="mt-2">
+            <a routerLink="/terms-and-conditions" class="block text-sm hover:underline">Terms & Conditions</a>
           </div>
         </div>
       </div>
@@ -89,7 +99,12 @@
   <!-- Bottom Section -->
   <div class="py-3 border-t border-white/30">
     <div class="container mx-auto px-4">
-      <p class="text-center text-sm opacity-90">Copyright Rimel 2022. All right reserved</p>
+      <p class="text-center text-sm opacity-90">
+        © {{ currentYear }} My Home Bazar. All rights reserved.
+        <a routerLink="/privacy-policy" class="hover:underline ml-2">Privacy</a>
+        ·
+        <a routerLink="/terms-and-conditions" class="hover:underline">Terms</a>
+      </p>
     </div>
   </div>
 </footer>

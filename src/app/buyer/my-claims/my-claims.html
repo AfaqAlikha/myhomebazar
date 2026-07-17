@@ -1,0 +1,124 @@
+<div class="container mx-auto px-4 py-6">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+    <div>
+      <h2 class="text-2xl font-bold text-[var(--color-text)]">My Claims</h2>
+      <p class="text-sm text-[var(--color-text-secondary)] mt-1">
+        Track your submitted claims. Status updates are sent to your email.
+      </p>
+    </div>
+    <a routerLink="/order-history">
+      <app-ui-button variant="accent" label="Back to Orders"></app-ui-button>
+    </a>
+  </div>
+
+  <div class="mb-6">
+    <label class="block text-sm font-medium mb-1 text-[var(--color-text)]">Filter by status</label>
+    <select
+      [value]="statusFilter"
+      (change)="onStatusFilterChange($any($event.target).value)"
+      class="border border-[var(--color-border)] rounded-lg p-2 bg-[var(--color-card)] text-[var(--color-text)] min-w-[200px]"
+    >
+      <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+    </select>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-20 text-[var(--color-text-secondary)]">
+    Loading claims...
+  </div>
+
+  <div
+    *ngIf="!loading && claims.length === 0"
+    class="text-center py-20 text-[var(--color-text-secondary)]"
+  >
+    No claims found.
+  </div>
+
+  <div class="space-y-6" *ngIf="claims.length">
+    <app-ui-card *ngFor="let claim of claims" borderRadius="12px">
+      <div class="flex flex-col lg:flex-row gap-6 justify-between">
+        <div class="flex gap-5">
+          <img
+            *ngIf="getProductImage(claim) as img"
+            [src]="img"
+            class="w-24 h-24 rounded-lg object-cover border border-[var(--color-border)]"
+            alt="Product"
+          />
+          <div
+            *ngIf="!getProductImage(claim)"
+            class="w-24 h-24 rounded-lg bg-[var(--color-border)] flex items-center justify-center text-xs"
+          >
+            No image
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-[var(--color-text)]">{{ getProductName(claim) }}</h3>
+            <p class="text-sm text-[var(--color-text-secondary)] mb-1">
+              Order: {{ getOrderId(claim) }}
+            </p>
+            <p class="text-sm text-[var(--color-text)] mb-1">
+              Reason: <strong>{{ getReasonLabel(claim.reason) }}</strong>
+            </p>
+            <p class="text-sm text-[var(--color-text-secondary)] line-clamp-2">{{ claim.description }}</p>
+            <p class="text-xs text-[var(--color-text-secondary)] mt-2">
+              Submitted: {{ claim.createdAt | date: 'medium' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-end justify-between gap-4">
+          <span class="px-4 py-2 rounded-full text-white text-sm" [ngClass]="getStatusClass(claim.status)">
+            {{ claim.status.replace('_', ' ') | uppercase }}
+          </span>
+          <app-ui-button variant="accent" label="View Details" (clicked)="openDetail(claim)"></app-ui-button>
+        </div>
+      </div>
+    </app-ui-card>
+  </div>
+
+  <div class="flex justify-center md:justify-end mt-8" *ngIf="totalItems > itemsPerPage">
+    <mat-paginator
+      [length]="totalItems"
+      [pageSize]="itemsPerPage"
+      [pageSizeOptions]="[5, 10, 20]"
+      [pageIndex]="currentPage - 1"
+      (page)="pageChanged($event)"
+    ></mat-paginator>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div
+  *ngIf="detailModal && selectedClaim"
+  class="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4"
+>
+  <app-ui-card borderRadius="12px" class="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <h2 class="text-2xl font-bold mb-4 text-[var(--color-text)]">Claim Details</h2>
+
+    <div class="space-y-3 text-[var(--color-text)]">
+      <p><strong>Product:</strong> {{ getProductName(selectedClaim) }}</p>
+      <p><strong>Order ID:</strong> {{ getOrderId(selectedClaim) }}</p>
+      <p><strong>Reason:</strong> {{ getReasonLabel(selectedClaim.reason) }}</p>
+      <p><strong>Status:</strong> {{ selectedClaim.status.replace('_', ' ') }}</p>
+      <p><strong>Description:</strong> {{ selectedClaim.description }}</p>
+      <p *ngIf="selectedClaim.adminNotes">
+        <strong>Admin Response:</strong> {{ selectedClaim.adminNotes }}
+      </p>
+      <p class="text-sm text-[var(--color-text-secondary)]">
+        Submitted: {{ selectedClaim.createdAt | date: 'medium' }}
+      </p>
+    </div>
+
+    <div *ngIf="selectedClaim.images.length" class="mt-5">
+      <p class="font-medium mb-2 text-[var(--color-text)]">Proof Images</p>
+      <div class="flex flex-wrap gap-3">
+        <a *ngFor="let img of selectedClaim.images" [href]="img" target="_blank" rel="noopener">
+          <img [src]="img" alt="Claim proof" class="w-24 h-24 object-cover rounded-lg border" />
+        </a>
+      </div>
+    </div>
+
+    <div class="flex justify-end mt-6">
+      <app-ui-button variant="danger" label="Close" (clicked)="closeDetail()"></app-ui-button>
+    </div>
+  </app-ui-card>
+</div>

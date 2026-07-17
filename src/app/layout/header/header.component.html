@@ -54,18 +54,35 @@
                 >Shop</a
               >
             </li>
-
             <li>
-              <a routerLink="/cart" routerLinkActive="active-link" class="nav-link">Cart</a>
-            </li>
-            <li>
-              <a routerLink="/wishlist" routerLinkActive="active-link" class="nav-link">Wishlist</a>
-            </li>
-            <li>
-              <a routerLink="/order-history" routerLinkActive="active-link" class="nav-link"
-                >Order History</a
+              <a
+                routerLink="/sellers"
+                routerLinkActive="active-link"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="nav-link"
+                >Sellers</a
               >
             </li>
+
+            @if (token) {
+              <li>
+                <a routerLink="/cart" routerLinkActive="active-link" class="nav-link">Cart</a>
+              </li>
+              <li>
+                <a routerLink="/wishlist" routerLinkActive="active-link" class="nav-link">Wishlist</a>
+              </li>
+              <li>
+                <a routerLink="/order-history" routerLinkActive="active-link" class="nav-link"
+                  >Order History</a
+                >
+              </li>
+              <li>
+                <a routerLink="/my-claims" routerLinkActive="active-link" class="nav-link"
+                  >My Claims</a
+                >
+              </li>
+            }
+
             <li>
               <a routerLink="/contact" routerLinkActive="active-link" class="nav-link">Contact</a>
             </li>
@@ -77,17 +94,19 @@
 
         <!-- Right Side -->
         <div class="flex items-center gap-1">
-          <a routerLink="/wishlist" routerLinkActive="active-link">
-            <button mat-icon-button class="flex items-center justify-center">
-              <mat-icon>favorite</mat-icon>
-            </button>
-          </a>
+          @if (token) {
+            <a routerLink="/wishlist" routerLinkActive="active-link">
+              <button mat-icon-button class="flex items-center justify-center">
+                <mat-icon>favorite</mat-icon>
+              </button>
+            </a>
 
-          <a routerLink="/cart" routerLinkActive="active-link">
-            <button mat-icon-button class="flex items-center justify-center">
-              <mat-icon>shopping_cart</mat-icon>
-            </button>
-          </a>
+            <a routerLink="/cart" routerLinkActive="active-link">
+              <button mat-icon-button class="flex items-center justify-center">
+                <mat-icon>shopping_cart</mat-icon>
+              </button>
+            </a>
+          }
 
           <button mat-icon-button (click)="toggleTheme()" class="flex items-center justify-center">
             <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
@@ -119,6 +138,18 @@
                 <button mat-menu-item [routerLink]="['/my-acount']">
                   <span class="material-icons text-base mr-2">person</span>
                   Profile
+                </button>
+                <button mat-menu-item [routerLink]="['/change-password']">
+                  <span class="material-icons text-base mr-2">lock</span>
+                  Change Password
+                </button>
+                <button mat-menu-item [routerLink]="['/order-history']">
+                  <span class="material-icons text-base mr-2">shopping_bag</span>
+                  Order History
+                </button>
+                <button mat-menu-item [routerLink]="['/my-claims']">
+                  <span class="material-icons text-base mr-2">report_problem</span>
+                  My Claims
                 </button>
                 <button mat-menu-item (click)="logout()">
                   <span class="material-icons text-base mr-2">logout</span>

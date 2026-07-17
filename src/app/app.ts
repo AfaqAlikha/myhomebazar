@@ -18,6 +18,8 @@ import { SpinnerService } from './shared/spinner.service';
 import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProductService } from './services/product.service';
+import { ThemeService } from './core/services/theme.service';
+import { SiteThemeService } from './core/services/site-theme.service';
 import { DOCUMENT } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 @Component({
@@ -58,6 +60,8 @@ export class AppComponent implements OnInit {
     private spinnerService: SpinnerService,
     private productService: ProductService,
     private pageTitle: Title,
+    private themeService: ThemeService,
+    private siteThemeService: SiteThemeService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -67,7 +71,9 @@ export class AppComponent implements OnInit {
       this.auth.user$.subscribe((u) => (this.user = u)),
       this.auth.token$.subscribe((t) => (this.token = t)),
     );
+    this.siteThemeService.loadAndApply();
     this.loadLogo();
+    this.auth.trySilentRefresh().subscribe();
   }
 
   loadLogo(): void {

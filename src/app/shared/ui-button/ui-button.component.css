@@ -46,5 +46,25 @@
   filter: none;
 }
 
+.ui-btn-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
+  min-height: 1.25rem;
+}
+
+.ui-btn-spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ui-btn-spinner ::ng-deep circle {
+  stroke: #fff !important;
+}
+
 /* Optional: dark mode adjustment is automatic via CSS variables
    Make sure your .dark class updates --color-primary, --color-accent, etc. */

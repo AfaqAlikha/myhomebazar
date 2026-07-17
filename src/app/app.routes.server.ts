@@ -15,7 +15,19 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server,
   },
   {
+    path: 'sellers',
+    renderMode: RenderMode.Server,
+  },
+  {
     path: 'about',
+    renderMode: RenderMode.Server,
+  },
+  {
+    path: 'privacy-policy',
+    renderMode: RenderMode.Server,
+  },
+  {
+    path: 'terms-and-conditions',
     renderMode: RenderMode.Server,
   },
   {
@@ -47,6 +59,14 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
+    path: 'forgot-password',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'change-password',
+    renderMode: RenderMode.Client,
+  },
+  {
     path: 'verify-email',
     renderMode: RenderMode.Client,
   },
@@ -56,6 +76,10 @@ export const serverRoutes: ServerRoute[] = [
   },
   {
     path: 'order-history',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'my-claims',
     renderMode: RenderMode.Client,
   },
 

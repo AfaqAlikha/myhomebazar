@@ -1,51 +1,31 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { env } from '../../environments/env';
-import { catchError, map, throwError, BehaviorSubject, Observable } from 'rxjs';
+import { catchError, map, throwError, BehaviorSubject, Observable, of } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
+import { API_ENDPOINTS } from '../core/config/api-endpoints';
+import { JwtUser, SignupData, LoginData } from '../core/models/user.model';
 
-export interface JwtUser {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  country: string;
-  state: string;
-  city: string;
-  exp: number;
-  iat: number;
-}
-export interface SignupData {
-  name: string;
-  email: string;
-  password: string;
-  terms: boolean;
-}
-
-export interface LoginData {
-  email: string;
-  password: string;
-}
+export type { JwtUser, SignupData, LoginData };
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private baseUrl = env.BASE_URL;
-
   private tokenSubject: BehaviorSubject<string | null>;
-  private userSubject: BehaviorSubject<any>;
+  private userSubject: BehaviorSubject<JwtUser | null>;
 
   token$: Observable<string | null>;
-  user$: Observable<any>;
+  user$: Observable<JwtUser | null>;
 
   private isBrowser: boolean;
 
   constructor(
     private http: HttpClient,
     private toastr: ToastrService,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -53,35 +33,29 @@ export class AuthService {
     const token = this.getCookie('token');
 
     this.tokenSubject = new BehaviorSubject<string | null>(token);
-    this.userSubject = new BehaviorSubject<any>(this.getUser());
+    this.userSubject = new BehaviorSubject<JwtUser | null>(this.getUser());
 
     this.token$ = this.tokenSubject.asObservable();
     this.user$ = this.userSubject.asObservable();
   }
 
-  // ----------------------
-  // Cookie helpers
-  // ----------------------
   private getCookie(name: string): string | null {
     if (!this.isBrowser) return null;
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? decodeURIComponent(match[2]) : null;
   }
 
-  private setCookie(name: string, value: string, days = 7) {
+  private setCookie(name: string, value: string, days = 7): void {
     if (!this.isBrowser) return;
     const expires = new Date(Date.now() + days * 86400000).toUTCString();
     document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
   }
 
-  private deleteCookie(name: string) {
+  private deleteCookie(name: string): void {
     if (!this.isBrowser) return;
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
   }
 
-  // ----------------------
-  // Auth helpers
-  // ----------------------
   getToken(): string | null {
     if (this.isBrowser) return this.getCookie('token');
     return this.tokenSubject.value;
@@ -89,36 +63,87 @@ export class AuthService {
 
   getUser(): JwtUser | null {
     const token = this.getToken();
-
     if (!token) return null;
 
     try {
       const decoded = jwtDecode<JwtUser>(token);
-
-      // Token Expired
       if (decoded.exp * 1000 < Date.now()) {
-        this.logout();
         return null;
       }
-
       return decoded;
-    } catch (err) {
-      this.logout();
+    } catch {
       return null;
     }
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    return !!this.getUser();
   }
 
-  logout(): void {
+  hasExpiredSession(): boolean {
+    const token = this.getCookie('token');
+    if (!token) return false;
+    try {
+      const decoded = jwtDecode<JwtUser>(token);
+      return decoded.exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
+  }
+
+  clearSession(showToast = false): void {
     if (this.isBrowser) {
       this.deleteCookie('token');
     }
     this.tokenSubject.next(null);
     this.userSubject.next(null);
-    this.toastr.success('Logged out successfully!');
+    if (showToast) {
+      this.toastr.success('Logged out successfully!');
+    }
+  }
+
+  handleSessionExpired(): void {
+    this.clearSession(false);
+    this.toastr.error('Your session has expired. Please log in again.');
+    this.router.navigate(['/signin']);
+  }
+
+  private setAccessToken(token: string): void {
+    if (this.isBrowser) this.setCookie('token', token);
+    this.tokenSubject.next(token);
+    this.userSubject.next(this.getUser());
+  }
+
+  refreshAccessToken(): Observable<string> {
+    return this.http
+      .post<{ data?: { token?: string; accessToken?: string }; token?: string }>(
+        API_ENDPOINTS.auth.refreshToken,
+        {},
+        { withCredentials: true },
+      )
+      .pipe(
+        map((res) => {
+          const token = res.data?.token || res.data?.accessToken || res.token;
+          if (!token) throw new Error('Missing access token');
+          this.setAccessToken(token);
+          return token;
+        }),
+      );
+  }
+
+  trySilentRefresh(): Observable<boolean> {
+    if (this.isLoggedIn()) return of(true);
+    return this.refreshAccessToken().pipe(
+      map(() => true),
+      catchError(() => of(false)),
+    );
+  }
+
+  logout(): void {
+    this.http
+      .post(API_ENDPOINTS.auth.logout, {}, { withCredentials: true })
+      .pipe(catchError(() => of(null)))
+      .subscribe(() => this.clearSession(true));
   }
 
   private getAuthHeaders(): { headers?: HttpHeaders } {
@@ -126,11 +151,8 @@ export class AuthService {
     return token ? { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) } : {};
   }
 
-  // ----------------------
-  // API Calls
-  // ----------------------
   signup(data: SignupData) {
-    return this.http.post(`${this.baseUrl}/user/signup`, data).pipe(
+    return this.http.post(API_ENDPOINTS.auth.signup, data).pipe(
       map((res: any) => {
         this.toastr.success(res.message);
         return res;
@@ -143,20 +165,12 @@ export class AuthService {
   }
 
   login(data: LoginData) {
-    return this.http.post(`${this.baseUrl}/user/login`, data).pipe(
+    return this.http.post(API_ENDPOINTS.auth.login, data, { withCredentials: true }).pipe(
       map((res: any) => {
         this.toastr.success(res.message);
 
         if (res.token) {
           if (this.isBrowser) this.setCookie('token', res.token);
-          this.tokenSubject.next(res.token);
-        }
-
-        if (res.token) {
-          if (this.isBrowser) {
-            this.setCookie('token', res.token);
-          }
-
           this.tokenSubject.next(res.token);
           this.userSubject.next(this.getUser());
         }
@@ -171,7 +185,7 @@ export class AuthService {
   }
 
   verifyEmail(token: string) {
-    return this.http.get(`${this.baseUrl}/user/verify-email`, { params: { token } }).pipe(
+    return this.http.get(API_ENDPOINTS.auth.verifyEmail, { params: { token } }).pipe(
       map((res: any) => {
         this.toastr.success(res.message || 'Email verified successfully!');
         return res;
@@ -183,12 +197,9 @@ export class AuthService {
     );
   }
 
-  // ----------------------
-  // Profile APIs
-  // ----------------------
   getMyProfile() {
-    return this.http.get(`${this.baseUrl}/user/profile`, this.getAuthHeaders()).pipe(
-      map((res: any) => res.user),
+    return this.http.get(API_ENDPOINTS.auth.profile, this.getAuthHeaders()).pipe(
+      map((res: any) => res.data?.user ?? res.user),
       catchError((err) => {
         this.toastr.error(err?.error?.message || 'Failed to fetch profile');
         return throwError(() => err);
@@ -197,7 +208,7 @@ export class AuthService {
   }
 
   getUserProfile(userId: string) {
-    return this.http.get(`${this.baseUrl}/user/profile/${userId}`, this.getAuthHeaders()).pipe(
+    return this.http.get(API_ENDPOINTS.auth.profileById(userId), this.getAuthHeaders()).pipe(
       map((res: any) => res.user),
       catchError((err) => {
         this.toastr.error(err?.error?.message || 'Failed to fetch user profile');
@@ -207,8 +218,8 @@ export class AuthService {
   }
 
   getPublicProfile(userId: string): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/user/public-profile/${userId}`).pipe(
-      map((res) => res.user),
+    return this.http.get<any>(API_ENDPOINTS.auth.publicProfile(userId)).pipe(
+      map((res) => res.data?.user ?? res.user),
       catchError((err) => {
         this.toastr.error(err?.error?.message || 'Failed to fetch public profile');
         return throwError(() => err);
@@ -218,22 +229,53 @@ export class AuthService {
 
   updateProfile(userId: string, data: { name?: string; bio?: string }) {
     return this.http
-      .patch(`${this.baseUrl}/user/update-profile/${userId}`, data, this.getAuthHeaders())
+      .patch(API_ENDPOINTS.auth.updateProfile(userId), data, this.getAuthHeaders())
       .pipe(
         map((res: any) => {
           this.toastr.success(res.message || 'Profile updated successfully!');
           const currentUser = this.userSubject.value;
-          if (currentUser && currentUser._id === userId) {
+          if (currentUser && currentUser.id === userId) {
             const updatedUser = { ...currentUser, ...data };
-            if (this.isBrowser) this.setCookie('user', JSON.stringify(updatedUser));
-            this.userSubject.next(updatedUser);
+            this.userSubject.next(updatedUser as JwtUser);
           }
-          return res.user;
+          return res.data?.user ?? res.user;
         }),
         catchError((err) => {
           this.toastr.error(err?.error?.message || 'Failed to update profile');
           return throwError(() => err);
         }),
       );
+  }
+
+  sendPasswordOtp(email?: string) {
+    const body = email ? { email } : {};
+    return this.http.post(API_ENDPOINTS.auth.sendPasswordOtp, body, this.getAuthHeaders()).pipe(
+      map((res: any) => {
+        this.toastr.success(res.message || 'OTP sent to your email');
+        return res;
+      }),
+      catchError((err) => {
+        this.toastr.error(err?.error?.message || 'Failed to send OTP');
+        return throwError(() => err);
+      }),
+    );
+  }
+
+  changePasswordWithOtp(payload: {
+    otp: string;
+    newPassword: string;
+    confirmPassword: string;
+    email?: string;
+  }) {
+    return this.http.post(API_ENDPOINTS.auth.changePasswordWithOtp, payload, this.getAuthHeaders()).pipe(
+      map((res: any) => {
+        this.toastr.success(res.message || 'Password changed successfully');
+        return res;
+      }),
+      catchError((err) => {
+        this.toastr.error(err?.error?.message || 'Failed to change password');
+        return throwError(() => err);
+      }),
+    );
   }
 }

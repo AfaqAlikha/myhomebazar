@@ -1,13 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { SpinnerService } from '../../shared/spinner.service';
-import { RatingModule } from 'primeng/rating';
-import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../shared/ui-button/ui-button.component';
+import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
+import { StarRatingComponent } from '../../shared/star-rating/star-rating.component';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductOrderService } from '../../services/product-order.service';
+import { ClaimsService } from '../../services/claims.service';
+import { ShippingService, OrderTracking } from '../../services/shipping.service';
+import { CLAIM_REASONS } from '../../core/config/api-endpoints';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatIconModule } from '@angular/material/icon';
+
+type ReviewModalMode = 'complete' | 'standalone';
+
 @Component({
   selector: 'app-order-history',
   standalone: true,
@@ -15,10 +22,13 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
-    RatingModule,
     UiCardComponent,
     UiButtonComponent,
+    StarRatingComponent,
     MatPaginatorModule,
+    MatIconModule,
+    DatePipe,
+    DecimalPipe,
   ],
   templateUrl: './order-history.html',
   styleUrls: ['./order-history.css'],
@@ -30,71 +40,174 @@ export class OrderHistoryComponent implements OnInit {
   itemsPerPage = 10;
   currentPage = 1;
   loading = false;
+
   reviewModal = false;
+  reviewModalClosing = false;
+  reviewModalMode: ReviewModalMode = 'standalone';
   selectedOrder: any = null;
   reviewForm!: FormGroup;
+  reviewSubmitting = false;
+  highlightedOrderId: string | null = null;
+  expandedOrderIds = new Set<string>();
+
   cancelModal = false;
   selectedCancelOrder: any = null;
-
   cancelForm!: FormGroup;
+  cancelSubmitting = false;
+
+  claimModal = false;
+  selectedClaimOrder: any = null;
+  claimForm!: FormGroup;
+  claimSubmitting = false;
+  completeSubmitting = false;
+  claimReasons = CLAIM_REASONS;
+  claimImageFiles: File[] = [];
+  claimImagePreviews: string[] = [];
+  trackingByOrder: Record<string, OrderTracking> = {};
+  syncingTrackingId: string | null = null;
+
   constructor(
     private orderService: ProductOrderService,
+    private claimsService: ClaimsService,
+    private shippingService: ShippingService,
     private fb: FormBuilder,
     private spinnerService: SpinnerService,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
     this.reviewForm = this.fb.group({
-      rating: [0, Validators.required],
-      comment: ['', Validators.required],
+      rating: [0, [Validators.required, Validators.min(0.5), Validators.max(5)]],
+      comment: [''],
     });
     this.cancelForm = this.fb.group({
       cancelReason: ['', Validators.required],
     });
+    this.claimForm = this.fb.group({
+      reason: ['', Validators.required],
+      description: ['', Validators.required],
+    });
 
     this.loadOrders();
   }
-  closeReviewModal() {
-    this.reviewModal = false;
+
+  canCancel(order: any): boolean {
+    return ['pending', 'confirmed', 'accepted', 'shipped'].includes(order.status);
   }
-  // loadOrders() {
-  //   this.loading = true;
-  //   this.spinnerService.show();
 
-  //   this.orderService.getMyOrders().subscribe({
-  //     next: (res: any) => {
-  //       this.orders = res.orders || [];
-  //       this.loading = false;
-  //       this.spinnerService.hide();
-  //     },
-  //     error: () => {
-  //       this.loading = false;
-  //       this.spinnerService.hide();
-  //     },
-  //   });
-  // }
+  getOrderSubtotal(order: any): number {
+    if (order.subtotal != null) return order.subtotal;
+    if (order.price != null) return order.price;
+    return (order.product?.price || 0) * (order.quantity || 1);
+  }
 
-  pageChanged(event: PageEvent) {
+  getOrderShipping(order: any): number {
+    return order.shippingFee ?? 0;
+  }
+
+  getOrderGrandTotal(order: any): number {
+    return order.totalPrice ?? this.getOrderSubtotal(order) + this.getOrderShipping(order);
+  }
+
+  hasTracking(order: any): boolean {
+    return !!(order.trackingNumber || this.trackingByOrder[order._id]?.trackingNumber);
+  }
+
+  getTrackingNumber(order: any): string {
+    return order.trackingNumber || this.trackingByOrder[order._id]?.trackingNumber || '';
+  }
+
+  getTrackingUrl(order: any): string {
+    return order.trackingUrl || this.trackingByOrder[order._id]?.trackingUrl || '';
+  }
+
+  getShipmentStatus(order: any): string {
+    return order.shipmentStatus || this.trackingByOrder[order._id]?.shipmentStatus || '';
+  }
+
+  refreshTracking(order: any): void {
+    this.syncingTrackingId = order._id;
+    this.shippingService.syncOrderTracking(order._id).subscribe({
+      next: (data) => {
+        this.trackingByOrder[order._id] = data;
+        if (data.shipmentStatus) order.shipmentStatus = data.shipmentStatus;
+        if (data.trackingNumber) order.trackingNumber = data.trackingNumber;
+        if (data.trackingUrl) order.trackingUrl = data.trackingUrl;
+        if (data.courierPartner) order.courierPartner = data.courierPartner;
+        if (data.shipmentStatus === 'delivered') order.status = 'delivered';
+        this.syncingTrackingId = null;
+      },
+      error: () => {
+        this.syncingTrackingId = null;
+      },
+    });
+  }
+
+  toggleOrderDetails(orderId: string): void {
+    if (this.expandedOrderIds.has(orderId)) {
+      this.expandedOrderIds.delete(orderId);
+    } else {
+      this.expandedOrderIds.add(orderId);
+    }
+  }
+
+  isOrderExpanded(orderId: string): boolean {
+    return this.expandedOrderIds.has(orderId);
+  }
+
+  closeReviewModal(): void {
+    if (this.reviewModalMode === 'complete' && this.selectedOrder) {
+      this.finishCompleteOrder();
+      return;
+    }
+    this.reviewModalClosing = true;
+    setTimeout(() => {
+      this.reviewModal = false;
+      this.reviewModalClosing = false;
+      this.selectedOrder = null;
+    }, 200);
+  }
+
+  skipReviewAndComplete(): void {
+    if (this.reviewModalMode !== 'complete' || !this.selectedOrder) {
+      this.closeReviewModal();
+      return;
+    }
+    this.finishCompleteOrder();
+  }
+
+  closeClaimModal(): void {
+    this.claimModal = false;
+    this.clearClaimImages();
+  }
+
+  pageChanged(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1;
     this.itemsPerPage = event.pageSize;
-
     this.loadOrders();
   }
 
-  loadOrders() {
+  loadOrders(openReviewForOrderId?: string): void {
     this.loading = true;
     this.spinnerService.show();
 
     this.orderService.getMyOrders(this.currentPage, this.itemsPerPage).subscribe({
       next: (res: any) => {
         this.orders = res.orders || [];
-
         this.totalItems = res.pagination.totalItems;
         this.itemsPerPage = res.pagination.pageSize;
         this.currentPage = res.pagination.currentPage;
-
         this.loading = false;
         this.spinnerService.hide();
+
+        const reviewOrderId =
+          openReviewForOrderId || this.route.snapshot.queryParamMap.get('reviewOrderId');
+        if (reviewOrderId) {
+          const order = this.orders.find((o) => o._id === reviewOrderId);
+          if (order?.canReview && !order?.hasReviewed) {
+            this.reviewOrder(order);
+          }
+        }
       },
       error: () => {
         this.loading = false;
@@ -102,55 +215,79 @@ export class OrderHistoryComponent implements OnInit {
       },
     });
   }
-  cancelOrder(order: any) {
+
+  cancelOrder(order: any): void {
     this.selectedCancelOrder = order;
-
-    this.cancelForm.reset({
-      cancelReason: '',
-    });
-
+    this.cancelForm.reset({ cancelReason: '' });
     this.cancelModal = true;
   }
 
-  closeCancelModal() {
+  closeCancelModal(): void {
     this.cancelModal = false;
   }
 
-  completeOrder(order: any) {
-    this.spinnerService.show();
-
-    this.orderService
-      .updateOrderStatus(order._id, {
-        status: 'completed',
-      })
-      .subscribe({
-        next: () => {
-          this.loadOrders();
-        },
-        error: () => {
-          this.spinnerService.hide();
-        },
-      });
-  }
-
-  reviewOrder(order: any) {
+  completeOrder(order: any): void {
     this.selectedOrder = order;
-
-    this.reviewForm.reset({
-      rating: 0,
-      comment: '',
-    });
-
+    this.reviewModalMode = 'complete';
+    this.reviewForm.reset({ rating: 0, comment: '' });
     this.reviewModal = true;
   }
-  submitCancelOrder() {
+
+  reviewOrder(order: any): void {
+    this.selectedOrder = order;
+    this.reviewModalMode = 'standalone';
+    this.reviewForm.reset({ rating: 0, comment: '' });
+    this.reviewModal = true;
+  }
+
+  fileClaim(order: any): void {
+    this.selectedClaimOrder = order;
+    this.claimForm.reset({ reason: '', description: '' });
+    this.clearClaimImages();
+    this.claimModal = true;
+  }
+
+  onClaimImagesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files || []);
+    const remaining = 5 - this.claimImageFiles.length;
+    const toAdd = files.slice(0, remaining);
+
+    toAdd.forEach((file) => {
+      this.claimImageFiles.push(file);
+      this.claimImagePreviews.push(URL.createObjectURL(file));
+    });
+
+    input.value = '';
+  }
+
+  removeClaimImage(index: number): void {
+    URL.revokeObjectURL(this.claimImagePreviews[index]);
+    this.claimImageFiles.splice(index, 1);
+    this.claimImagePreviews.splice(index, 1);
+  }
+
+  clearClaimImages(): void {
+    this.claimImagePreviews.forEach((url) => URL.revokeObjectURL(url));
+    this.claimImageFiles = [];
+    this.claimImagePreviews = [];
+  }
+
+  getClaimCountdownLabel(order: any): string {
+    if (!order.canClaim || order.hasClaimed) return '';
+    const days = order.claimDaysRemaining ?? 0;
+    if (days <= 0) return 'Claim window expired';
+    if (days === 1) return '1 day left to claim';
+    return `${days} days left to claim`;
+  }
+
+  submitCancelOrder(): void {
     if (this.cancelForm.invalid) {
       this.cancelForm.markAllAsTouched();
       return;
     }
 
-    this.spinnerService.show();
-
+    this.cancelSubmitting = true;
     this.orderService
       .updateOrderStatus(this.selectedCancelOrder._id, {
         status: 'cancelled',
@@ -158,37 +295,111 @@ export class OrderHistoryComponent implements OnInit {
       })
       .subscribe({
         next: () => {
+          this.cancelSubmitting = false;
           this.cancelModal = false;
           this.loadOrders();
         },
         error: () => {
-          this.spinnerService.hide();
+          this.cancelSubmitting = false;
         },
       });
   }
-  submitReview() {
+
+  submitReview(): void {
     if (this.reviewForm.invalid) {
       this.reviewForm.markAllAsTouched();
       return;
     }
 
     const { rating, comment } = this.reviewForm.value;
+    this.reviewSubmitting = true;
 
-    this.spinnerService.show();
+    if (this.reviewModalMode === 'complete') {
+      this.orderService
+        .updateOrderStatus(this.selectedOrder._id, {
+          status: 'completed',
+          rating,
+          comment,
+        })
+        .subscribe({
+          next: () => {
+            this.onCompleteSuccess(this.selectedOrder._id, true);
+          },
+          error: () => {
+            this.reviewSubmitting = false;
+          },
+        });
+      return;
+    }
 
+    this.orderService.submitReview(this.selectedOrder._id, { rating, comment }).subscribe({
+      next: () => {
+        this.reviewSubmitting = false;
+        this.reviewModal = false;
+        this.expandedOrderIds.add(this.selectedOrder._id);
+        this.highlightedOrderId = this.selectedOrder._id;
+        this.loadOrders();
+      },
+      error: () => {
+        this.reviewSubmitting = false;
+      },
+    });
+  }
+
+  private finishCompleteOrder(): void {
+    if (!this.selectedOrder) return;
+
+    this.reviewSubmitting = true;
     this.orderService
-      .updateOrderStatus(this.selectedOrder._id, {
-        status: 'completed',
-        rating,
-        comment,
+      .updateOrderStatus(this.selectedOrder._id, { status: 'completed' })
+      .subscribe({
+        next: () => {
+          this.onCompleteSuccess(this.selectedOrder._id, false);
+        },
+        error: () => {
+          this.reviewSubmitting = false;
+        },
+      });
+  }
+
+  private onCompleteSuccess(orderId: string, withReview: boolean): void {
+    this.reviewSubmitting = false;
+    this.reviewModal = false;
+    this.selectedOrder = null;
+    this.highlightedOrderId = orderId;
+    this.expandedOrderIds.add(orderId);
+    this.loadOrders(orderId);
+
+    if (withReview) {
+      setTimeout(() => {
+        this.highlightedOrderId = null;
+      }, 2000);
+    }
+  }
+
+  submitClaim(): void {
+    if (this.claimForm.invalid) {
+      this.claimForm.markAllAsTouched();
+      return;
+    }
+
+    this.claimSubmitting = true;
+    this.claimsService
+      .createClaim({
+        orderId: this.selectedClaimOrder._id,
+        reason: this.claimForm.value.reason,
+        description: this.claimForm.value.description,
+        images: this.claimImageFiles,
       })
       .subscribe({
         next: () => {
-          this.reviewModal = false;
+          this.claimSubmitting = false;
+          this.claimModal = false;
+          this.clearClaimImages();
           this.loadOrders();
         },
         error: () => {
-          this.spinnerService.hide();
+          this.claimSubmitting = false;
         },
       });
   }

@@ -2,15 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { env } from '../../environments/env';
 import { ToastrService } from 'ngx-toastr';
+import { API_ENDPOINTS } from '../core/config/api-endpoints';
 import { AuthService } from '../auth/auth.service';
+
 @Injectable({
   providedIn: 'root',
 })
 export class WishlistService {
-  private baseUrl = `${env.BASE_URL}/wishlistproducts`;
-
   constructor(
     private http: HttpClient,
     private toastr: ToastrService,
@@ -29,26 +28,25 @@ export class WishlistService {
     return headers;
   }
 
-  // ✅ Get all wishlist items of logged-in user
-  getWishlist(params?: any): Observable<any> {
+  getWishlist(params?: Record<string, unknown>): Observable<any> {
     let queryParams = new HttpParams();
 
     if (params) {
       Object.keys(params).forEach((key) => {
-        if (params[key] !== undefined && params[key] !== null) {
-          queryParams = queryParams.set(key, params[key]);
+        const val = params[key];
+        if (val !== undefined && val !== null) {
+          queryParams = queryParams.set(key, String(val));
         }
       });
     }
     const headers = this.getHeaders();
-    return this.http.get(`${this.baseUrl}`, { params: queryParams, headers });
+    return this.http.get(API_ENDPOINTS.wishlist.list, { params: queryParams, headers });
   }
 
-  // ✅ Add product to wishlist
   addToWishlist(productId: string): Observable<any> {
     const headers = this.getHeaders();
 
-    return this.http.post<any>(`${this.baseUrl}/add`, { productId }, { headers }).pipe(
+    return this.http.post<any>(API_ENDPOINTS.wishlist.add, { productId }, { headers }).pipe(
       tap((res) => {
         if (res?.message) {
           this.toastr.success(res.message);
@@ -61,11 +59,10 @@ export class WishlistService {
     );
   }
 
-  // ✅ Remove product from wishlist
   removeFromWishlist(productId: string): Observable<any> {
     const headers = this.getHeaders();
 
-    return this.http.delete<any>(`${this.baseUrl}/remove/${productId}`, { headers }).pipe(
+    return this.http.delete<any>(API_ENDPOINTS.wishlist.remove(productId), { headers }).pipe(
       tap((res) => {
         if (res?.message) {
           this.toastr.success(res.message);
@@ -78,10 +75,9 @@ export class WishlistService {
     );
   }
 
-  // ✅ Clear entire wishlist
   clearWishlist(): Observable<any> {
     const headers = this.getHeaders();
-    return this.http.delete<any>(`${this.baseUrl}/clear`, { headers }).pipe(
+    return this.http.delete<any>(API_ENDPOINTS.wishlist.clear, { headers }).pipe(
       tap((res) => {
         if (res?.message) {
           this.toastr.success(res.message);

@@ -9,13 +9,14 @@ import { CommonModule, NgClass, NgFor, NgIf } from '@angular/common';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
 
+import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 
 import { AuthService } from '../auth/auth.service';
 import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { SpinnerService } from '../shared/spinner.service';
 
 @Component({
@@ -25,18 +26,19 @@ import { SpinnerService } from '../shared/spinner.service';
     ReactiveFormsModule,
 
     ProductCardComponent,
+    StarRatingComponent,
     UiSearchComponent,
     CommonModule,
     NgFor,
     NgIf,
     MatPaginatorModule,
     NgxSpinnerModule,
+    RouterLink,
   ],
   templateUrl: './my-account.component.html',
   styleUrls: ['./my-account.component.css'],
 })
 export class MyAccountComponent implements OnInit {
-  private router = inject(Router);
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private spinnerService = inject(SpinnerService);

@@ -3,6 +3,9 @@
 @import 'swiper/css';
 @import 'swiper/css/navigation';
 @import 'swiper/css/pagination';
+@import 'swiper/css/effect-fade';
+@import 'swiper/css/zoom';
+@import 'swiper/css/thumbs';
 /* @import 'tailwindcss'; */
 
 @tailwind base;
@@ -35,14 +38,43 @@
   --color-text: #f1f5f9;
   --color-text-secondary: #94a3b8;
   --color-border: #334155;
+  color-scheme: dark;
 }
 
-/* basic body / background */
-body {
-  background: var(--color-background);
+html:not(.dark) {
+  color-scheme: light;
+}
+
+/* Global page background — all routes inherit this */
+html,
+body,
+app-root {
+  background-color: var(--color-background);
   color: var(--color-text);
+  min-height: 100%;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
   font-family: Roboto, 'Helvetica Neue', sans-serif;
   margin: 0;
+}
+
+/* Angular Material layout shells */
+.mat-drawer-container,
+.mat-sidenav-container,
+.mat-drawer-content,
+.mat-sidenav-content {
+  background-color: var(--color-background) !important;
+  color: var(--color-text) !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.page-main {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  min-height: calc(100vh - 120px);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* small Material overrides to respect variables (global) */
@@ -74,6 +106,14 @@ html {
   --mdc-checkbox-label-color: var(--color-text);
   --mdc-checkbox-selected-icon-color: var(--color-accent);
   --mdc-checkbox-unselected-icon-color: var(--color-text);
+}
+
+/* Material paginator / menus in dark mode */
+.dark .mat-mdc-paginator,
+.dark .mat-mdc-menu-panel,
+.dark .mat-mdc-select-panel {
+  background-color: var(--color-card) !important;
+  color: var(--color-text) !important;
 }
 
 :host {
@@ -117,7 +157,7 @@ html {
   width: 50px !important;
   height: 50px !important;
   border-radius: 50% !important;
-  background: #dab41e !important;
+  background: var(--color-accent) !important;
   display: flex !important;
   align-items: center;
   justify-content: center;
@@ -130,7 +170,7 @@ html {
 
 .hero-prev:hover,
 .hero-next:hover {
-  background: #cf9e0b !important;
+  background: var(--color-accent-hover) !important;
   transform: scale(1.08);
 }
 

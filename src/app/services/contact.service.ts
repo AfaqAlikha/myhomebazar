@@ -1,30 +1,26 @@
-// src/app/services/contact.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { env } from '../../environments/env';
 import { ToastrService } from 'ngx-toastr';
+import { API_ENDPOINTS } from '../core/config/api-endpoints';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ContactService {
-  private baseUrl = `${env.BASE_URL}/contact`;
-
   constructor(
     private http: HttpClient,
     private toastr: ToastrService,
   ) {}
 
-  // ✅ Submit contact form
   submitContact(data: {
     name: string;
     email: string;
     phone?: string;
     message: string;
   }): Observable<any> {
-    return this.http.post<any>(this.baseUrl, data).pipe(
+    return this.http.post<any>(API_ENDPOINTS.contact.submit, data).pipe(
       tap((res) => {
         if (res?.message) this.toastr.success(res.message);
       }),

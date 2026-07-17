@@ -1,21 +1,27 @@
 import { Component, OnInit } from '@angular/core';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
-import { HomeHeroComponent } from '../shared/hero/hero.component';
+import { HeroSwiperComponent } from '../shared/components/hero-swiper/hero-swiper.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { CategoryLinksComponent } from '../shared/category-links/category-links.component';
+import {
+  LocationFilterComponent,
+  LocationFilters,
+} from '../shared/location-filter/location-filter.component';
 
 import { NgFor, NgIf } from '@angular/common';
 import { ProductService } from '../services/product.service';
 import { SpinnerService } from '../shared/spinner.service';
 import { SeoService } from '../services/seo';
+
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
-    HomeHeroComponent,
+    HeroSwiperComponent,
     CategoryLinksComponent,
     ProductCardComponent,
+    LocationFilterComponent,
     NgFor,
     MatPaginatorModule,
     NgIf,
@@ -26,12 +32,15 @@ import { SeoService } from '../services/seo';
 export class HomeComponent implements OnInit {
   featured: any[] = [];
   products: any[] = [];
-  page: number = 1;
+  page = 1;
 
-  // these will come from backend
-  totalItems: number = 0;
-  itemsPerPage: number = 0;
-  isLoading: boolean = true;
+  totalItems = 0;
+  itemsPerPage = 0;
+  isLoading = true;
+  heroLoading = true;
+
+  locationFilters: LocationFilters = { country: '', state: '', city: '' };
+
   constructor(
     private productService: ProductService,
     private spinnerService: SpinnerService,
@@ -44,48 +53,33 @@ export class HomeComponent implements OnInit {
     this.loadFeaturedProducts();
   }
 
-  loadHomeProducts() {
+  onLocationFilter(filters: LocationFilters): void {
+    this.locationFilters = filters;
+    this.page = 1;
+    this.loadHomeProducts();
+  }
+
+  loadHomeProducts(): void {
     this.isLoading = true;
     this.spinnerService.show();
-    this.productService.getHomeProducts(this.page).subscribe({
+    this.productService.getHomeProducts(this.page, this.locationFilters).subscribe({
       next: (res: any) => {
         this.products = res.products;
-
-        // dynamically set pagination info from backend
         this.totalItems = res.pagination.totalItems;
         this.itemsPerPage = res.pagination.itemsPerPage;
         this.page = res.pagination.currentPage;
         this.isLoading = false;
         this.spinnerService.hide();
       },
-      error: (err) => {
-        console.error(err);
+      error: () => {
         this.isLoading = false;
         this.spinnerService.hide();
       },
     });
   }
 
-  // loadFeaturedProducts() {
-  //   this.isLoading = true;
-  //   this.spinnerService.show();
-  //   this.productService.getFeaturedProducts().subscribe({
-  //     next: (res) => {
-  //       this.featured = res.products;
-  //       this.isLoading = false;
-  //       this.spinnerService.hide();
-  //     },
-  //     error: (err) => {
-  //       console.error(err);
-  //       this.isLoading = true;
-  //       this.spinnerService.hide();
-  //     },
-  //   });
-  // }
-
-  loadFeaturedProducts() {
-    this.isLoading = true;
-    this.spinnerService.show();
+  loadFeaturedProducts(): void {
+    this.heroLoading = true;
 
     this.productService.getFeaturedProducts().subscribe({
       next: (res: any) => {
@@ -95,18 +89,14 @@ export class HomeComponent implements OnInit {
         const imageBanners: any[] = [];
 
         banners.forEach((banner: any) => {
-          // Product Banner
           if (banner.productId) {
             productBanners.push({
-              ...banner.productId, // product ki sari fields
+              ...banner.productId,
               bannerType: 'product',
-              bannerImage: banner.productId.images?.[0], // sirf first image
+              bannerImage: banner.productId.images?.[0],
             });
-          }
-
-          // Normal Banner
-          else {
-            banner.images.forEach((img: string) => {
+          } else {
+            banner.images?.forEach((img: string) => {
               imageBanners.push({
                 bannerType: 'image',
                 bannerImage: img,
@@ -115,22 +105,16 @@ export class HomeComponent implements OnInit {
           }
         });
 
-        // Product banners pehle, normal banners baad me
         this.featured = [...productBanners, ...imageBanners];
-
-        this.isLoading = false;
-        this.spinnerService.hide();
+        this.heroLoading = false;
       },
-      error: (err) => {
-        console.error(err);
-        this.isLoading = false;
-        this.spinnerService.hide();
+      error: () => {
+        this.heroLoading = false;
       },
     });
   }
 
-  pageChanged(event: PageEvent) {
-    // Angular Material pageIndex is 0-based, backend uses 1-based
+  pageChanged(event: PageEvent): void {
     this.page = event.pageIndex + 1;
     this.loadHomeProducts();
   }

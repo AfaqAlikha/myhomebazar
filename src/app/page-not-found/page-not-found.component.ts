@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { SeoService } from '../services/seo';
 
 @Component({
   selector: 'app-page-not-found',
@@ -8,4 +9,10 @@ import { RouterLink } from '@angular/router';
   templateUrl: './page-not-found.component.html',
   styleUrl: './page-not-found.component.css',
 })
-export class PageNotFoundComponent {}
+export class PageNotFoundComponent implements OnInit {
+  constructor(private seo: SeoService) {}
+
+  ngOnInit(): void {
+    this.seo.setNotFoundSeo();
+  }
+}

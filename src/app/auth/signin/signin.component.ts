@@ -1,15 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { UiButtonComponent } from '../../shared/ui-button/ui-button.component';
 import { UiPasswordComponent } from '../../shared/ui-password/ui-password.component';
 import { UiInputComponent } from '../../shared/ui-input/ui-input.component';
 import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
 import { AuthService } from '../auth.service';
-import { RouterLink } from '@angular/router';
-import { Router } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
-import { SpinnerService } from '../../shared/spinner.service';
 import { NgIf } from '@angular/common';
+
 @Component({
   selector: 'app-signin',
   standalone: true,
@@ -25,14 +24,15 @@ import { NgIf } from '@angular/common';
     NgIf,
   ],
 })
-export class SigninComponent {
+export class SigninComponent implements OnInit {
   private router = inject(Router);
   form: FormGroup;
   logo: any = null;
+  submitLoading = false;
+
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
-    private spinnerService: SpinnerService,
     private productService: ProductService,
   ) {
     this.form = this.fb.group({
@@ -48,36 +48,29 @@ export class SigninComponent {
   loadLogo(): void {
     this.productService.getAppLogo().subscribe({
       next: (res: any) => {
-        if (res.success) {
+        if (res?.logo) {
           this.logo = res.logo;
         }
       },
-      error: (err) => {
-        console.error(err);
-      },
     });
   }
-  submit() {
-    this.spinnerService.show();
-    if (this.form.valid) {
-      this.auth.login(this.form.value).subscribe({
-        next: (res) => {
-          this.form.reset({
-            email: '',
-            password: '',
-          });
-          this.spinnerService.hide();
-          this.router.navigate(['']);
-        },
-        error: (err) => {
-          this.spinnerService.hide();
-          console.error(err);
-        },
-      });
-    } else {
-      console.log('Form Invalid');
+
+  submit(): void {
+    if (!this.form.valid) {
       this.form.markAllAsTouched();
-      this.spinnerService.hide();
+      return;
     }
+
+    this.submitLoading = true;
+    this.auth.login(this.form.value).subscribe({
+      next: () => {
+        this.submitLoading = false;
+        this.form.reset({ email: '', password: '' });
+        this.router.navigate(['']);
+      },
+      error: () => {
+        this.submitLoading = false;
+      },
+    });
   }
 }

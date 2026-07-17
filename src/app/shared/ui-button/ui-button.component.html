@@ -2,9 +2,12 @@
   type="{{ type || 'button' }}"
   class="w-full ui-btn"
   [attr.data-variant]="variant"
-  [disabled]="disabled"
+  [disabled]="disabled || loading"
   (click)="onClick($event)"
 >
-  <span *ngIf="icon" class="mr-2 material-icons">{{ icon }}</span>
-  {{ label }}
+  <span class="ui-btn-content">
+    <mat-spinner *ngIf="loading" diameter="20" class="ui-btn-spinner"></mat-spinner>
+    <span *ngIf="icon && !loading" class="mr-2 material-icons">{{ icon }}</span>
+    <span [class.opacity-0]="loading && !label">{{ label }}</span>
+  </span>
 </button>
