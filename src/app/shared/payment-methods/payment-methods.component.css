@@ -49,6 +49,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+  min-width: 0;
 }
 
 .payment-card__title {
@@ -60,6 +61,7 @@
 .payment-card__subtitle {
   font-size: 0.78rem;
   color: var(--color-text-secondary);
+  word-break: break-word;
 }
 
 .payment-card__radio {

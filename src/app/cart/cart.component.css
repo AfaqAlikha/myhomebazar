@@ -1,0 +1,14 @@
+:host {
+  display: block;
+}
+
+.order-modal-panel {
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 639px) {
+  .order-modal-panel {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}

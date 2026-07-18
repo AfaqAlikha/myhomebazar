@@ -1,73 +1,112 @@
-<main class="p-4 container mx-auto">
-  <app-ui-card [borderRadius]="borderRadius" class="p-4">
-    <table class="w-full border-collapse">
-      <thead class="bg-[var(--color-border)]">
-        <tr>
-          <th class="p-2 text-left">Product</th>
-          <th class="p-2 text-left">Price</th>
-          <th class="p-2 text-left">Quantity</th>
-          <th class="p-2 text-left">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-       <tr *ngFor="let item of cartItems" class="border-b">
-  <td class="p-2 flex items-center gap-2">
-    <div class="relative">
-      <img
-        [src]="item.image"
-        alt="{{ item.name }}"
-        class="w-10 h-10 object-cover rounded"
-      />
-      <button
-        (click)="deleteItem(item)"
-        class="absolute -top-1 -left-4 bg-[var(--color-accent)] text-white px-2 py-0 rounded-full"
-      >
-        &times;
-      </button>
+<main class="p-3 sm:p-4 container mx-auto max-w-6xl">
+  <app-ui-card [borderRadius]="borderRadius" class="p-3 sm:p-4">
+    <!-- Desktop table -->
+    <div class="hidden md:block overflow-x-auto">
+      <table class="w-full border-collapse min-w-[640px]">
+        <thead class="bg-[var(--color-border)]">
+          <tr>
+            <th class="p-2 text-left">Product</th>
+            <th class="p-2 text-left">Price</th>
+            <th class="p-2 text-left">Quantity</th>
+            <th class="p-2 text-left">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of cartItems" class="border-b">
+            <td class="p-2 flex items-center gap-2">
+              <div class="relative shrink-0">
+                <img
+                  [src]="item.image"
+                  alt="{{ item.name }}"
+                  class="w-10 h-10 object-cover rounded"
+                />
+                <button
+                  (click)="deleteItem(item)"
+                  class="absolute -top-1 -left-4 bg-[var(--color-accent)] text-white px-2 py-0 rounded-full"
+                >
+                  &times;
+                </button>
+              </div>
+              <a
+                [routerLink]="['/product/details', item.productId]"
+                class="text-black hover:underline line-clamp-2"
+              >
+                {{ item.name }}
+              </a>
+            </td>
+            <td class="p-2">Rs {{ item.price | number }}</td>
+            <td class="p-2">
+              <input
+                type="number"
+                class="w-16 border rounded p-1 bg-[var(--color-card)] text-[var(--color-text)]"
+                [value]="item.quantity"
+                min="1"
+                (change)="updateQuantity(item, $event)"
+              />
+            </td>
+            <td class="p-2">Rs {{ calculateItemTotal(item) | number }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div class="flex flex-col">
-  <!-- Product Name with router link -->
-  <a 
-    [routerLink]="['/product/details', item.productId]" 
-    class="text-balck-600 hover:underline"
-  >
-    {{ item.name }}
-  </a>
 
-</div>
-  </td>
-
-  <td class="p-2">
-   Rs {{ item.price | number }}
-  </td>
-
-  <td class="p-2">
-    <input
-      type="number"
-      class="w-16 border rounded p-1 bg-[var(--color-card)] text-[var(--color-text)]"
-      [value]="item.quantity"
-      min="1"
-      (change)="updateQuantity(item, $event)"
-    />
-  </td>
-
-  <td class="p-2">
-   Rs {{ calculateItemTotal(item) | number }}
-  </td>
-</tr>
-
-      </tbody>
-    </table>
+    <!-- Mobile cards -->
+    <div class="md:hidden space-y-3">
+      <div
+        *ngFor="let item of cartItems"
+        class="border border-[var(--color-border)] rounded-lg p-3 bg-[var(--color-card)]"
+      >
+        <div class="flex gap-3">
+          <div class="relative shrink-0">
+            <img
+              [src]="item.image"
+              alt="{{ item.name }}"
+              class="w-16 h-16 object-cover rounded"
+            />
+            <button
+              (click)="deleteItem(item)"
+              class="absolute -top-2 -right-2 bg-[var(--color-accent)] text-white w-6 h-6 rounded-full text-sm leading-none"
+            >
+              &times;
+            </button>
+          </div>
+          <div class="min-w-0 flex-1">
+            <a
+              [routerLink]="['/product/details', item.productId]"
+              class="font-medium text-sm line-clamp-2 hover:underline"
+            >
+              {{ item.name }}
+            </a>
+            <p class="text-sm text-[var(--color-text-secondary)] mt-1">
+              Rs {{ item.price | number }} each
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center justify-between mt-3 gap-3">
+          <label class="text-sm text-[var(--color-text-secondary)] flex items-center gap-2">
+            Qty
+            <input
+              type="number"
+              class="w-16 border rounded p-1 bg-[var(--color-card)] text-[var(--color-text)]"
+              [value]="item.quantity"
+              min="1"
+              (change)="updateQuantity(item, $event)"
+            />
+          </label>
+          <span class="font-semibold text-sm">Rs {{ calculateItemTotal(item) | number }}</span>
+        </div>
+      </div>
+    </div>
 
     <!-- Cart Totals -->
-    <div class="mt-6 flex justify-end">
-      <app-ui-card [borderRadius]="borderRadius" class="p-4 w-72">
+    <div class="mt-6 flex justify-stretch sm:justify-end">
+      <app-ui-card [borderRadius]="borderRadius" class="p-4 w-full sm:w-72">
         <h5 class="text-lg font-semibold mb-3">Order Summary</h5>
-        <div class="flex justify-between text-sm mb-2 text-[var(--color-text-secondary)]">
+        <div class="flex justify-between text-sm mb-2 text-[var(--color-text-secondary)] gap-3">
           <span>Subtotal</span>
           <span>Rs {{ calculateSubtotal() | number }}</span>
         </div>
-        <div class="flex justify-between text-sm mb-2">
+        <div class="flex justify-between text-sm mb-2 gap-3">
           <span>Delivery</span>
           <span [class.text-green-600]="getShippingFee() === 0">
             {{ getShippingFee() === 0 ? 'FREE' : ('Rs ' + (getShippingFee() | number)) }}
@@ -76,13 +115,13 @@
         <p *ngIf="getFreeShippingHint()" class="text-xs text-[var(--color-accent)] mb-3">
           {{ getFreeShippingHint() }}
         </p>
-        <div class="flex justify-between font-bold mb-3 border-t border-[var(--color-border)] pt-3">
+        <div class="flex justify-between font-bold mb-3 border-t border-[var(--color-border)] pt-3 gap-3">
           <span>Total</span>
           <span>Rs {{ calculateTotal() | number }}</span>
         </div>
         <button
           (click)="proceedToCheckout()"
-          class="bg-[var(--color-accent)] text-white w-full py-2 rounded"
+          class="bg-[var(--color-accent)] text-white w-full py-2.5 rounded"
         >
           Proceed to Checkout
         </button>
@@ -91,45 +130,44 @@
   </app-ui-card>
 </main>
 
-<!-- ✅ Order Modal -->
+<!-- Order Modal -->
 <div
   *ngIf="showModal"
-  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4 overflow-y-auto"
 >
-  <app-ui-card [borderRadius]="borderRadius" class="p-6 w-full max-w-[800px]">
-    <h2 class="text-lg font-semibold mb-2">Enter Your Details</h2>
-    <form [formGroup]="orderForm" class="flex flex-col gap-2">
+  <app-ui-card
+    [borderRadius]="borderRadius"
+    class="order-modal-panel w-full sm:max-w-[800px] max-h-[92dvh] overflow-y-auto rounded-t-2xl sm:rounded-xl p-4 sm:p-6"
+  >
+    <h2 class="text-lg font-semibold mb-1 sm:mb-2">Enter Your Details</h2>
+    <form [formGroup]="orderForm" class="flex flex-col gap-2 sm:gap-3">
       <app-ui-input label="Name" controlName="name"></app-ui-input>
-      <app-ui-input
-        label="Email"
-        controlName="email"
-        type="email"
-      ></app-ui-input>
+      <app-ui-input label="Email" controlName="email" type="email"></app-ui-input>
       <app-ui-input label="Phone" controlName="phone"></app-ui-input>
       <app-ui-input label="City" controlName="city"></app-ui-input>
       <app-ui-input label="Country" controlName="country"></app-ui-input>
       <app-ui-input label="Address" controlName="address"></app-ui-input>
 
-      <div class="mt-4">
+      <div class="mt-2 sm:mt-4">
         <app-payment-methods formControlName="paymentMethod"></app-payment-methods>
       </div>
 
       <div class="mt-3 p-3 rounded-lg bg-[var(--color-border)]/30 text-sm space-y-1">
-        <div class="flex justify-between">
+        <div class="flex justify-between gap-3">
           <span>Subtotal</span>
           <span>Rs {{ calculateSubtotal() | number }}</span>
         </div>
-        <div class="flex justify-between">
+        <div class="flex justify-between gap-3">
           <span>Delivery</span>
           <span>{{ getShippingFee() === 0 ? 'FREE' : ('Rs ' + (getShippingFee() | number)) }}</span>
         </div>
-        <div class="flex justify-between font-semibold pt-2 border-t border-[var(--color-border)]">
+        <div class="flex justify-between gap-3 font-semibold pt-2 border-t border-[var(--color-border)]">
           <span>Order Total</span>
           <span>Rs {{ calculateTotal() | number }}</span>
         </div>
       </div>
 
-      <div class="flex justify-end gap-2 mt-4">
+      <div class="order-modal-actions flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mt-4 pb-[env(safe-area-inset-bottom)]">
         <app-ui-button
           label="Cancel"
           (clicked)="showModal = false"
