@@ -8,6 +8,7 @@ import { AuthService } from '../auth.service';
 import { RouterLink, Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { NgIf } from '@angular/common';
+import { env } from '../../../environments/env';
 
 @Component({
   selector: 'app-signin',
@@ -29,6 +30,7 @@ export class SigninComponent implements OnInit {
   form: FormGroup;
   logo: any = null;
   submitLoading = false;
+  sellerPortalUrl = `${env.SELLER_PORTAL_URL}/register`;
 
   constructor(
     private fb: FormBuilder,
