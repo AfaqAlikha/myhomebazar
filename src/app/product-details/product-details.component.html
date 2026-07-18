@@ -163,25 +163,31 @@
       <!-- Product Info -->
       <div class="md:col-span-6 flex flex-col gap-3">
         <app-ui-card [borderRadius]="borderRadius" class="p-4 flex flex-col gap-4">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between flex-wrap gap-2">
             <h1 class="text-xl font-bold my-1">{{ product.name }}</h1>
-            <div class="my-4">
-              <ins
-                class="adsbygoogle"
-                style="display: block"
-                data-ad-client="ca-pub-1353355245412217"
-                data-ad-slot="1234567890"
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-              ></ins>
-            </div>
-            <!-- Rating -->
             <app-star-rating
               [value]="product.averageRating"
               [readonly]="true"
               size="sm"
             ></app-star-rating>
           </div>
+
+          <!-- Promotional deal (Amazon-style — listing badge + details) -->
+          <div
+            *ngIf="isPromotionActive()"
+            class="rounded-lg border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-3 my-2"
+          >
+            <p class="text-sm font-bold text-[var(--color-danger)] uppercase tracking-wide">
+              {{ getPromotionBadge() }}
+            </p>
+            <p class="text-sm text-[var(--color-text-secondary)] mt-1">
+              {{ getPromotionDetailText() }}
+            </p>
+            <p *ngIf="getPromotionExpiryLabel()" class="text-xs text-[var(--color-text-secondary)] mt-2">
+              Offer valid until {{ getPromotionExpiryLabel() }}
+            </p>
+          </div>
+
           <p class="text-gray-500 text-sm my-2">
             {{ product.brand }}
           </p>

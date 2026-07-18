@@ -20,6 +20,9 @@ interface Product {
   averageRating: number;
   isPromoted?: boolean;
   promotionExpiresAt?: string | Date | null;
+  promotionLabel?: string;
+  promotionType?: string;
+  promotionDealText?: string;
 }
 
 @Component({
@@ -72,6 +75,11 @@ export class ProductCardComponent implements OnInit {
     if (!this.product?.isPromoted) return false;
     if (!this.product.promotionExpiresAt) return this.product.isPromoted;
     return new Date(this.product.promotionExpiresAt).getTime() > Date.now();
+  }
+
+  getPromotionBadge(): string {
+    if (!this.isPromotionActive()) return '';
+    return this.product.promotionLabel?.trim() || 'Deal';
   }
 
   addToWishlist(productId: string): void {

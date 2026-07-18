@@ -29,4 +29,9 @@ export interface Product {
   reviews?: ProductReview[];
   awaitingReviewUsers?: string[];
   isAwaitingReview?: boolean;
+  isPromoted?: boolean;
+  promotionExpiresAt?: string | Date | null;
+  promotionLabel?: string;
+  promotionType?: string;
+  promotionDealText?: string;
 }

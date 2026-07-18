@@ -9,12 +9,12 @@
       class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
     />
 
-    <!-- Promoted badge -->
+    <!-- Deal badge (Amazon-style — not banner) -->
     <span
       *ngIf="isPromotionActive()"
-      class="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-[var(--color-accent)] text-white shadow-md"
+      class="absolute top-2 left-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-[var(--color-danger)] text-white shadow-md max-w-[85%] truncate"
     >
-      Promoted
+      {{ getPromotionBadge() }}
     </span>
 
     <!-- Favorite & View Icons -->
@@ -74,7 +74,13 @@
       {{ product.description }}
     </p>
 
-    <!-- Final Price -->
+    <!-- Price + deal label -->
+    <p
+      *ngIf="isPromotionActive()"
+      class="text-[10px] font-semibold text-[var(--color-danger)] mt-1 uppercase truncate"
+    >
+      {{ getPromotionBadge() }}
+    </p>
     <p class="text-[var(--color-text-secondary)] dark:text-[var(--color-text-secondary)] text-sm mt-1">
       Rs {{ product.price | number:'1.0-0' }}
     </p>
