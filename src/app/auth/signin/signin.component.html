@@ -62,6 +62,26 @@
         [loading]="submitLoading"
         variant="accent"
       ></app-ui-button>
+
+      <div
+        class="seller-portal-note mt-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-center"
+      >
+        <p class="text-sm leading-6 text-[var(--color-text-secondary)]">
+          Interested in selling on My Home Bazar?
+          <span class="block mt-1">
+            Create a seller account through our Seller Portal to list products, manage orders, and
+            grow your business.
+          </span>
+        </p>
+        <a
+          [href]="sellerPortalUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-block mt-3 text-sm font-semibold text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors underline-offset-2 hover:underline"
+        >
+          Open Seller Portal
+        </a>
+      </div>
     </form>
   </app-ui-card>
 </div>
