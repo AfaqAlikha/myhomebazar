@@ -20,4 +20,10 @@ div.p-rating-option.p-rating-option-active {
     display: block;
     overflow-x: hidden;
   }
+
+  .order-modal-panel {
+    -webkit-overflow-scrolling: touch;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
 }
