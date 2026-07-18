@@ -1,10 +1,10 @@
 <div
-  class="swiper relative w-full h-[450px] md:h-[650px]"
+  class="swiper relative w-full h-[220px] md:h-[380px]"
   #swiper
   *ngIf="featured && featured.length"
 >
   <div class="swiper-wrapper">
-    <div class="swiper-slide relative w-full h-[450px] md:h-[650px]" *ngFor="let slide of featured">
+    <div class="swiper-slide relative w-full h-[220px] md:h-[380px]" *ngFor="let slide of featured">
       <img
         [src]="slide.bannerImage || slide.images?.[0]"
         class="absolute inset-0 w-full h-full object-cover"
