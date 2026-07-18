@@ -7,6 +7,6 @@
 export const env = {
   production: true,
   BASE_URL: 'https://api.myhomebazar.com/api',
-  WEBSOCET_URL: 'wss://api.myhomebazar.com',
+  WEBSOCET_URL: 'https://api.myhomebazar.com',
   SELLER_PORTAL_URL: 'https://admin.myhomebazar.com',
 };
