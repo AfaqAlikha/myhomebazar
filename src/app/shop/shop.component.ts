@@ -8,6 +8,7 @@ import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 
 import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
+import { SeoService } from '../services/seo';
 import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
 
 @Component({
@@ -51,9 +52,11 @@ export class ShopComponent implements OnInit {
     private productService: ProductService,
     private categoryService: CategoryService,
     private spinner: NgxSpinnerService,
+    private seo: SeoService,
   ) {}
 
   ngOnInit(): void {
+    this.seo.setShopSeo();
     // ✅ Load all categories
     this.categoryService.getCategories().subscribe({
       next: (cats) => (this.categories = cats),

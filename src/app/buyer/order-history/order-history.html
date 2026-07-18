@@ -1,133 +1,214 @@
 <div class="container mx-auto px-4 py-6">
-  <h2 class="text-2xl font-bold mb-6">My Orders</h2>
+  <h2 class="text-2xl font-bold mb-6 text-[var(--color-text)]">My Orders</h2>
 
-  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-20 text-[var(--color-text-secondary)]">
+    Loading Orders...
+  </div>
 
-  <div *ngIf="loading" class="text-center py-20">Loading Orders...</div>
-
-  <!-- No Orders -->
-
-  <div *ngIf="!loading && orders.length == 0" class="text-center py-20 text-gray-500">
+  <div
+    *ngIf="!loading && orders.length == 0"
+    class="text-center py-20 text-[var(--color-text-secondary)]"
+  >
     You haven't placed any orders yet.
   </div>
 
-  <!-- Orders -->
-
   <div class="space-y-6" *ngIf="orders.length">
-    <app-ui-card *ngFor="let order of orders" borderRadius="12px">
+    <app-ui-card
+      *ngFor="let order of orders"
+      borderRadius="12px"
+      class="order-card"
+      [class.order-card--highlight]="highlightedOrderId === order._id"
+    >
       <div class="flex flex-col lg:flex-row gap-6 justify-between">
-        <!-- LEFT -->
+        <div class="flex gap-5 flex-1">
+          <img
+            [src]="order.product.images[0]"
+            class="w-32 h-32 rounded-lg object-cover border border-[var(--color-border)]"
+          />
 
-        <div class="flex gap-5">
-          <!-- Image -->
-
-          <img [src]="order.product.images[0]" class="w-32 h-32 rounded-lg object-cover border" />
-
-          <!-- Product -->
-
-          <div>
-            <h3 class="text-xl font-semibold mb-2">
+          <div class="flex-1">
+            <h3 class="text-xl font-semibold mb-2 text-[var(--color-text)]">
               {{ order.product.name }}
             </h3>
 
-            <p class="text-sm opacity-70 mb-1">
-              Order ID :
-              {{ order._id }}
+            <p class="text-sm opacity-70 mb-1 text-[var(--color-text-secondary)]">
+              Order ID: {{ order._id }}
             </p>
 
-            <p class="mb-1">
-              Quantity :
-              <strong>{{ order.quantity }}</strong>
+            <p class="mb-1 text-[var(--color-text)]">
+              Quantity: <strong>{{ order.quantity }}</strong>
             </p>
 
-            <p class="mb-1">
-              Price :
-              <strong> Rs {{ order.product.price }} </strong>
+            <div class="text-sm space-y-0.5 mb-2 max-w-xs">
+              <div class="flex justify-between text-[var(--color-text-secondary)]">
+                <span>Subtotal</span>
+                <span>Rs {{ getOrderSubtotal(order) | number }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Delivery</span>
+                <span [class.text-green-600]="getOrderShipping(order) === 0">
+                  {{ getOrderShipping(order) === 0 ? 'FREE' : ('Rs ' + (getOrderShipping(order) | number)) }}
+                </span>
+              </div>
+              <div class="flex justify-between font-semibold text-[var(--color-text)] pt-1 border-t border-[var(--color-border)]">
+                <span>Total Paid</span>
+                <span>Rs {{ getOrderGrandTotal(order) | number }}</span>
+              </div>
+            </div>
+
+            <p class="mb-1 text-[var(--color-text-secondary)]">
+              Payment: {{ order.paymentMethod }}
             </p>
 
-            <p class="mb-1">
-              Total :
-              <strong> Rs {{ order.totalPrice }} </strong>
+            <p class="text-[var(--color-text-secondary)]">
+              Ordered: {{ order.createdAt | date: 'medium' }}
             </p>
 
-            <p class="mb-1">
-              Payment :
-              {{ order.paymentMethod }}
-            </p>
+            <button
+              type="button"
+              class="order-details-toggle mt-3 text-sm text-[var(--color-accent)] flex items-center gap-1"
+              (click)="toggleOrderDetails(order._id)"
+            >
+              <mat-icon class="!text-base !w-4 !h-4">
+                {{ isOrderExpanded(order._id) ? 'expand_less' : 'expand_more' }}
+              </mat-icon>
+              {{ isOrderExpanded(order._id) ? 'Hide details' : 'View order details' }}
+            </button>
 
-            <p>
-              Ordered :
-              {{ order.createdAt | date: 'medium' }}
+            <div *ngIf="isOrderExpanded(order._id)" class="order-details-panel mt-3 p-4 rounded-lg bg-[var(--color-border)]/20 space-y-3">
+              <div>
+                <p class="text-xs uppercase tracking-wide text-[var(--color-text-secondary)] mb-1">Delivery Address</p>
+                <p class="text-sm text-[var(--color-text)]">{{ order.name }}</p>
+                <p class="text-sm text-[var(--color-text-secondary)]">{{ order.phone }}</p>
+                <p class="text-sm text-[var(--color-text-secondary)]">
+                  {{ order.address }}, {{ order.city }}, {{ order.country }}
+                </p>
+              </div>
+
+              <div *ngIf="hasTracking(order)" class="p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]">
+                <p class="text-xs uppercase tracking-wide text-[var(--color-text-secondary)] mb-2">Shipment Tracking</p>
+                <p class="text-sm text-[var(--color-text)]">
+                  <strong>{{ order.courierPartner || 'Courier' }}:</strong>
+                  {{ getTrackingNumber(order) }}
+                </p>
+                <p *ngIf="getShipmentStatus(order)" class="text-sm text-[var(--color-accent)] mt-1 capitalize">
+                  Status: {{ getShipmentStatus(order) }}
+                </p>
+                <a
+                  *ngIf="getTrackingUrl(order)"
+                  [href]="getTrackingUrl(order)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-sm text-[var(--color-accent)] underline mt-2 inline-block"
+                >
+                  Track on courier website
+                </a>
+                <button
+                  type="button"
+                  class="block mt-2 text-sm text-[var(--color-accent)]"
+                  (click)="refreshTracking(order)"
+                  [disabled]="syncingTrackingId === order._id"
+                >
+                  {{ syncingTrackingId === order._id ? 'Updating…' : 'Refresh tracking' }}
+                </button>
+              </div>
+
+              <div *ngIf="order.deliveredAt">
+                <p class="text-xs uppercase tracking-wide text-[var(--color-text-secondary)] mb-1">Delivered</p>
+                <p class="text-sm text-[var(--color-text)]">{{ order.deliveredAt | date: 'medium' }}</p>
+              </div>
+
+              <div *ngIf="order.completedAt">
+                <p class="text-xs uppercase tracking-wide text-[var(--color-text-secondary)] mb-1">Completed</p>
+                <p class="text-sm text-[var(--color-text)]">{{ order.completedAt | date: 'medium' }}</p>
+              </div>
+
+              <div
+                *ngIf="order.hasReviewed && order.review"
+                class="review-reveal p-3 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800"
+              >
+                <p class="text-xs uppercase tracking-wide text-green-700 dark:text-green-400 mb-2 font-medium">
+                  Your Review
+                </p>
+                <app-star-rating
+                  [value]="order.review.rating"
+                  [readonly]="true"
+                  size="sm"
+                  [showValue]="true"
+                ></app-star-rating>
+                <p *ngIf="order.review.comment" class="text-sm text-[var(--color-text)] mt-2">
+                  {{ order.review.comment }}
+                </p>
+                <p *ngIf="order.review.createdAt" class="text-xs text-[var(--color-text-secondary)] mt-1">
+                  Reviewed on {{ order.review.createdAt | date: 'mediumDate' }}
+                </p>
+              </div>
+            </div>
+
+            <p
+              *ngIf="order.canClaim && !order.hasClaimed"
+              class="mt-2 text-sm font-medium text-amber-600 dark:text-amber-400"
+            >
+              {{ getClaimCountdownLabel(order) }}
+              <span *ngIf="order.claimExpiresAt" class="block text-xs opacity-80">
+                Until {{ order.claimExpiresAt | date: 'mediumDate' }}
+              </span>
             </p>
           </div>
         </div>
 
-        <!-- RIGHT -->
-
         <div class="flex flex-col justify-between items-end">
-          <!-- STATUS -->
-
           <span
             class="px-4 py-2 rounded-full text-white text-sm"
             [ngClass]="{
               'bg-yellow-500': order.status == 'pending',
-
-              'bg-blue-500': order.status == 'accepted',
-
+              'bg-blue-500': order.status == 'accepted' || order.status == 'confirmed',
               'bg-purple-500': order.status == 'shipped',
-
               'bg-green-600': order.status == 'delivered',
-
               'bg-red-500': order.status == 'cancelled',
-
               'bg-gray-600': order.status == 'completed',
             }"
           >
             {{ order.status | uppercase }}
           </span>
 
-          <!-- BUTTONS -->
-
           <div class="flex flex-wrap justify-end gap-3 mt-6">
             <a [routerLink]="['/product/details', order.product._id]">
-              <app-ui-button variant="accent" label="View Product Details"> </app-ui-button>
+              <app-ui-button variant="accent" label="View Product"></app-ui-button>
             </a>
 
-            <!-- Cancel -->
-
             <app-ui-button
-              *ngIf="order.status === 'pending'"
+              *ngIf="canCancel(order)"
               variant="danger"
               label="Cancel Order"
               (clicked)="cancelOrder(order)"
-            >
-            </app-ui-button>
+            ></app-ui-button>
 
             <app-ui-button
               *ngIf="order.status === 'delivered'"
-              variant="danger"
-              label="Cancel Order"
-              (clicked)="cancelOrder(order)"
-            >
-            </app-ui-button>
-
-            <!-- Complete -->
-
-            <app-ui-button
-              *ngIf="order.status == 'delivered'"
               label="Complete Order"
               variant="success"
-              (clicked)="reviewOrder(order)"
-            >
-            </app-ui-button>
+              (clicked)="completeOrder(order)"
+            ></app-ui-button>
 
-            <!-- Review -->
+            <app-ui-button
+              *ngIf="order.canReview && !order.hasReviewed && order.status === 'delivered'"
+              label="Write Review"
+              variant="accent"
+              (clicked)="reviewOrder(order)"
+            ></app-ui-button>
+
+            <app-ui-button
+              *ngIf="order.canClaim && !order.hasClaimed"
+              label="File Claim"
+              variant="danger"
+              (clicked)="fileClaim(order)"
+            ></app-ui-button>
           </div>
         </div>
       </div>
     </app-ui-card>
   </div>
-  <!-- Pagination -->
 
   <div class="flex justify-center md:justify-end mt-8" *ngIf="totalItems > itemsPerPage">
     <mat-paginator
@@ -136,69 +217,161 @@
       [pageSizeOptions]="[5, 10, 20, 50]"
       [pageIndex]="currentPage - 1"
       (page)="pageChanged($event)"
-    >
-    </mat-paginator>
+    ></mat-paginator>
   </div>
 </div>
 
-<!-- ========================= -->
-
-<!-- REVIEW MODAL -->
-
-<!-- ========================= -->
-
+<!-- Complete / Review Modal -->
 <div
   *ngIf="reviewModal"
-  class="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4"
+  class="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4 modal-backdrop"
+  [class.opacity-0]="reviewModalClosing"
+  (click)="closeReviewModal()"
 >
-  <app-ui-card borderRadius="12px" class="w-full max-w-lg">
-    <h2 class="text-2xl font-bold mb-5">Rate Product</h2>
+  <app-ui-card
+    borderRadius="12px"
+    class="w-full max-w-lg modal-panel"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="text-center mb-4" *ngIf="reviewModalMode === 'complete'">
+      <div class="complete-success-icon inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-100 text-green-600 mb-3">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <h2 class="text-2xl font-bold text-[var(--color-text)]">Order Delivered!</h2>
+      <p class="text-sm text-[var(--color-text-secondary)] mt-1">
+        Complete your order and tell us about {{ selectedOrder?.product?.name }}
+      </p>
+    </div>
+
+    <h2 *ngIf="reviewModalMode === 'standalone'" class="text-2xl font-bold mb-5 text-[var(--color-text)]">
+      Rate Product
+    </h2>
+
+    <p class="text-sm text-[var(--color-text-secondary)] mb-4">
+      {{
+        reviewModalMode === 'complete'
+          ? 'Your review helps other buyers. You can skip if you prefer.'
+          : 'Review is optional — you can close without submitting.'
+      }}
+    </p>
 
     <form [formGroup]="reviewForm">
       <div class="mb-5">
-        <p-rating formControlName="rating"></p-rating>
+        <p class="text-sm mb-2 text-[var(--color-text-secondary)]">Tap left/right of star for half ratings</p>
+        <app-star-rating formControlName="rating"></app-star-rating>
       </div>
 
       <textarea
         rows="5"
         formControlName="comment"
-        class="w-full border rounded-lg p-3"
-        placeholder="Write your review"
+        class="w-full border border-[var(--color-border)] rounded-lg p-3 bg-[var(--color-card)] text-[var(--color-text)]"
+        placeholder="Write your review (optional)"
       ></textarea>
 
       <div class="flex justify-end gap-3 mt-6">
-        <app-ui-button variant="danger" label="Close" (click)="closeReviewModal()"> </app-ui-button>
-
-        <app-ui-button variant="accent" label="Submit" (click)="submitReview()"> </app-ui-button>
+        <app-ui-button
+          variant="danger"
+          [label]="reviewModalMode === 'complete' ? 'Skip & Complete' : 'Skip'"
+          (click)="reviewModalMode === 'complete' ? skipReviewAndComplete() : closeReviewModal()"
+        ></app-ui-button>
+        <app-ui-button
+          variant="accent"
+          [label]="reviewModalMode === 'complete' ? 'Submit & Complete' : 'Submit Review'"
+          [loading]="reviewSubmitting"
+          (click)="submitReview()"
+        ></app-ui-button>
       </div>
     </form>
   </app-ui-card>
 </div>
 
-<!-- ========================= -->
-<!-- CANCEL MODAL -->
-<!-- ========================= -->
-
+<!-- Cancel Modal -->
 <div
   *ngIf="cancelModal"
-  class="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4"
+  class="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4 modal-backdrop"
 >
-  <app-ui-card borderRadius="12px" class="w-full max-w-lg">
-    <h2 class="text-2xl font-bold mb-5">Cancel Order</h2>
+  <app-ui-card borderRadius="12px" class="w-full max-w-lg modal-panel">
+    <h2 class="text-2xl font-bold mb-5 text-[var(--color-text)]">Cancel Order</h2>
 
     <form [formGroup]="cancelForm">
       <textarea
         rows="5"
         formControlName="cancelReason"
-        class="w-full border rounded-lg p-3"
+        class="w-full border border-[var(--color-border)] rounded-lg p-3 bg-[var(--color-card)] text-[var(--color-text)]"
         placeholder="Please tell us why you're cancelling this order..."
       ></textarea>
 
       <div class="flex justify-end gap-3 mt-6">
-        <app-ui-button variant="danger" label="Close" (click)="closeCancelModal()"> </app-ui-button>
+        <app-ui-button variant="danger" label="Close" (click)="closeCancelModal()"></app-ui-button>
+        <app-ui-button
+          variant="accent"
+          label="Submit"
+          [loading]="cancelSubmitting"
+          (click)="submitCancelOrder()"
+        ></app-ui-button>
+      </div>
+    </form>
+  </app-ui-card>
+</div>
 
-        <app-ui-button variant="accent" label="Submit" (click)="submitCancelOrder()">
-        </app-ui-button>
+<!-- Claim Modal -->
+<div
+  *ngIf="claimModal"
+  class="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4 modal-backdrop"
+>
+  <app-ui-card borderRadius="12px" class="w-full max-w-lg modal-panel">
+    <h2 class="text-2xl font-bold mb-5 text-[var(--color-text)]">File a Claim</h2>
+
+    <form [formGroup]="claimForm">
+      <label class="block text-sm font-medium mb-1 text-[var(--color-text)]">Reason</label>
+      <select
+        formControlName="reason"
+        class="w-full border border-[var(--color-border)] rounded-lg p-3 mb-4 bg-[var(--color-card)] text-[var(--color-text)]"
+      >
+        <option value="">Select a reason</option>
+        <option *ngFor="let r of claimReasons" [value]="r.value">{{ r.label }}</option>
+      </select>
+
+      <textarea
+        rows="5"
+        formControlName="description"
+        class="w-full border border-[var(--color-border)] rounded-lg p-3 bg-[var(--color-card)] text-[var(--color-text)]"
+        placeholder="Describe the issue in detail..."
+      ></textarea>
+
+      <div class="mt-4">
+        <label class="block text-sm font-medium mb-2 text-[var(--color-text)]">
+          Upload proof images (optional, max 5)
+        </label>
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+          (change)="onClaimImagesSelected($event)"
+          class="block w-full text-sm text-[var(--color-text-secondary)]"
+        />
+        <div *ngIf="claimImagePreviews.length" class="flex flex-wrap gap-3 mt-3">
+          <div *ngFor="let preview of claimImagePreviews; let i = index" class="relative">
+            <img [src]="preview" alt="Claim proof" class="w-20 h-20 object-cover rounded-lg border" />
+            <button
+              type="button"
+              class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs"
+              (click)="removeClaimImage(i)"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 mt-6">
+        <app-ui-button variant="danger" label="Close" (click)="closeClaimModal()"></app-ui-button>
+        <app-ui-button
+          variant="accent"
+          label="Submit Claim"
+          [loading]="claimSubmitting"
+          (click)="submitClaim()"
+        ></app-ui-button>
       </div>
     </form>
   </app-ui-card>

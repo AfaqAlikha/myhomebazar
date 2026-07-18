@@ -1,0 +1,59 @@
+<!-- Skeleton while loading -->
+<div *ngIf="loading" class="hero-skeleton animate-pulse">
+  <div class="hero-skeleton-inner"></div>
+</div>
+
+<div
+  *ngIf="!loading && slides.length"
+  class="swiper hero-swiper relative w-full h-[450px] md:h-[650px]"
+  #swiper
+>
+  <div class="swiper-wrapper">
+    <div
+      class="swiper-slide relative w-full h-[450px] md:h-[650px]"
+      *ngFor="let slide of slides"
+    >
+      <img
+        [src]="slide.bannerImage || slide.images?.[0]"
+        class="absolute inset-0 w-full h-full object-cover"
+        [alt]="slide.name || 'Banner'"
+        loading="lazy"
+      />
+
+      <div
+        *ngIf="slide.bannerType === 'product'"
+        class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"
+      ></div>
+
+      <div
+        *ngIf="slide.bannerType === 'product'"
+        class="absolute top-10 md:top-24 left-5 md:left-16 max-w-xl text-white z-10"
+      >
+        <span class="uppercase tracking-widest text-[var(--color-accent)] text-sm">
+          {{ slide.catName }}
+        </span>
+
+        <h2 class="text-4xl md:text-6xl font-bold mt-3">{{ slide.name }}</h2>
+
+        <p class="mt-5 text-lg opacity-80">{{ slide.description }}</p>
+
+        <div class="flex items-center gap-4 mt-5 flex-wrap">
+          <h3 class="text-3xl md:text-5xl font-bold text-[var(--color-accent)]">
+            Rs {{ slide.price }}
+          </h3>
+        </div>
+
+        <a
+          [routerLink]="['/product/details', slide._id]"
+          class="inline-block mt-8 px-8 py-3 rounded-full bg-[var(--color-accent)] text-white hover:scale-105 duration-300 transition-transform"
+        >
+          Shop Now →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-prev swiper-button-prev"></div>
+  <div class="hero-next swiper-button-next"></div>
+  <div class="hero-pagination swiper-pagination"></div>
+</div>

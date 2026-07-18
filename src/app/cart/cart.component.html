@@ -34,41 +34,25 @@
     {{ item.name }}
   </a>
 
-  <!-- Promotion Badge -->
-  <span *ngIf="getPromotionLabel(item)" class="text-xs text-green-600 font-semibold">
-    {{ getPromotionLabel(item) }}
-  </span>
 </div>
   </td>
 
   <td class="p-2">
-   $ {{ calculateItemTotal(item) }}
+   Rs {{ item.price | number }}
   </td>
 
   <td class="p-2">
-    <!-- BOGO read-only -->
-    <ng-container *ngIf="isBogo(item); else regularQty">
-      <input
-        type="number"
-        class="w-16 border rounded p-1 bg-gray-200 cursor-not-allowed"
-        [value]="getBogoQtys(item).buyQty + getBogoQtys(item).getQty"
-        readonly
-      />
-    </ng-container>
-
-    <ng-template #regularQty>
-      <input
-        type="number"
-        class="w-16 border rounded p-1"
-        [value]="item.quantity"
-        min="1"
-        (change)="updateQuantity(item, $event)"
-      />
-    </ng-template>
+    <input
+      type="number"
+      class="w-16 border rounded p-1 bg-[var(--color-card)] text-[var(--color-text)]"
+      [value]="item.quantity"
+      min="1"
+      (change)="updateQuantity(item, $event)"
+    />
   </td>
 
   <td class="p-2">
-   $ {{ calculateItemTotal(item) }}
+   Rs {{ calculateItemTotal(item) | number }}
   </td>
 </tr>
 
@@ -78,10 +62,23 @@
     <!-- Cart Totals -->
     <div class="mt-6 flex justify-end">
       <app-ui-card [borderRadius]="borderRadius" class="p-4 w-72">
-        <h5 class="text-lg font-semibold mb-3">Cart Totals</h5>
-        <div class="flex justify-between font-bold mb-3">
-          <span>Total:</span>
-          <span>$ {{ calculateSubtotal() }}</span>
+        <h5 class="text-lg font-semibold mb-3">Order Summary</h5>
+        <div class="flex justify-between text-sm mb-2 text-[var(--color-text-secondary)]">
+          <span>Subtotal</span>
+          <span>Rs {{ calculateSubtotal() | number }}</span>
+        </div>
+        <div class="flex justify-between text-sm mb-2">
+          <span>Delivery</span>
+          <span [class.text-green-600]="getShippingFee() === 0">
+            {{ getShippingFee() === 0 ? 'FREE' : ('Rs ' + (getShippingFee() | number)) }}
+          </span>
+        </div>
+        <p *ngIf="getFreeShippingHint()" class="text-xs text-[var(--color-accent)] mb-3">
+          {{ getFreeShippingHint() }}
+        </p>
+        <div class="flex justify-between font-bold mb-3 border-t border-[var(--color-border)] pt-3">
+          <span>Total</span>
+          <span>Rs {{ calculateTotal() | number }}</span>
         </div>
         <button
           (click)="proceedToCheckout()"
@@ -113,14 +110,23 @@
       <app-ui-input label="Country" controlName="country"></app-ui-input>
       <app-ui-input label="Address" controlName="address"></app-ui-input>
 
-      <div class="flex items-center gap-4 mt-2">
-        <label>
-          <input type="radio" formControlName="paymentMethod" value="COD" /> COD
-        </label>
-        <!-- <label>
-          <input type="radio" formControlName="paymentMethod" value="Online" />
-          Online
-        </label> -->
+      <div class="mt-4">
+        <app-payment-methods formControlName="paymentMethod"></app-payment-methods>
+      </div>
+
+      <div class="mt-3 p-3 rounded-lg bg-[var(--color-border)]/30 text-sm space-y-1">
+        <div class="flex justify-between">
+          <span>Subtotal</span>
+          <span>Rs {{ calculateSubtotal() | number }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Delivery</span>
+          <span>{{ getShippingFee() === 0 ? 'FREE' : ('Rs ' + (getShippingFee() | number)) }}</span>
+        </div>
+        <div class="flex justify-between font-semibold pt-2 border-t border-[var(--color-border)]">
+          <span>Order Total</span>
+          <span>Rs {{ calculateTotal() | number }}</span>
+        </div>
       </div>
 
       <div class="flex justify-end gap-2 mt-4">
@@ -128,11 +134,13 @@
           label="Cancel"
           (clicked)="showModal = false"
           variant="danger"
+          [disabled]="orderSubmitting"
         ></app-ui-button>
         <app-ui-button
           label="Confirm Order"
           (clicked)="confirmOrder()"
           variant="accent"
+          [loading]="orderSubmitting"
         ></app-ui-button>
       </div>
     </form>

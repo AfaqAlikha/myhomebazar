@@ -1,0 +1,81 @@
+<div class="product-gallery">
+  <!-- SSR: first image renders server-side -->
+  <div class="swiper gallery-main" #mainSwiper>
+    <div class="swiper-wrapper">
+      <div
+        class="swiper-slide"
+        *ngFor="let img of displayImages; let i = index"
+      >
+        <div class="swiper-zoom-container">
+          <img
+            [src]="img"
+            [alt]="productName + ' image ' + (i + 1)"
+            loading="lazy"
+            class="gallery-main-img cursor-zoom-in"
+            (click)="openLightbox(i)"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="gallery-prev swiper-button-prev" *ngIf="displayImages.length > 1"></div>
+    <div class="gallery-next swiper-button-next" *ngIf="displayImages.length > 1"></div>
+  </div>
+
+  <div
+    class="swiper gallery-thumbs mt-2"
+    #thumbsSwiper
+    *ngIf="displayImages.length > 1"
+  >
+    <div class="swiper-wrapper">
+      <div class="swiper-slide" *ngFor="let img of displayImages; let i = index">
+        <img
+          [src]="img"
+          [alt]="productName + ' thumbnail ' + (i + 1)"
+          loading="lazy"
+          class="gallery-thumb-img"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div
+    *ngIf="lightboxOpen"
+    class="gallery-lightbox"
+    (click)="closeLightbox()"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="productName + ' image gallery'"
+  >
+    <button
+      type="button"
+      class="lightbox-close"
+      (click)="closeLightbox(); $event.stopPropagation()"
+      aria-label="Close"
+    >
+      &times;
+    </button>
+    <button
+      type="button"
+      class="lightbox-nav lightbox-prev"
+      (click)="lightboxPrev(); $event.stopPropagation()"
+      aria-label="Previous image"
+    >
+      &#8249;
+    </button>
+    <img
+      [src]="displayImages[lightboxIndex]"
+      [alt]="productName"
+      class="lightbox-img"
+      (click)="$event.stopPropagation()"
+    />
+    <button
+      type="button"
+      class="lightbox-nav lightbox-next"
+      (click)="lightboxNext(); $event.stopPropagation()"
+      aria-label="Next image"
+    >
+      &#8250;
+    </button>
+  </div>
+</div>

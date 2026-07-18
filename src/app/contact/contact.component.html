@@ -59,12 +59,13 @@
         </div>
 
         <div class="flex justify-end mt-auto">
-          <button
+          <app-ui-button
+            label="Send Message"
             type="submit"
-            class="bg-[var(--color-accent)] text-white px-4 py-2 rounded hover:bg-[var(--color-accent-hover)] transition"
-          >
-            Send Message
-          </button>
+            variant="accent"
+            [loading]="submitLoading"
+            class="!w-auto"
+          ></app-ui-button>
         </div>
       </form>
     </app-ui-card>

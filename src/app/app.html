@@ -1,4 +1,4 @@
-<mat-sidenav-container class="min-h-screen">
+<mat-sidenav-container class="min-h-screen bg-[var(--color-background)] text-[var(--color-text)]">
   <!-- Drawer -->
   <mat-sidenav #drawer mode="over" class="custom-sidenav bg-[var(--color-card)]">
     <nav class="flex flex-col p-6 gap-4">
@@ -28,18 +28,73 @@
             Shop
           </a>
         </li>
+
         <li>
           <a
-            routerLink="/order-history"
+            routerLink="/sellers"
             routerLinkActive="active-link"
             [routerLinkActiveOptions]="{ exact: true }"
             class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
             (click)="drawer.close()"
           >
-            <mat-icon>shopping_bag</mat-icon>
-            Order History
+            <mat-icon>store</mat-icon>
+            Sellers
           </a>
         </li>
+
+        @if (token) {
+          <li>
+            <a
+              routerLink="/order-history"
+              routerLinkActive="active-link"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
+              (click)="drawer.close()"
+            >
+              <mat-icon>shopping_bag</mat-icon>
+              Order History
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/my-claims"
+              routerLinkActive="active-link"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
+              (click)="drawer.close()"
+            >
+              <mat-icon>report_problem</mat-icon>
+              My Claims
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/wishlist"
+              routerLinkActive="active-link"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
+              (click)="drawer.close()"
+            >
+              <mat-icon>favorite</mat-icon>
+              Wishlist
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/cart"
+              routerLinkActive="active-link"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
+              (click)="drawer.close()"
+            >
+              <mat-icon>shopping_cart</mat-icon>
+              Cart
+            </a>
+          </li>
+        }
 
         <li>
           <a
@@ -67,33 +122,7 @@
           </a>
         </li>
 
-        <li>
-          <a
-            routerLink="/wishlist"
-            routerLinkActive="active-link"
-            [routerLinkActiveOptions]="{ exact: true }"
-            class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
-            (click)="drawer.close()"
-          >
-            <mat-icon>favorite</mat-icon>
-            Wishlist
-          </a>
-        </li>
-
-        <li>
-          <a
-            routerLink="/cart"
-            routerLinkActive="active-link"
-            [routerLinkActiveOptions]="{ exact: true }"
-            class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
-            (click)="drawer.close()"
-          >
-            <mat-icon>shopping_cart</mat-icon>
-            Cart
-          </a>
-        </li>
-
-        <!-- 🔹 Auth Section -->
+        <!-- Auth Section -->
         @if (token) {
           <li>
             <a
@@ -151,7 +180,7 @@
   </mat-sidenav>
 
   <!-- Main Content -->
-  <mat-sidenav-content>
+  <mat-sidenav-content class="bg-[var(--color-background)]">
     <app-header (toggleDrawerEvent)="drawer.toggle()"></app-header>
     <ngx-spinner
       bdColor="rgba(51,51,51,0.8)"
@@ -162,7 +191,7 @@
     >
     </ngx-spinner>
 
-    <main class="min-h-screen">
+    <main class="page-main">
       <router-outlet></router-outlet>
     </main>
 

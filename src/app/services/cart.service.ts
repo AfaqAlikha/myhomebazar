@@ -1,27 +1,24 @@
-// src/app/services/cart.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { env } from '../../environments/env';
 import { ToastrService } from 'ngx-toastr';
+import { API_ENDPOINTS } from '../core/config/api-endpoints';
 import { AuthService } from '../auth/auth.service';
+
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
-  private baseUrl = `${env.BASE_URL}/cart`;
-
   constructor(
     private http: HttpClient,
     private toastr: ToastrService,
     private authService: AuthService,
   ) {}
 
-  // ✅ Add product to cart
   addToCart(productId: string): Observable<any> {
     const headers = this.getHeaders();
-    return this.http.post<any>(`${this.baseUrl}/add`, { product: productId }, { headers }).pipe(
+    return this.http.post<any>(API_ENDPOINTS.cart.add, { product: productId }, { headers }).pipe(
       tap((res) => {
         if (res?.message) this.toastr.success(res.message);
       }),
@@ -29,26 +26,25 @@ export class CartService {
     );
   }
 
-  // ✅ Get user cart
-  getCart(params?: any): Observable<any> {
+  getCart(params?: Record<string, unknown>): Observable<any> {
     let queryParams = new HttpParams();
     if (params) {
       Object.keys(params).forEach((key) => {
-        if (params[key] !== undefined && params[key] !== null) {
-          queryParams = queryParams.set(key, params[key]);
+        const val = params[key];
+        if (val !== undefined && val !== null) {
+          queryParams = queryParams.set(key, String(val));
         }
       });
     }
     const headers = this.getHeaders();
     return this.http
-      .get<any>(`${this.baseUrl}/my-cart`, { params: queryParams, headers })
+      .get<any>(API_ENDPOINTS.cart.myCart, { params: queryParams, headers })
       .pipe(catchError((error) => this.handleError(error, 'Failed to fetch cart')));
   }
 
-  // ✅ Remove item
   removeFromCart(itemId: string): Observable<any> {
     const headers = this.getHeaders();
-    return this.http.delete<any>(`${this.baseUrl}/remove/${itemId}`, { headers }).pipe(
+    return this.http.delete<any>(API_ENDPOINTS.cart.remove(itemId), { headers }).pipe(
       tap((res) => {
         if (res?.message) this.toastr.success(res.message);
       }),
@@ -56,11 +52,10 @@ export class CartService {
     );
   }
 
-  // ✅ Update quantity
   updateQuantity(itemId: string, quantity: number): Observable<any> {
     const headers = this.getHeaders();
     return this.http
-      .put<any>(`${this.baseUrl}/update-quantity/${itemId}`, { quantity }, { headers })
+      .put<any>(API_ENDPOINTS.cart.updateQuantity(itemId), { quantity }, { headers })
       .pipe(
         tap((res) => {
           if (res?.message) this.toastr.success(res.message);
@@ -69,11 +64,9 @@ export class CartService {
       );
   }
 
-  // ✅ Checkout (COD or Online)
   checkoutCart(buyerData: any): Observable<any> {
     const headers = this.getHeaders();
-    return this.http.post<any>(`${this.baseUrl}/checkout`, buyerData, { headers }).pipe(
-      // ⚡ Ab sirf response return hoga, redirect component me handle hoga
+    return this.http.post<any>(API_ENDPOINTS.cart.checkout, buyerData, { headers }).pipe(
       tap((res) => {
         if (res?.message && !res.url) {
           this.toastr.success(res.message);
@@ -83,26 +76,25 @@ export class CartService {
     );
   }
 
-  // ✅ Stripe Session Metadata
   getSessionMetadata(sessionId: string): Observable<any> {
     const headers = this.getHeaders();
     return this.http
-      .get<any>(`${this.baseUrl}/session-metadata/${sessionId}`, { headers })
+      .get<any>(API_ENDPOINTS.cart.sessionMetadata(sessionId), { headers })
       .pipe(catchError((error) => this.handleError(error, 'Failed to fetch session metadata')));
   }
 
-  // ✅ Confirm Payment (Stripe Webhook Alternative)
   confirmPayment(sessionId: string): Observable<any> {
     const headers = this.getHeaders();
-    return this.http.post<any>(`${this.baseUrl}/confirm-payment`, { sessionId }, { headers }).pipe(
-      tap((res) => {
-        if (res?.message) this.toastr.success(res.message);
-      }),
-      catchError((error) => this.handleError(error, 'Payment confirmation failed')),
-    );
+    return this.http
+      .post<any>(API_ENDPOINTS.cart.confirmPayment, { sessionId }, { headers })
+      .pipe(
+        tap((res) => {
+          if (res?.message) this.toastr.success(res.message);
+        }),
+        catchError((error) => this.handleError(error, 'Payment confirmation failed')),
+      );
   }
 
-  // ✅ Private Helpers
   private getHeaders(): HttpHeaders {
     const token = this.authService.getToken();
 

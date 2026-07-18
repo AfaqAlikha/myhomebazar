@@ -1,4 +1,4 @@
-<div class="app-container flex flex-col items-center justify-center min-h-screen px-4">
+<div class="app-container flex flex-col items-center justify-center min-h-[80vh] px-4 bg-[var(--color-background)]">
   <app-ui-card borderRadius="0.5rem" class="w-full max-w-xl">
     <div class="flex flex-col items-center justify-center my-2">
       <img
@@ -59,6 +59,7 @@
         label="Sign In"
         type="submit"
         [disabled]="form.invalid"
+        [loading]="submitLoading"
         variant="accent"
       ></app-ui-button>
     </form>

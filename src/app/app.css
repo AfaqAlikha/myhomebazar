@@ -6,12 +6,10 @@
   box-shadow: none !important;
 }
 
-/* Optional: remove backdrop */
 .mat-drawer-backdrop {
-  background: transparent !important;
+  background: rgba(0, 0, 0, 0.45) !important;
 }
 
-/* Default links */
 .nav-link {
   padding: 0.5rem 1rem;
   font-weight: 600;
@@ -20,20 +18,17 @@
   transition: color 0.2s, background 0.2s;
 }
 
-/* Hover effect for links */
 .nav-link:hover {
   color: var(--color-accent-hover);
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: color-mix(in srgb, var(--color-text) 8%, transparent);
 }
 
-/* Active link only */
 .active-link {
-  color: var(--color-accent) !important; /* accent color only for active */
+  color: var(--color-accent) !important;
   border-left: 3px solid var(--color-accent);
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
 }
 
-/* Ensure inactive links never get active styles */
 .nav-link:not(.active-link) {
   color: var(--color-text) !important;
   border-left: none;

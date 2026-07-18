@@ -9,6 +9,7 @@ import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 
 import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
+import { SeoService } from '../services/seo';
 import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
 
 @Component({
@@ -51,6 +52,7 @@ export class CategoryComponent implements OnInit {
     private categoryService: CategoryService,
     private route: ActivatedRoute,
     private spinner: NgxSpinnerService,
+    private seo: SeoService,
   ) {}
 
   ngOnInit(): void {
@@ -64,6 +66,8 @@ export class CategoryComponent implements OnInit {
     this.route.params.subscribe((params) => {
       this.selectedCategoryName = params['slug'];
       this.selectedCategoryId = params['id'];
+
+      this.seo.setCategorySeo(this.selectedCategoryName, this.selectedCategoryId);
 
       // Reset filters
       this.selectedSubCategory = '';

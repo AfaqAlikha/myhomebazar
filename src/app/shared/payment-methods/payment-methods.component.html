@@ -1,0 +1,22 @@
+<div class="payment-methods">
+  <p class="payment-methods__label">Payment Method</p>
+  <div class="payment-methods__grid">
+    <button
+      type="button"
+      *ngFor="let opt of options"
+      class="payment-card"
+      [class.payment-card--active]="value === opt.value"
+      [disabled]="disabled"
+      (click)="select(opt.value)"
+    >
+      <div class="payment-card__icon" [style.background]="opt.accent + '18'" [style.color]="opt.accent">
+        <mat-icon>{{ opt.icon }}</mat-icon>
+      </div>
+      <div class="payment-card__text">
+        <span class="payment-card__title">{{ opt.title }}</span>
+        <span class="payment-card__subtitle">{{ opt.subtitle }}</span>
+      </div>
+      <div class="payment-card__radio" [class.payment-card__radio--on]="value === opt.value"></div>
+    </button>
+  </div>
+</div>

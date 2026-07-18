@@ -11,8 +11,11 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { PaymentMethodsComponent } from '../shared/payment-methods/payment-methods.component';
+import { PaymentGatewayService } from '../services/payment-gateway.service';
+import { ShippingService, ShippingQuote } from '../services/shipping.service';
 
 @Component({
   selector: 'app-cart',
@@ -26,29 +29,34 @@ import { RouterLink } from '@angular/router';
     NgFor,
     NgIf,
     ReactiveFormsModule,
-    RouterLink
+    RouterLink,
+    DecimalPipe,
+    PaymentMethodsComponent,
   ],
 })
 export class CartComponent implements OnInit {
   borderRadius = '8px';
   cartItems: any[] = [];
-  shippingFee = 300;
+  shippingQuote: ShippingQuote | null = null;
   showModal = false;
+  orderSubmitting = false;
   orderForm!: FormGroup;
 
   constructor(
     private cartService: CartService,
+    private shippingService: ShippingService,
+    private paymentGateway: PaymentGatewayService,
     private spinner: SpinnerService,
     private toastr: ToastrService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadCart();
     this.initForm();
   }
 
-  initForm() {
+  initForm(): void {
     this.orderForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -58,286 +66,174 @@ export class CartComponent implements OnInit {
       address: ['', Validators.required],
       paymentMethod: ['COD', Validators.required],
     });
+
+    this.orderForm.get('city')?.valueChanges.subscribe(() => {
+      if (this.cartItems.length) this.refreshShippingQuote();
+    });
   }
 
-
-  autoUpdateBogoQuantity(item: any) {
-  const promo = item.product.activePromotions?.find(
-    (p: any) => p.buyQty && p.getQty
-  );
-
-  if (!promo) return;
-
-  const totalQty = promo.buyQty + promo.getQty;
-
-  // ❗ already correct → no API call
-  if (item.quantity === totalQty) return;
-
-  this.cartService.updateQuantity(item._id, totalQty).subscribe({
-    next: () => {
-      item.quantity = totalQty; // ✅ sync UI
-    },
-    error: () => {
-      this.toastr.error('Failed to auto-update BOGO quantity');
-    },
-  });
-}
-
-  loadCart() {
-  this.spinner.show();
-  this.cartService.getCart().subscribe({
-    next: (res) => {
-      if (res.cart?.items) {
-        this.cartItems = res.cart.items.map((item: any) => ({
-          _id: item._id,
-          product: item.product,
-          productId: item.product._id,
-          name: item.product.name,
-          image: item.product.images?.[0] || '',
-          price: item.product.price,
-          quantity: item.quantity || 1,
-          seller: item.seller,
-        }));
-
-        // ✅ AUTO UPDATE BOGO QUANTITIES
-        this.cartItems.forEach((item) => {
-          if (this.isBogo(item)) {
-            this.autoUpdateBogoQuantity(item);
-          }
-        });
-      } else {
-        this.cartItems = [];
-      }
-      this.spinner.hide();
-    },
-    error: () => this.spinner.hide(),
-  });
-}
-
-
-  // loadCart() {
-  //   this.spinner.show();
-  //   this.cartService.getCart().subscribe({
-  //     next: (res) => {
-  //       if (res.cart?.items) {
-  //         this.cartItems = res.cart.items.map((item: any) => ({
-  //           _id: item._id,
-  //           product: item.product, // keep full product for promotions
-  //           productId: item.product._id,
-  //           name: item.product.name,
-  //           image: item.product.images?.[0] || '',
-  //           price: item.product.price,
-  //           quantity: item.quantity || 1,
-  //           seller: item.seller,
-  //           commission: item.commission || 0,
-  //           paidAmount: item.paidAmount || 0,
-  //           isPaidToSeller: item.isPaidToSeller || false,
-  //         }));
-  //       } else {
-  //         this.cartItems = [];
-  //       }
-  //       this.spinner.hide();
-  //     },
-  //     error: () => this.spinner.hide(),
-  //   });
-  // }
-
- // ===================== PROMOTION LOGIC =====================
-isBogo(item: any): boolean {
-  return item.product.activePromotions?.some((p: any) => p.buyQty && p.getQty) || false;
-}
-
-getBogoQtys(item: any) {
-  const promo = item.product.activePromotions?.find((p: any) => p.buyQty && p.getQty);
-  if (!promo) return { buyQty: 1, getQty: 0 };
-  return { buyQty: promo.buyQty, getQty: promo.getQty };
-}
-
-calculateItemTotal(item: any): number {
-  const promo = item.product.activePromotions?.[0];
-  if (!promo) return item.price * item.quantity;
-
-  const discount = promo.discountPercent || 0;
-
-  if (promo.buyQty && promo.getQty) {
-    const buyPrice = item.price * promo.buyQty; // only pay for buyQty
-    return buyPrice - (buyPrice * discount) / 100;
-  } else if (discount > 0) {
-    return item.price * item.quantity - (item.price * item.quantity * discount) / 100;
-  } else {
-    return item.price * item.quantity;
-  }
-}
-
-getPromotionLabel(item: any): string {
-  const promo = item.product.activePromotions?.[0];
-  if (!promo) return '';
-  if (promo.buyQty && promo.getQty) {
-    return `BOGO: Buy ${promo.buyQty} Get ${promo.getQty} Free`;
-  } else if (promo.discountPercent) {
-    return `${promo.discountPercent}% Off`;
-  }
-  return '';
-}
-
-
-  // ===================== CART TOTALS =====================
-  calculateSubtotal(): number {
-    return this.cartItems.reduce((total, item) => total + this.calculateItemTotal(item), 0);
-  }
-
-  calculateTotal(): number {
-    return this.calculateSubtotal() + this.shippingFee;
-  }
-
-  // ===================== CART ACTIONS =====================
-  // updateQuantity(item: any, event: Event) {
-  //   const value = (event.target as HTMLInputElement).valueAsNumber;
-  //   if (value <= 0) return;
-
-  //   this.spinner.show();
-  //   this.cartService.updateQuantity(item._id, value).subscribe({
-  //     next: () => {
-  //       this.spinner.hide();
-  //       item.quantity = value;
-  //     },
-  //     error: (err) => {
-  //       this.spinner.hide();
-  //       this.toastr.error(err.error?.message || 'Failed to update quantity');
-  //     },
-  //   });
-  // }
-
-  updateQuantity(item: any, event: Event) {
-  if (this.isBogo(item)) return; // 🔒 BOGO locked
-
-  const value = (event.target as HTMLInputElement).valueAsNumber;
-  if (value <= 0) return;
-
-  this.spinner.show();
-  this.cartService.updateQuantity(item._id, value).subscribe({
-    next: () => {
-      this.spinner.hide();
-      item.quantity = value;
-    },
-    error: (err) => {
-      this.spinner.hide();
-      this.toastr.error(err.error?.message || 'Failed to update quantity');
-    },
-  });
-}
-
-
-  deleteItem(item: any) {
+  loadCart(): void {
     this.spinner.show();
-    this.cartService.removeFromCart(item._id).subscribe({
-      next: () => {
-        this.cartItems = this.cartItems.filter((i) => i._id !== item._id);
+    this.cartService.getCart().subscribe({
+      next: (res) => {
+        if (res.cart?.items) {
+          this.cartItems = res.cart.items.map((item: any) => ({
+            _id: item._id,
+            product: item.product,
+            productId: item.product._id,
+            name: item.product.name,
+            image: item.product.images?.[0] || '',
+            price: item.product.price,
+            quantity: item.quantity || 1,
+            seller: item.seller,
+          }));
+
+          if (res.grandTotal !== undefined) {
+            this.shippingQuote = {
+              subtotal: res.subtotal ?? res.totalAmount ?? this.calculateSubtotal(),
+              shippingFee: res.shippingFee ?? 0,
+              grandTotal: res.grandTotal ?? this.calculateSubtotal(),
+              isFreeShipping: !!res.isFreeShipping,
+              freeShippingThreshold: res.freeShippingThreshold ?? 5000,
+              message: res.shippingMessage || '',
+            };
+          } else {
+            this.refreshShippingQuote();
+          }
+        } else {
+          this.cartItems = [];
+          this.shippingQuote = null;
+        }
+        if (this.cartItems.length && !this.shippingQuote) {
+          this.refreshShippingQuote();
+        }
         this.spinner.hide();
       },
       error: () => this.spinner.hide(),
     });
   }
 
-  // ===================== CHECKOUT =====================
-  proceedToCheckout() {
+  calculateItemTotal(item: any): number {
+    return item.price * item.quantity;
+  }
+
+  calculateSubtotal(): number {
+    return this.cartItems.reduce((total, item) => total + this.calculateItemTotal(item), 0);
+  }
+
+  refreshShippingQuote(): void {
+    const subtotal = this.calculateSubtotal();
+    const city = this.orderForm?.get('city')?.value || '';
+    const weightKg = this.calculateTotalWeightKg();
+    this.shippingService.getQuote(subtotal, { city, weightKg }).subscribe((quote) => {
+      this.shippingQuote = quote;
+    });
+  }
+
+  calculateTotalWeightKg(): number {
+    return this.cartItems.reduce((sum, item) => {
+      const w = Number(item.product?.weightKg) || 0.5;
+      return sum + w * (item.quantity || 1);
+    }, 0);
+  }
+
+  getShippingFee(): number {
+    return this.shippingQuote?.shippingFee ?? 0;
+  }
+
+  calculateTotal(): number {
+    return this.shippingQuote?.grandTotal ?? this.calculateSubtotal();
+  }
+
+  getFreeShippingHint(): string {
+    if (!this.shippingQuote || this.shippingQuote.isFreeShipping) {
+      return this.shippingQuote?.message || 'Free delivery applied';
+    }
+    const remaining = this.shippingQuote.freeShippingThreshold - this.calculateSubtotal();
+    if (remaining <= 0) return '';
+    return `Add Rs ${remaining.toLocaleString()} more for free delivery`;
+  }
+
+  updateQuantity(item: any, event: Event): void {
+    const value = (event.target as HTMLInputElement).valueAsNumber;
+    if (value <= 0) return;
+
+    this.cartService.updateQuantity(item._id, value).subscribe({
+      next: () => {
+        item.quantity = value;
+        this.refreshShippingQuote();
+      },
+      error: (err) => {
+        this.toastr.error(err.error?.message || 'Failed to update quantity');
+      },
+    });
+  }
+
+  deleteItem(item: any): void {
+    this.spinner.show();
+    this.cartService.removeFromCart(item._id).subscribe({
+      next: () => {
+        this.cartItems = this.cartItems.filter((i) => i._id !== item._id);
+        this.refreshShippingQuote();
+        this.spinner.hide();
+      },
+      error: () => this.spinner.hide(),
+    });
+  }
+
+  proceedToCheckout(): void {
     this.showModal = true;
   }
 
-  // confirmOrder() {
-  //   if (this.orderForm.invalid) {
-  //     this.toastr.error('Please fill all required fields!');
-  //     return;
-  //   }
+  confirmOrder(): void {
+    if (this.orderForm.invalid) {
+      this.toastr.error('Please fill all required fields!');
+      return;
+    }
 
-  //   const buyerData = this.orderForm.value;
-  //   this.spinner.show();
+    const buyerData = this.orderForm.value;
 
-  //   if (buyerData.paymentMethod === 'COD') {
-  //     this.cartService
-  //       .checkoutCart({ ...buyerData, paymentMethod: 'COD' })
-  //       .subscribe({
-  //         next: (res) => {
-  //           this.spinner.hide();
-  //           this.showModal = false;
-  //           this.toastr.success('Order placed with COD!');
-  //           this.loadCart();
-  //         },
-  //         error: () => this.spinner.hide(),
-  //       });
-  //   } else {
-  //     this.cartService
-  //       .checkoutCart({ ...buyerData, paymentMethod: 'Online' })
-  //       .subscribe({
-  //         next: (res) => {
-  //           this.spinner.hide();
-  //           this.showModal = false;
-  //           if (res.url) {
-  //             window.location.href = res.url; // Redirect to Stripe
-  //           } else {
-  //             this.toastr.error('Failed to start checkout!');
-  //           }
-  //         },
-  //         error: () => this.spinner.hide(),
-  //       });
-  //   }
-  // }
-
-  confirmOrder() {
-  if (this.orderForm.invalid) {
-    this.toastr.error('Please fill all required fields!');
-    return;
-  }
-
-  const buyerData = this.orderForm.value;
-
-  // 🟢 Prepare cart items payload with totalPrice & promotionType
-  const itemsPayload = this.cartItems.map(item => {
-    const totalPrice = this.calculateItemTotal(item); // BOGO/discount applied
-    const promotionType = this.isBogo(item)
-      ? 'BOGO'
-      : item.product.activePromotions?.[0]?.discountPercent
-      ? 'discount'
-      : null;
-
-    return {
+    const itemsPayload = this.cartItems.map((item) => ({
       productId: item.productId,
       quantity: item.quantity,
-      totalPrice,
-      promotionType,
-    };
-  });
+      totalPrice: this.calculateItemTotal(item),
+    }));
 
-  this.spinner.show();
+    this.orderSubmitting = true;
 
-  if (buyerData.paymentMethod === 'COD') {
+    if (buyerData.paymentMethod === 'COD') {
+      this.cartService
+        .checkoutCart({ ...buyerData, paymentMethod: 'COD', items: itemsPayload })
+        .subscribe({
+          next: () => {
+            this.orderSubmitting = false;
+            this.showModal = false;
+            this.toastr.success('Order placed with COD!');
+            this.loadCart();
+          },
+          error: () => {
+            this.orderSubmitting = false;
+          },
+        });
+      return;
+    }
+
     this.cartService
-      .checkoutCart({ ...buyerData, paymentMethod: 'COD', items: itemsPayload })
+      .checkoutCart({ ...buyerData, items: itemsPayload })
       .subscribe({
         next: (res) => {
-          this.spinner.hide();
+          this.orderSubmitting = false;
           this.showModal = false;
-          this.toastr.success('Order placed with COD!');
-          this.loadCart();
-        },
-        error: () => this.spinner.hide(),
-      });
-  } else {
-    this.cartService
-      .checkoutCart({ ...buyerData, paymentMethod: 'Online', items: itemsPayload })
-      .subscribe({
-        next: (res) => {
-          this.spinner.hide();
-          this.showModal = false;
-          if (res.url) {
-            window.location.href = res.url; // Redirect to Stripe
+          const checkout = res?.data?.checkout || res?.checkout;
+          if (checkout) {
+            this.paymentGateway.redirectToGateway(checkout);
           } else {
-            this.toastr.error('Failed to start checkout!');
+            this.toastr.error('Failed to start payment!');
           }
         },
-        error: () => this.spinner.hide(),
+        error: () => {
+          this.orderSubmitting = false;
+        },
       });
   }
-}
-
 }

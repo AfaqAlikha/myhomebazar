@@ -15,8 +15,8 @@
 
     <div class="flex justify-around mb-6 text-sm">
       <div class="text-center">
-        <p class="font-bold">{{ user?.rating || 0 }}/5 ⭐</p>
-        <p>Rating</p>
+        <app-star-rating [value]="user?.rating || 0" [readonly]="true" size="sm"></app-star-rating>
+        <p class="mt-1">Rating</p>
       </div>
       <div class="text-center">
         <p class="font-bold">{{ user?.completedOrders || 0 }}</p>
@@ -71,6 +71,13 @@
       >
         Update Profile
       </button>
+
+      <a
+        routerLink="/change-password"
+        class="text-center text-sm text-[var(--color-accent)] hover:underline mt-2"
+      >
+        Change Password (Email OTP)
+      </a>
     </form>
   </div>
 

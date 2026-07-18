@@ -12,46 +12,43 @@ export interface JwtUser {
   iat: number;
 }
 
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
+export function getToken(): string | null {
+  return getCookie('token');
+}
+
 export function getUser(): JwtUser | null {
-  if (typeof window === 'undefined') return null; // SSR Safe
-
-  const token = localStorage.getItem('token');
-
+  const token = getToken();
   if (!token) return null;
 
   try {
     const decoded = jwtDecode<JwtUser>(token);
-
-    if (decoded.exp * 1000 < Date.now()) {
-      localStorage.removeItem('token');
-      return null;
-    }
-
+    if (decoded.exp * 1000 < Date.now()) return null;
     return decoded;
-  } catch (err) {
-    localStorage.removeItem('token');
+  } catch {
     return null;
   }
 }
 
-export function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
+/** Product list API returns user as string ID; detail API returns populated user object. */
+export function getProductSellerId(product: {
+  user?: string | { _id?: string; id?: string } | null;
+}): string | null {
+  if (!product?.user) return null;
+  if (typeof product.user === 'string') return product.user;
+  return product.user._id || product.user.id || null;
+}
 
-  const token = localStorage.getItem('token');
-
-  if (!token) return null;
-
-  try {
-    const decoded = jwtDecode<JwtUser>(token);
-
-    if (decoded.exp * 1000 < Date.now()) {
-      localStorage.removeItem('token');
-      return null;
-    }
-
-    return token;
-  } catch {
-    localStorage.removeItem('token');
-    return null;
-  }
+export function isOwnProduct(
+  product: { user?: string | { _id?: string; id?: string } | null },
+  currentUserId: string | null | undefined,
+): boolean {
+  if (!currentUserId) return false;
+  const sellerId = getProductSellerId(product);
+  return !!sellerId && sellerId === currentUserId;
 }

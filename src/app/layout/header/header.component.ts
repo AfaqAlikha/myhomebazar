@@ -15,11 +15,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
 import { AuthService } from '../../auth/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { Subscription } from 'rxjs';
 import { SpinnerService } from '../../shared/spinner.service';
 import { isPlatformBrowser, NgIf } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { ProductService } from '../../services/product.service';
+
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -52,6 +54,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   constructor(
     private auth: AuthService,
+    private themeService: ThemeService,
     private spinnerService: SpinnerService,
     private router: Router,
     private productService: ProductService,
@@ -60,35 +63,36 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
-  // ✅ SSR-safe scroll listener
   @HostListener('window:scroll', [])
-  onScroll() {
+  onScroll(): void {
     if (this.isBrowser) {
       this.isSticky = window.scrollY > 50;
     }
   }
+
   loadLogo(): void {
     this.productService.getAppLogo().subscribe({
       next: (res: any) => {
-        if (res.success) {
+        if (res?.logo) {
           this.logo = res.logo;
         }
-      },
-      error: (err) => {
-        console.error(err);
       },
     });
   }
 
   ngOnInit(): void {
+    this.isDarkMode = this.themeService.isDark();
     this.subs.push(
       this.auth.user$.subscribe((u) => (this.user = u)),
       this.auth.token$.subscribe((t) => (this.token = t)),
+      this.themeService.theme$.subscribe((theme) => {
+        this.isDarkMode = theme === 'dark';
+      }),
     );
     this.loadLogo();
   }
 
-  logout() {
+  logout(): void {
     this.spinnerService.show();
 
     if (this.isBrowser) {
@@ -100,22 +104,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ SSR-safe theme toggle
-  toggleTheme() {
-    this.isDarkMode = !this.isDarkMode;
-
-    if (this.isBrowser) {
-      const html = document.documentElement;
-
-      if (this.isDarkMode) {
-        html.classList.add('dark');
-      } else {
-        html.classList.remove('dark');
-      }
-    }
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
-  openDrawer() {
+  openDrawer(): void {
     this.toggleDrawerEvent.emit();
   }
 

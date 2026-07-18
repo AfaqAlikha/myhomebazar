@@ -1,7 +1,5 @@
-// signup.component.ts
-import { Component, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule, FormGroup } from '@angular/forms';
-
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { UiButtonComponent } from '../../shared/ui-button/ui-button.component';
 import { UiPasswordComponent } from '../../shared/ui-password/ui-password.component';
@@ -10,8 +8,8 @@ import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
 import { AuthService } from '../auth.service';
 import { RouterLink } from '@angular/router';
 import { ProductService } from '../../services/product.service';
-import { SpinnerService } from '../../shared/spinner.service';
 import { NgIf } from '@angular/common';
+
 @Component({
   selector: 'app-signup',
   standalone: true,
@@ -28,16 +26,16 @@ import { NgIf } from '@angular/common';
     NgIf,
   ],
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
   form: FormGroup;
   logo: any = null;
+  submitLoading = false;
+
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
-    private spinnerService: SpinnerService,
     private productService: ProductService,
   ) {
-    // ✅ Form initialization yahan ho raha hai
     this.form = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -56,42 +54,36 @@ export class SignupComponent {
   loadLogo(): void {
     this.productService.getAppLogo().subscribe({
       next: (res: any) => {
-        if (res.success) {
+        if (res?.logo) {
           this.logo = res.logo;
         }
-      },
-      error: (err) => {
-        console.error(err);
       },
     });
   }
 
-  // ✅ Submit method
-  submit() {
-    this.spinnerService.show();
-    if (this.form.valid) {
-      this.auth.signup(this.form.value).subscribe({
-        next: (res) => {
-          console.log('Signup success', res);
-
-          // ✅ Reset the form
-          this.form.reset({
-            name: '',
-            email: '',
-            password: '',
-            country: '',
-            state: '',
-            city: '',
-            terms: false,
-          });
-          this.spinnerService.hide();
-        },
-        error: (err) => console.error('Signup error', err),
-      });
-    } else {
-      console.log('Form Invalid');
+  submit(): void {
+    if (!this.form.valid) {
       this.form.markAllAsTouched();
-      this.spinnerService.hide();
+      return;
     }
+
+    this.submitLoading = true;
+    this.auth.signup(this.form.value).subscribe({
+      next: () => {
+        this.submitLoading = false;
+        this.form.reset({
+          name: '',
+          email: '',
+          password: '',
+          country: '',
+          state: '',
+          city: '',
+          terms: false,
+        });
+      },
+      error: () => {
+        this.submitLoading = false;
+      },
+    });
   }
 }
