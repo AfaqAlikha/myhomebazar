@@ -21,6 +21,8 @@ export class AuthService {
   user$: Observable<JwtUser | null>;
 
   private isBrowser: boolean;
+  private sessionWasActive = false;
+  private sessionExpiredNotified = false;
 
   constructor(
     private http: HttpClient,
@@ -37,6 +39,8 @@ export class AuthService {
 
     this.token$ = this.tokenSubject.asObservable();
     this.user$ = this.userSubject.asObservable();
+
+    this.clearStaleSession();
   }
 
   private getCookie(name: string): string | null {
@@ -91,27 +95,60 @@ export class AuthService {
     }
   }
 
+  wasSessionActive(): boolean {
+    return this.sessionWasActive;
+  }
+
+  isGuestAuthRoute(url = this.router.url): boolean {
+    return (
+      url.includes('/signin') ||
+      url.includes('/signup') ||
+      url.includes('/forgot-password') ||
+      url.includes('/verify-email')
+    );
+  }
+
   clearSession(showToast = false): void {
     if (this.isBrowser) {
       this.deleteCookie('token');
     }
     this.tokenSubject.next(null);
     this.userSubject.next(null);
+    this.sessionWasActive = false;
     if (showToast) {
       this.toastr.success('Logged out successfully!');
     }
   }
 
-  handleSessionExpired(): void {
-    this.clearSession(false);
-    this.toastr.error('Your session has expired. Please log in again.');
-    this.router.navigate(['/signin']);
+  clearStaleSession(): void {
+    if (!this.isLoggedIn() && this.getCookie('token')) {
+      this.clearSession(false);
+    }
   }
 
-  private setAccessToken(token: string): void {
+  handleSessionExpired(): void {
+    const shouldNotify =
+      this.sessionWasActive && !this.isGuestAuthRoute() && !this.sessionExpiredNotified;
+
+    this.clearSession(false);
+
+    if (shouldNotify) {
+      this.sessionExpiredNotified = true;
+      this.toastr.error('Your session has expired. Please log in again.');
+    }
+
+    if (!this.isGuestAuthRoute()) {
+      this.router.navigate(['/signin']);
+    }
+  }
+
+  private setAccessToken(token: string, markActive = false): void {
     if (this.isBrowser) this.setCookie('token', token);
     this.tokenSubject.next(token);
     this.userSubject.next(this.getUser());
+    if (markActive || this.sessionWasActive) {
+      this.sessionWasActive = true;
+    }
   }
 
   refreshAccessToken(): Observable<string> {
@@ -125,17 +162,32 @@ export class AuthService {
         map((res) => {
           const token = res.data?.token || res.data?.accessToken || res.token;
           if (!token) throw new Error('Missing access token');
-          this.setAccessToken(token);
+          this.setAccessToken(token, this.sessionWasActive);
           return token;
         }),
       );
   }
 
   trySilentRefresh(): Observable<boolean> {
-    if (this.isLoggedIn()) return of(true);
+    if (this.isLoggedIn()) {
+      this.sessionWasActive = true;
+      return of(true);
+    }
+
+    if (this.isGuestAuthRoute()) {
+      this.clearStaleSession();
+      return of(false);
+    }
+
     return this.refreshAccessToken().pipe(
-      map(() => true),
-      catchError(() => of(false)),
+      map(() => {
+        this.sessionWasActive = true;
+        return true;
+      }),
+      catchError(() => {
+        this.clearStaleSession();
+        return of(false);
+      }),
     );
   }
 
@@ -173,6 +225,7 @@ export class AuthService {
           if (this.isBrowser) this.setCookie('token', res.token);
           this.tokenSubject.next(res.token);
           this.userSubject.next(this.getUser());
+          this.sessionWasActive = true;
         }
 
         return res;
@@ -186,14 +239,8 @@ export class AuthService {
 
   verifyEmail(token: string) {
     return this.http.get(API_ENDPOINTS.auth.verifyEmail, { params: { token } }).pipe(
-      map((res: any) => {
-        this.toastr.success(res.message || 'Email verified successfully!');
-        return res;
-      }),
-      catchError((err) => {
-        this.toastr.error(err?.error?.message || 'Email verification failed');
-        return throwError(() => err);
-      }),
+      map((res: any) => res),
+      catchError((err) => throwError(() => err)),
     );
   }
 

@@ -73,7 +73,12 @@ export class AppComponent implements OnInit {
     );
     this.siteThemeService.loadAndApply();
     this.loadLogo();
-    this.auth.trySilentRefresh().subscribe();
+
+    if (!this.auth.isGuestAuthRoute()) {
+      this.auth.trySilentRefresh().subscribe();
+    } else {
+      this.auth.clearStaleSession();
+    }
   }
 
   loadLogo(): void {
