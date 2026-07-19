@@ -6,7 +6,7 @@ import { UiPasswordComponent } from '../../shared/ui-password/ui-password.compon
 import { UiInputComponent } from '../../shared/ui-input/ui-input.component';
 import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
 import { AuthService } from '../auth.service';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { NgIf } from '@angular/common';
 
@@ -35,6 +35,7 @@ export class SignupComponent implements OnInit {
     private fb: FormBuilder,
     private auth: AuthService,
     private productService: ProductService,
+    private router: Router,
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
@@ -71,14 +72,8 @@ export class SignupComponent implements OnInit {
     this.auth.signup(this.form.value).subscribe({
       next: () => {
         this.submitLoading = false;
-        this.form.reset({
-          name: '',
-          email: '',
-          password: '',
-          country: '',
-          state: '',
-          city: '',
-          terms: false,
+        this.router.navigate(['/signin'], {
+          state: { showVerificationNotice: true },
         });
       },
       error: () => {

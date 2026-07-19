@@ -30,6 +30,7 @@ export class SigninComponent implements OnInit {
   form: FormGroup;
   logo: any = null;
   submitLoading = false;
+  showVerificationNotice = false;
   sellerPortalUrl = `${env.SELLER_PORTAL_URL}/register`;
 
   constructor(
@@ -44,6 +45,13 @@ export class SigninComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const state = history.state as { showVerificationNotice?: boolean } | null;
+    this.showVerificationNotice = !!state?.showVerificationNotice;
+
+    if (this.showVerificationNotice) {
+      history.replaceState({}, '', window.location.href);
+    }
+
     this.loadLogo();
   }
 

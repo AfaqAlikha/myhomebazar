@@ -3,6 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { API_ENDPOINTS } from '../config/api-endpoints';
 import { ThemeMode, ThemeService } from './theme.service';
+import {
+  CACHE_KEYS,
+  CACHE_TTL,
+  readPublicCache,
+  writePublicCache,
+} from '../utils/public-cache';
 
 export interface ThemePalette {
   background: string;
@@ -45,17 +51,42 @@ export class SiteThemeService {
   private http = inject(HttpClient);
   private themeService = inject(ThemeService);
   private cached: SiteTheme | null = null;
+  private loadPromise: Promise<SiteTheme | null> | null = null;
 
   constructor() {
     this.themeService.theme$.subscribe((mode) => this.applyPalette(mode));
   }
 
   async loadAndApply(): Promise<SiteTheme | null> {
+    if (this.cached) {
+      this.applyPalette(this.themeService.getTheme());
+      return this.cached;
+    }
+
+    const stored = readPublicCache<SiteTheme>(CACHE_KEYS.THEME);
+    if (stored) {
+      this.cached = stored;
+      this.applyPalette(this.themeService.getTheme());
+      return stored;
+    }
+
+    if (this.loadPromise) {
+      return this.loadPromise;
+    }
+
+    this.loadPromise = this.fetchTheme();
+    const theme = await this.loadPromise;
+    this.loadPromise = null;
+    return theme;
+  }
+
+  private async fetchTheme(): Promise<SiteTheme | null> {
     try {
       const res = await firstValueFrom(
         this.http.get<{ theme: SiteTheme }>(API_ENDPOINTS.theme.public),
       );
       this.cached = res.theme;
+      writePublicCache(CACHE_KEYS.THEME, res.theme, CACHE_TTL.THEME_MS);
       this.applyPalette(this.themeService.getTheme());
       return res.theme;
     } catch {
