@@ -2,7 +2,7 @@ import { AfterViewInit, Component, DestroyRef, OnInit, inject } from '@angular/c
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { NgFor, NgIf, NgClass, DatePipe, DecimalPipe, NgStyle } from '@angular/common';
+import { NgFor, NgIf, NgClass, DatePipe, DecimalPipe } from '@angular/common';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { MatIconModule } from '@angular/material/icon';
 import { switchMap, tap, catchError, of } from 'rxjs';
@@ -48,7 +48,6 @@ declare global {
     DatePipe,
     DecimalPipe,
     RouterLink,
-    NgStyle,
     MatIconModule,
     PaymentMethodsComponent,
   ],
