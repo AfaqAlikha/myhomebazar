@@ -51,7 +51,7 @@ export const getEngagementHeaders = (authToken?: string | null): Record<string, 
   };
 
   if (authToken) {
-    headers.Authorization = `Bearer ${authToken}`;
+    headers['Authorization'] = `Bearer ${authToken}`;
   }
 
   return headers;
