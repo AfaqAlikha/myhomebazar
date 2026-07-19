@@ -1,4 +1,6 @@
-<div class="app-container flex flex-col items-center justify-center min-h-[80vh] px-4 py-4 bg-[var(--color-background)]">
+<div
+  class="app-container flex flex-col items-center justify-center min-h-[80vh] px-4 py-4 bg-[var(--color-background)]"
+>
   <app-ui-card borderRadius="0.5rem" class="w-full max-w-xl h-full max-h-xl">
     <div class="flex flex-col items-center justify-center my-2">
       <img
@@ -8,18 +10,6 @@
         class="w-[40px] h-[40px] md:w-[70px] md:h-[70px] rounded-full object-cover"
       />
       <h3 class="text-center text-xl font-semibold mb-4">REGISTER TO MY HOME BAZAR</h3>
-      <div
-        class="w-full my-4 p-4 rounded-lg border border-green-300 bg-green-100 text-green-800 text-center"
-      >
-        <strong class="block mb-2">Verification Required</strong>
-
-        <p class="text-sm leading-6">
-          After signing up, please verify your email address. If you don't receive the verification
-          email within a few minutes (including your Spam/Junk folder), it is likely that the email
-          address was entered incorrectly. Unverified accounts are automatically deleted after
-          <strong>24 hours</strong>, and you can sign up again using the correct email address.
-        </p>
-      </div>
     </div>
 
     <form
@@ -68,11 +58,19 @@
       <!-- Terms -->
       <mat-checkbox formControlName="terms">
         I accept the
-        <a routerLink="/terms-and-conditions" target="_blank" class="text-[var(--color-accent)] hover:underline">
+        <a
+          routerLink="/terms-and-conditions"
+          target="_blank"
+          class="text-[var(--color-accent)] hover:underline"
+        >
           Terms & Conditions
         </a>
         and
-        <a routerLink="/privacy-policy" target="_blank" class="text-[var(--color-accent)] hover:underline">
+        <a
+          routerLink="/privacy-policy"
+          target="_blank"
+          class="text-[var(--color-accent)] hover:underline"
+        >
           Privacy Policy
         </a>
       </mat-checkbox>

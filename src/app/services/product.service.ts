@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../core/config/api-endpoints';
 import { AuthService } from '../auth/auth.service';
 import { getEngagementHeaders } from '../utils/visitor-id';
+import { AppBrandingService } from '../core/services/app-branding.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ export class ProductService {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
+    private branding: AppBrandingService,
   ) {}
 
   getProducts(params?: Record<string, unknown>): Observable<any> {
@@ -66,12 +68,14 @@ export class ProductService {
     );
   }
 
+  /** Cached + deduped via AppBrandingService */
   getFeaturedProducts(): Observable<any> {
-    return this.http.get(API_ENDPOINTS.appAssets.banners);
+    return this.branding.getBanners();
   }
 
+  /** Cached + deduped via AppBrandingService */
   getAppLogo(): Observable<any> {
-    return this.http.get(API_ENDPOINTS.appAssets.logo);
+    return this.branding.getLogo();
   }
 
   getProductsByCategoryName(filters: {

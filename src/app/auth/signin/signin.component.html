@@ -8,19 +8,20 @@
         class="w-[40px] h-[40px] md:w-[70px] md:h-[70px] rounded-full object-cover"
       />
       <h3 class="text-center text-xl font-semibold mb-4">LOGIN TO MY HOME BAZAR</h3>
-      <!-- <div class="w-full my-4 rounded-lg border border-green-300 bg-green-50 p-4 text-center">
-        <h4 class="mb-2 text-lg font-bold text-green-700">📧 Note</h4>
 
-        <p class="text-sm leading-6 text-gray-700">
-          A verification email has been sent to your email address. If you don't receive it within a
-          few minutes (even after checking your Spam/Junk folder), you may have entered an incorrect
-          email address.
-          <span class="font-semibold">
-            Unverified accounts are automatically removed after
-            <span class="text-red-600">24 hours</span>.
-          </span>
+      <div
+        *ngIf="showVerificationNotice"
+        class="w-full my-4 p-4 rounded-lg border border-green-300 bg-green-100 text-green-800 text-center"
+      >
+        <strong class="block mb-2">Verification Required</strong>
+
+        <p class="text-sm leading-6">
+          After signing up, please verify your email address. If you don't receive the verification
+          email within a few minutes (including your Spam/Junk folder), it is likely that the email
+          address was entered incorrectly. Unverified accounts are automatically deleted after
+          <strong>24 hours</strong>, and you can sign up again using the correct email address.
         </p>
-      </div> -->
+      </div>
     </div>
 
     <form
