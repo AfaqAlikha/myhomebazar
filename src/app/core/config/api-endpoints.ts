@@ -22,6 +22,8 @@ export const API_ENDPOINTS = {
     locations: `${BASE}/products/locations`,
     myProducts: `${BASE}/products/my-products`,
     byId: (id: string) => `${BASE}/products/${id}`,
+    recordView: (id: string) => `${BASE}/products/${id}/view`,
+    toggleLike: (id: string) => `${BASE}/products/${id}/like`,
     bySeller: (sellerId: string) => `${BASE}/products/seller/${sellerId}`,
   },
   appAssets: {

@@ -15,6 +15,54 @@ div.p-rating-option.p-rating-option-active {
   color: var(--color-accent);
 }
 
+.engagement-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0.75rem 0;
+}
+
+.engagement-stat,
+.engagement-like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.engagement-like-btn {
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.engagement-like-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.engagement-like-btn.is-liked {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.engagement-like-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.engagement-stat mat-icon,
+.engagement-like-btn mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+
 @media (max-width: 767px) {
   :host {
     display: block;

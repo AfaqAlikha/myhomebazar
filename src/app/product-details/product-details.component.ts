@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgFor, NgIf, NgClass, DatePipe, DecimalPipe, NgStyle } from '@angular/common';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,6 +18,11 @@ import { isOwnProduct } from '../utils/auth';
 import { ShippingService, ShippingQuote } from '../services/shipping.service';
 import { PaymentMethodsComponent } from '../shared/payment-methods/payment-methods.component';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
+import { ProductEngagementService } from '../services/product-engagement.service';
+import {
+  hasLocalProductView,
+  markLocalProductView,
+} from '../utils/visitor-id';
 
 declare global {
   interface Window {
@@ -80,6 +85,7 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
   orderSubmitting = false;
   currentUserId = '';
   canOrder = true;
+  likeLoading = false;
 
   private destroyRef = inject(DestroyRef);
 
@@ -92,6 +98,8 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
     private auth: AuthService,
     private shippingService: ShippingService,
     private paymentGateway: PaymentGatewayService,
+    private engagementService: ProductEngagementService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -180,6 +188,70 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
     this.seo.setProductSeo(this.product);
     this.isLoading = false;
     this.loadError = false;
+
+    if (this.product?.hasViewed) {
+      markLocalProductView(this.product._id);
+    }
+
+    this.trackUniqueView();
+  }
+
+  private trackUniqueView(): void {
+    const productId = this.product?._id;
+    if (!productId || this.product?.hasViewed || hasLocalProductView(productId)) {
+      return;
+    }
+
+    this.engagementService.recordView(productId).subscribe({
+      next: (res) => {
+        if (typeof res.viewCount === 'number') {
+          this.product.viewCount = res.viewCount;
+        } else if (res.recorded) {
+          this.product.viewCount = (this.product.viewCount || 0) + 1;
+        }
+        this.product.hasViewed = true;
+        markLocalProductView(productId);
+      },
+      error: () => {
+        markLocalProductView(productId);
+      },
+    });
+  }
+
+  toggleLike(): void {
+    if (!this.product?._id || this.likeLoading) return;
+
+    if (!this.currentUserId) {
+      this.router.navigate(['/signin'], {
+        queryParams: { returnUrl: `/product/details/${this.product._id}` },
+      });
+      return;
+    }
+
+    if (!this.canOrder) return;
+
+    this.likeLoading = true;
+    this.engagementService.toggleLike(this.product._id).subscribe({
+      next: (res) => {
+        this.likeLoading = false;
+        if (typeof res.likeCount === 'number') {
+          this.product.likeCount = res.likeCount;
+        }
+        if (typeof res.liked === 'boolean') {
+          this.product.isLikedByMe = res.liked;
+        }
+      },
+      error: () => {
+        this.likeLoading = false;
+      },
+    });
+  }
+
+  formatEngagementCount(value?: number): string {
+    const count = Number(value) || 0;
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
+    return String(count);
   }
 
   calculateTotalPrice(): void {

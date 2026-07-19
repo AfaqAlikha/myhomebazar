@@ -34,4 +34,8 @@ export interface Product {
   promotionLabel?: string;
   promotionType?: string;
   promotionDealText?: string;
+  viewCount?: number;
+  likeCount?: number;
+  isLikedByMe?: boolean;
+  hasViewed?: boolean;
 }
