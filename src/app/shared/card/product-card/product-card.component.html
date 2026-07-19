@@ -85,6 +85,17 @@
       Rs {{ product.price | number:'1.0-0' }}
     </p>
 
+    <div class="flex items-center gap-3 text-[11px] text-[var(--color-text-secondary)] mt-1">
+      <span class="inline-flex items-center gap-1">
+        <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">visibility</mat-icon>
+        {{ formatEngagementCount(product.viewCount) }}
+      </span>
+      <span class="inline-flex items-center gap-1">
+        <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">favorite</mat-icon>
+        {{ formatEngagementCount(product.likeCount) }}
+      </span>
+    </div>
+
     <!-- Rating -->
     <app-star-rating
       [value]="product.averageRating"

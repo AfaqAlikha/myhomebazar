@@ -23,6 +23,8 @@ interface Product {
   promotionLabel?: string;
   promotionType?: string;
   promotionDealText?: string;
+  viewCount?: number;
+  likeCount?: number;
 }
 
 @Component({
@@ -80,6 +82,12 @@ export class ProductCardComponent implements OnInit {
   getPromotionBadge(): string {
     if (!this.isPromotionActive()) return '';
     return this.product.promotionLabel?.trim() || 'Deal';
+  }
+
+  formatEngagementCount(value?: number): string {
+    const count = Number(value) || 0;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
+    return String(count);
   }
 
   addToWishlist(productId: string): void {

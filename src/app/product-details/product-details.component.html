@@ -192,6 +192,27 @@
             {{ product.brand }}
           </p>
           <p class="text-lg font-semibold my-1">PKR {{ product.price | number }}</p>
+
+          <div class="engagement-row">
+            <div class="engagement-stat" aria-label="Product views">
+              <mat-icon>visibility</mat-icon>
+              <span>{{ formatEngagementCount(product.viewCount) }} views</span>
+            </div>
+
+            <button
+              type="button"
+              class="engagement-like-btn"
+              [class.is-liked]="product.isLikedByMe"
+              [disabled]="likeLoading || !canOrder"
+              (click)="toggleLike()"
+              [attr.aria-pressed]="product.isLikedByMe"
+              aria-label="Like product"
+            >
+              <mat-icon>{{ product.isLikedByMe ? 'favorite' : 'favorite_border' }}</mat-icon>
+              <span>{{ formatEngagementCount(product.likeCount) }} likes</span>
+            </button>
+          </div>
+
           <p class="text-gray-600 text-sm my-2">
             {{ product.description }}
           </p>

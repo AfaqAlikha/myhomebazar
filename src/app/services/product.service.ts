@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../core/config/api-endpoints';
 import { AuthService } from '../auth/auth.service';
+import { getEngagementHeaders } from '../utils/visitor-id';
 
 @Injectable({
   providedIn: 'root',
@@ -94,7 +95,10 @@ export class ProductService {
   }
 
   getProductById(id: string): Observable<any> {
-    return this.http.get<any>(API_ENDPOINTS.products.byId(id));
+    const token = this.authService.getToken();
+    return this.http.get<any>(API_ENDPOINTS.products.byId(id), {
+      headers: getEngagementHeaders(token),
+    });
   }
 
   getProductsBySeller(
