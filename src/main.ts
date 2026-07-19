@@ -33,7 +33,7 @@ bootstrapApplication(AppComponent, {
       ToastrModule.forRoot({
         timeOut: 3000,
         positionClass: 'toast-bottom-right',
-        preventDuplicates: false,
+        preventDuplicates: true,
       }),
     ),
   ],

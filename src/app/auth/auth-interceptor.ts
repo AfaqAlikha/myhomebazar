@@ -27,18 +27,28 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(authed).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (this.shouldRefresh(error, req)) {
-          return this.handle401(authed, next);
+        if (error.status === 401) {
+          if (this.isPublicAuthRequest(req.url)) {
+            return throwError(() => error);
+          }
+
+          if (this.shouldRefresh(error, req)) {
+            return this.handle401(authed, next);
+          }
+
+          if (this.auth.wasSessionActive()) {
+            this.auth.handleSessionExpired();
+          } else {
+            this.auth.clearStaleSession();
+          }
+
+          return throwError(() => error);
         }
 
-        if (error.status === 401) {
-          this.auth.handleSessionExpired();
-        } else if (error.status === 403) {
+        if (error.status === 403) {
           this.toastr.error('Access denied');
         } else if (error.status === 404) {
           this.toastr.error('Not found');
-        } else if (error.status === 422 || error.status === 400) {
-          this.toastr.error(error.error?.message || 'Invalid request');
         } else if (error.status === 500) {
           this.toastr.error('Something went wrong, please try again');
         } else if (error.status === 0) {
@@ -51,21 +61,30 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private addAuthHeader(req: HttpRequest<unknown>): HttpRequest<unknown> {
+    if (!this.auth.isLoggedIn()) return req;
+
     const token = this.auth.getToken();
     if (!token) return req;
+
     return req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
+  }
+
+  private isPublicAuthRequest(url: string): boolean {
+    return (
+      url.includes('/login') ||
+      url.includes('/signup') ||
+      url.includes('/verify-email') ||
+      url.includes('/refresh-token') ||
+      url.includes('/public/')
+    );
   }
 
   private shouldRefresh(error: HttpErrorResponse, req: HttpRequest<unknown>): boolean {
     if (error.status !== 401) return false;
     if (req.headers.has('X-Retry-After-Refresh')) return false;
-    const url = req.url;
-    return (
-      !url.includes('/login') &&
-      !url.includes('/admin-login') &&
-      !url.includes('/signup') &&
-      !url.includes('/refresh-token')
-    );
+    if (this.isPublicAuthRequest(req.url)) return false;
+
+    return this.auth.isLoggedIn() || this.auth.wasSessionActive();
   }
 
   private handle401(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
@@ -83,7 +102,11 @@ export class AuthInterceptor implements HttpInterceptor {
         }),
         catchError((err) => {
           this.isRefreshing = false;
-          this.auth.handleSessionExpired();
+          if (this.auth.wasSessionActive()) {
+            this.auth.handleSessionExpired();
+          } else {
+            this.auth.clearStaleSession();
+          }
           return throwError(() => err);
         }),
       );
