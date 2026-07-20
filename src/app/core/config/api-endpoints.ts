@@ -81,6 +81,7 @@ export const API_ENDPOINTS = {
   },
   shipping: {
     quote: `${BASE}/shipping/quote`,
+    publicSettings: `${BASE}/shipping/settings/public`,
     tracking: (orderId: string) => `${BASE}/shipping/orders/${orderId}/tracking`,
     syncTracking: (orderId: string) => `${BASE}/shipping/orders/${orderId}/tracking/sync`,
   },

@@ -358,8 +358,8 @@
             </div>
             <div class="text-sm flex justify-between max-w-xs">
               <span>Delivery</span>
-              <span [class.text-green-600]="getShippingFee() === 0">
-                {{ getShippingFee() === 0 ? 'FREE' : ('Rs ' + (getShippingFee() | number)) }}
+              <span [class.text-green-600]="isShippingFree()">
+                {{ getShippingLabel() }}
               </span>
             </div>
             <p *ngIf="getFreeShippingHint()" class="text-xs text-[var(--color-accent)] max-w-xs">
@@ -439,7 +439,7 @@
             </div>
             <div class="flex justify-between gap-3">
               <span>Delivery</span>
-              <span>{{ getShippingFee() === 0 ? 'FREE' : ('Rs ' + (getShippingFee() | number)) }}</span>
+              <span [class.text-green-600]="isShippingFree()">{{ getShippingLabel() }}</span>
             </div>
             <div class="flex justify-between gap-3 font-semibold pt-2 border-t border-[var(--color-border)]">
               <span>Order Total</span>
