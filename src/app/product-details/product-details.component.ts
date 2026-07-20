@@ -114,6 +114,11 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
       paymentMethod: ['COD', Validators.required],
     });
 
+    this.orderForm
+      .get('city')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.calculateTotalPrice());
+
     this.route.paramMap
       .pipe(
         tap(() => {
@@ -256,14 +261,21 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
   calculateTotalPrice(): void {
     this.subtotal = (this.product?.price || 0) * this.quantity;
     const weightKg = (Number(this.product?.weightKg) || 0.5) * this.quantity;
-    this.shippingService.getQuote(this.subtotal, { weightKg }).subscribe((quote) => {
+    const city = this.orderForm?.get('city')?.value || '';
+    this.shippingService.getQuote(this.subtotal, { city, weightKg }).subscribe((quote) => {
       this.shippingQuote = quote;
       this.totalPrice = quote.grandTotal;
     });
   }
 
-  getShippingFee(): number {
-    return this.shippingQuote?.shippingFee ?? 0;
+  getShippingLabel(): string {
+    if (!this.shippingQuote) return 'Calculating…';
+    if (this.shippingQuote.shippingFee === 0) return 'FREE';
+    return `Rs ${this.shippingQuote.shippingFee.toLocaleString()}`;
+  }
+
+  isShippingFree(): boolean {
+    return !!this.shippingQuote && this.shippingQuote.shippingFee === 0;
   }
 
   getFreeShippingHint(): string {
@@ -295,6 +307,7 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
 
   openModal(): void {
     if (!this.canOrder) return;
+    this.calculateTotalPrice();
     this.showModal = true;
   }
 

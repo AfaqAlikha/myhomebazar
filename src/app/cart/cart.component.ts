@@ -141,6 +141,16 @@ export class CartComponent implements OnInit {
     return this.shippingQuote?.shippingFee ?? 0;
   }
 
+  getShippingLabel(): string {
+    if (!this.shippingQuote) return 'Calculating…';
+    if (this.shippingQuote.shippingFee === 0) return 'FREE';
+    return `Rs ${this.shippingQuote.shippingFee.toLocaleString()}`;
+  }
+
+  isShippingFree(): boolean {
+    return !!this.shippingQuote && this.shippingQuote.shippingFee === 0;
+  }
+
   calculateTotal(): number {
     return this.shippingQuote?.grandTotal ?? this.calculateSubtotal();
   }
@@ -182,6 +192,7 @@ export class CartComponent implements OnInit {
   }
 
   proceedToCheckout(): void {
+    this.refreshShippingQuote();
     this.showModal = true;
   }
 

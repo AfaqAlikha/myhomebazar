@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, shareReplay } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../core/config/api-endpoints';
 import { AuthService } from '../auth/auth.service';
 
@@ -28,18 +28,34 @@ export interface OrderTracking {
   message?: string;
 }
 
+interface PublicShippingSettings {
+  baseFee?: number;
+  freeAbove?: number;
+  defaultWeightKg?: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class ShippingService {
-  private readonly defaultQuote: ShippingQuote = {
-    subtotal: 0,
-    shippingFee: 300,
-    grandTotal: 300,
-    isFreeShipping: false,
-    freeShippingThreshold: 5000,
-    message: 'Standard delivery: Rs 300',
+  private readonly fallbackSettings: Required<PublicShippingSettings> = {
+    baseFee: 300,
+    freeAbove: 5000,
+    defaultWeightKg: 0.5,
   };
+
+  private publicSettings$ = this.http
+    .get<{ settings: PublicShippingSettings }>(API_ENDPOINTS.shipping.publicSettings)
+    .pipe(
+      map((res) => ({
+        baseFee: Number(res.settings?.baseFee) || this.fallbackSettings.baseFee,
+        freeAbove: Number(res.settings?.freeAbove) || this.fallbackSettings.freeAbove,
+        defaultWeightKg:
+          Number(res.settings?.defaultWeightKg) || this.fallbackSettings.defaultWeightKg,
+      })),
+      catchError(() => of({ ...this.fallbackSettings })),
+      shareReplay(1),
+    );
 
   constructor(
     private http: HttpClient,
@@ -53,6 +69,59 @@ export class ShippingService {
     return headers;
   }
 
+  private normalizeQuote(raw: Partial<ShippingQuote> | undefined, subtotal: number): ShippingQuote {
+    const shippingFee = Number(raw?.shippingFee) || 0;
+    const normalizedSubtotal = Number(raw?.subtotal ?? subtotal) || subtotal;
+    const freeShippingThreshold =
+      Number(raw?.freeShippingThreshold) || this.fallbackSettings.freeAbove;
+
+    return {
+      subtotal: normalizedSubtotal,
+      shippingFee,
+      grandTotal: Number(raw?.grandTotal ?? normalizedSubtotal + shippingFee) || normalizedSubtotal + shippingFee,
+      isFreeShipping: raw?.isFreeShipping ?? shippingFee === 0,
+      freeShippingThreshold,
+      message: raw?.message || (shippingFee === 0 ? 'Free delivery' : `Delivery: Rs ${shippingFee}`),
+      cityFee: raw?.cityFee,
+      weightFee: raw?.weightFee,
+      totalWeightKg: raw?.totalWeightKg,
+      city: raw?.city ?? null,
+    };
+  }
+
+  private buildFallbackQuote(
+    subtotal: number,
+    settings: PublicShippingSettings,
+    options?: { city?: string; weightKg?: number },
+  ): ShippingQuote {
+    const freeAbove = Number(settings.freeAbove) || this.fallbackSettings.freeAbove;
+    const baseFee = Number(settings.baseFee) || this.fallbackSettings.baseFee;
+
+    if (subtotal >= freeAbove) {
+      return {
+        subtotal,
+        shippingFee: 0,
+        grandTotal: subtotal,
+        isFreeShipping: true,
+        freeShippingThreshold: freeAbove,
+        message: `Free delivery on orders above Rs ${freeAbove}`,
+        city: options?.city?.trim() || null,
+        totalWeightKg: options?.weightKg,
+      };
+    }
+
+    return {
+      subtotal,
+      shippingFee: baseFee,
+      grandTotal: subtotal + baseFee,
+      isFreeShipping: false,
+      freeShippingThreshold: freeAbove,
+      message: `Standard delivery: Rs ${baseFee}`,
+      city: options?.city?.trim() || null,
+      totalWeightKg: options?.weightKg,
+    };
+  }
+
   getQuote(
     subtotal: number,
     options?: { city?: string; weightKg?: number },
@@ -64,20 +133,16 @@ export class ShippingService {
     }
 
     return this.http
-      .get<{ data: ShippingQuote }>(`${API_ENDPOINTS.shipping.quote}?${params.toString()}`)
+      .get<{ success?: boolean; data: ShippingQuote }>(
+        `${API_ENDPOINTS.shipping.quote}?${params.toString()}`,
+      )
       .pipe(
-        map((res) => res.data),
-        catchError(() => {
-          const fee = subtotal >= this.defaultQuote.freeShippingThreshold ? 0 : 300;
-          return of({
-            subtotal,
-            shippingFee: fee,
-            grandTotal: subtotal + fee,
-            isFreeShipping: fee === 0,
-            freeShippingThreshold: this.defaultQuote.freeShippingThreshold,
-            message: fee === 0 ? 'Free delivery' : `Standard delivery: Rs ${fee}`,
-          });
-        }),
+        map((res) => this.normalizeQuote(res.data, subtotal)),
+        catchError(() =>
+          this.publicSettings$.pipe(
+            map((settings) => this.buildFallbackQuote(subtotal, settings, options)),
+          ),
+        ),
       );
   }
 
