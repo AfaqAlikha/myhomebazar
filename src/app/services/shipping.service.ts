@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError, shareReplay } from 'rxjs/operators';
@@ -38,6 +38,9 @@ interface PublicShippingSettings {
   providedIn: 'root',
 })
 export class ShippingService {
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+
   private readonly fallbackSettings: Required<PublicShippingSettings> = {
     baseFee: 300,
     freeAbove: 5000,
@@ -56,11 +59,6 @@ export class ShippingService {
       catchError(() => of({ ...this.fallbackSettings })),
       shareReplay(1),
     );
-
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService,
-  ) {}
 
   private authHeaders(): HttpHeaders {
     const token = this.authService.getToken();
