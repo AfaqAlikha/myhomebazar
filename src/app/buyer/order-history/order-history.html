@@ -64,6 +64,25 @@
               Ordered: {{ order.createdAt | date: 'medium' }}
             </p>
 
+            <div
+              *ngIf="order.hasReviewed && order.review"
+              class="review-reveal mt-3 p-3 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800"
+              [class.review-reveal--active]="isReviewRevealed(order._id)"
+            >
+              <p class="text-xs uppercase tracking-wide text-green-700 dark:text-green-400 mb-2 font-medium">
+                Your Review
+              </p>
+              <app-star-rating
+                [value]="order.review.rating"
+                [readonly]="true"
+                size="sm"
+                [showValue]="true"
+              ></app-star-rating>
+              <p *ngIf="order.review.comment" class="text-sm text-[var(--color-text)] mt-2">
+                {{ order.review.comment }}
+              </p>
+            </div>
+
             <button
               type="button"
               class="order-details-toggle mt-3 text-sm text-[var(--color-accent)] flex items-center gap-1"
@@ -161,15 +180,15 @@
           <span
             class="px-4 py-2 rounded-full text-white text-sm"
             [ngClass]="{
-              'bg-yellow-500': order.status == 'pending',
-              'bg-blue-500': order.status == 'accepted' || order.status == 'confirmed',
-              'bg-purple-500': order.status == 'shipped',
-              'bg-green-600': order.status == 'delivered',
-              'bg-red-500': order.status == 'cancelled',
-              'bg-gray-600': order.status == 'completed',
+              'bg-yellow-500': getStatusClass(order) == 'pending',
+              'bg-blue-500': getStatusClass(order) == 'accepted' || getStatusClass(order) == 'confirmed',
+              'bg-purple-500': getStatusClass(order) == 'shipped',
+              'bg-green-600': getStatusClass(order) == 'delivered',
+              'bg-red-500': getStatusClass(order) == 'cancelled',
+              'bg-gray-600': getStatusClass(order) == 'completed',
             }"
           >
-            {{ order.status | uppercase }}
+            {{ getStatusLabel(order) }}
           </span>
 
           <div class="flex flex-wrap justify-end gap-3 mt-6">
@@ -185,17 +204,17 @@
             ></app-ui-button>
 
             <app-ui-button
-              *ngIf="order.status === 'delivered'"
-              label="Complete Order"
-              variant="success"
-              (clicked)="completeOrder(order)"
-            ></app-ui-button>
-
-            <app-ui-button
               *ngIf="order.canReview && !order.hasReviewed && order.status === 'delivered'"
               label="Write Review"
               variant="accent"
               (clicked)="reviewOrder(order)"
+            ></app-ui-button>
+
+            <app-ui-button
+              *ngIf="order.status === 'delivered'"
+              label="Complete Order"
+              variant="success"
+              (clicked)="completeOrder(order)"
             ></app-ui-button>
 
             <app-ui-button
@@ -253,6 +272,13 @@
           ? 'Your review helps other buyers. You can skip if you prefer.'
           : 'Review is optional — you can close without submitting.'
       }}
+    </p>
+
+    <p
+      *ngIf="reviewModalMode === 'complete' && reviewModalSecondsLeft > 0"
+      class="text-xs text-[var(--color-accent)] mb-3 text-center"
+    >
+      This prompt stays open for {{ reviewModalSecondsLeft }}s so you can complete your order.
     </p>
 
     <form [formGroup]="reviewForm">
