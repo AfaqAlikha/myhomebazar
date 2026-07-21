@@ -13,8 +13,6 @@ import { CLAIM_REASONS } from '../../core/config/api-endpoints';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 
-type ReviewModalMode = 'complete' | 'standalone';
-
 @Component({
   selector: 'app-order-history',
   standalone: true,
@@ -41,15 +39,18 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   currentPage = 1;
   loading = false;
 
+  completeConfirmModal = false;
   reviewModal = false;
   reviewModalClosing = false;
-  reviewModalMode: ReviewModalMode = 'standalone';
   selectedOrder: any = null;
   reviewForm!: FormGroup;
   reviewSubmitting = false;
+  completeSubmitting = false;
   highlightedOrderId: string | null = null;
   expandedOrderIds = new Set<string>();
   reviewRevealOrderIds = new Set<string>();
+  pendingReviewReveal: { orderId: string; review: { rating: number; comment?: string } } | null =
+    null;
 
   cancelModal = false;
   selectedCancelOrder: any = null;
@@ -66,12 +67,12 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   trackingByOrder: Record<string, OrderTracking> = {};
   syncingTrackingId: string | null = null;
 
-  reviewModalLocked = false;
   reviewModalSecondsLeft = 0;
 
   private previousStatuses = new Map<string, string>();
   private pollInterval: ReturnType<typeof setInterval> | null = null;
   private reviewModalTimer: ReturnType<typeof setInterval> | null = null;
+  private reviewRevealTimer: ReturnType<typeof setTimeout> | null = null;
   private highlightTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
@@ -85,7 +86,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.reviewForm = this.fb.group({
-      rating: [0, [Validators.required, Validators.min(0.5), Validators.max(5)]],
+      rating: [0],
       comment: [''],
     });
     this.cancelForm = this.fb.group({
@@ -103,11 +104,32 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.pollInterval) clearInterval(this.pollInterval);
     this.clearReviewModalTimer();
+    if (this.reviewRevealTimer) clearTimeout(this.reviewRevealTimer);
     if (this.highlightTimer) clearTimeout(this.highlightTimer);
   }
 
   canCancel(order: any): boolean {
-    return ['pending', 'confirmed', 'accepted', 'shipped'].includes(order.status);
+    return ['pending', 'confirmed', 'accepted', 'shipped', 'delivered'].includes(order.status);
+  }
+
+  canComplete(order: any): boolean {
+    return order.status === 'delivered';
+  }
+
+  canWriteReview(order: any): boolean {
+    return (
+      !!order.canReview &&
+      !order.hasReviewed &&
+      ['delivered', 'completed'].includes(order.status)
+    );
+  }
+
+  canFileClaim(order: any): boolean {
+    return (
+      !!order.canClaim &&
+      !order.hasClaimed &&
+      ['delivered', 'completed'].includes(order.status)
+    );
   }
 
   getOrderSubtotal(order: any): number {
@@ -186,14 +208,72 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     return this.expandedOrderIds.has(orderId);
   }
 
-  closeReviewModal(): void {
-    if (this.reviewModalLocked) return;
+  openCompleteConfirm(order: any): void {
+    this.selectedOrder = order;
+    this.completeConfirmModal = true;
+  }
 
-    if (this.reviewModalMode === 'complete' && this.selectedOrder) {
-      this.finishCompleteOrder();
-      return;
+  closeCompleteConfirm(): void {
+    this.completeConfirmModal = false;
+    if (!this.reviewModal) {
+      this.selectedOrder = null;
     }
+  }
 
+  executeCompleteOrder(): void {
+    if (!this.selectedOrder || this.completeSubmitting) return;
+
+    this.completeSubmitting = true;
+    this.orderService.updateOrderStatus(this.selectedOrder._id, { status: 'completed' }).subscribe({
+      next: () => {
+        const orderId = this.selectedOrder._id;
+        const productName = this.selectedOrder.product?.name;
+        this.completeSubmitting = false;
+        this.completeConfirmModal = false;
+
+        const order = this.orders.find((item) => item._id === orderId);
+        if (order) {
+          order.status = 'completed';
+          order.completedAt = new Date().toISOString();
+          order.canReview = !order.hasReviewed;
+        }
+
+        this.highlightOrder(orderId, 30000);
+        this.expandedOrderIds.add(orderId);
+        this.loadOrders();
+
+        this.openOptionalReviewModal({ _id: orderId, product: { name: productName } });
+      },
+      error: () => {
+        this.completeSubmitting = false;
+      },
+    });
+  }
+
+  openOptionalReviewModal(order: any): void {
+    this.selectedOrder = order;
+    this.reviewForm.reset({ rating: 0, comment: '' });
+    this.reviewModal = true;
+    this.reviewModalClosing = false;
+    this.startReviewModalTimer(30);
+  }
+
+  reviewOrder(order: any): void {
+    this.openOptionalReviewModal(order);
+  }
+
+  closeReviewModal(): void {
+    if (this.reviewModalSecondsLeft > 0) return;
+
+    this.skipReview();
+  }
+
+  skipReview(): void {
+    this.pendingReviewReveal = null;
+    if (this.reviewRevealTimer) {
+      clearTimeout(this.reviewRevealTimer);
+      this.reviewRevealTimer = null;
+    }
     this.reviewModalClosing = true;
     setTimeout(() => {
       this.reviewModal = false;
@@ -201,14 +281,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       this.selectedOrder = null;
       this.clearReviewModalTimer();
     }, 200);
-  }
-
-  skipReviewAndComplete(): void {
-    if (this.reviewModalMode !== 'complete' || !this.selectedOrder) {
-      this.closeReviewModal();
-      return;
-    }
-    this.finishCompleteOrder();
   }
 
   closeClaimModal(): void {
@@ -240,7 +312,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   }
 
   silentRefreshOrders(): void {
-    if (this.loading || this.reviewModal) return;
+    if (this.loading || this.reviewModal || this.completeConfirmModal) return;
 
     this.orderService.getMyOrders(this.currentPage, this.itemsPerPage).subscribe({
       next: (res: any) => {
@@ -267,7 +339,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       if (!this.previousStatuses.has(order._id)) {
         this.previousStatuses.set(order._id, order.status);
         if (order.status === 'delivered') {
-          this.promptDeliveredOrder(order);
+          this.highlightOrder(order._id, 8000);
         }
       }
       if (order.hasReviewed && order.review) {
@@ -279,7 +351,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       options.openReviewForOrderId || this.route.snapshot.queryParamMap.get('reviewOrderId');
     if (reviewOrderId) {
       const order = this.orders.find((o) => o._id === reviewOrderId);
-      if (order?.canReview && !order?.hasReviewed) {
+      if (this.canWriteReview(order)) {
         this.reviewOrder(order);
       }
     }
@@ -289,29 +361,19 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     for (const order of newOrders) {
       const previousStatus = this.previousStatuses.get(order._id);
       if (previousStatus && previousStatus !== order.status && order.status === 'delivered') {
-        this.promptDeliveredOrder(order);
+        this.highlightOrder(order._id, 8000);
       }
       this.previousStatuses.set(order._id, order.status);
     }
   }
 
-  private promptDeliveredOrder(order: any): void {
-    const storageKey = `delivery_prompt_${order._id}`;
-    if (sessionStorage.getItem(storageKey)) return;
-
-    sessionStorage.setItem(storageKey, '1');
-    this.completeOrder(order, true);
-  }
-
-  private startReviewModalTimer(seconds = 60): void {
+  private startReviewModalTimer(seconds = 30): void {
     this.clearReviewModalTimer();
-    this.reviewModalLocked = true;
     this.reviewModalSecondsLeft = seconds;
 
     this.reviewModalTimer = setInterval(() => {
       this.reviewModalSecondsLeft -= 1;
       if (this.reviewModalSecondsLeft <= 0) {
-        this.reviewModalLocked = false;
         this.clearReviewModalTimer();
       }
     }, 1000);
@@ -322,7 +384,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       clearInterval(this.reviewModalTimer);
       this.reviewModalTimer = null;
     }
-    this.reviewModalLocked = false;
     this.reviewModalSecondsLeft = 0;
   }
 
@@ -334,25 +395,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   closeCancelModal(): void {
     this.cancelModal = false;
-  }
-
-  completeOrder(order: any, autoPrompt = false): void {
-    this.selectedOrder = order;
-    this.reviewModalMode = 'complete';
-    this.reviewForm.reset({ rating: 0, comment: '' });
-    this.reviewModal = true;
-    this.reviewModalClosing = false;
-    if (autoPrompt) {
-      this.startReviewModalTimer(60);
-    }
-  }
-
-  reviewOrder(order: any): void {
-    this.selectedOrder = order;
-    this.reviewModalMode = 'standalone';
-    this.reviewForm.reset({ rating: 0, comment: '' });
-    this.reviewModal = true;
-    this.reviewModalClosing = false;
   }
 
   fileClaim(order: any): void {
@@ -389,11 +431,11 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   }
 
   getClaimCountdownLabel(order: any): string {
-    if (!order.canClaim || order.hasClaimed) return '';
+    if (!this.canFileClaim(order)) return '';
     const days = order.claimDaysRemaining ?? 0;
     if (days <= 0) return 'Claim window expired';
-    if (days === 1) return '1 day left to claim';
-    return `${days} days left to claim`;
+    if (days === 1) return '1 day left to file a claim';
+    return `${days} days left to file a claim`;
   }
 
   submitCancelOrder(): void {
@@ -421,35 +463,30 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   }
 
   submitReview(): void {
-    if (this.reviewForm.invalid) {
-      this.reviewForm.markAllAsTouched();
+    const rating = Number(this.reviewForm.value.rating) || 0;
+    const comment = this.reviewForm.value.comment || '';
+
+    if (rating < 0.5) {
+      this.skipReview();
       return;
     }
 
-    const { rating, comment } = this.reviewForm.value;
+    if (!this.selectedOrder) return;
+
     this.reviewSubmitting = true;
-
-    if (this.reviewModalMode === 'complete') {
-      this.orderService
-        .updateOrderStatus(this.selectedOrder._id, {
-          status: 'completed',
-          rating,
-          comment,
-        })
-        .subscribe({
-          next: () => {
-            this.onCompleteSuccess(this.selectedOrder._id, true, { rating, comment });
-          },
-          error: () => {
-            this.reviewSubmitting = false;
-          },
-        });
-      return;
-    }
-
     this.orderService.submitReview(this.selectedOrder._id, { rating, comment }).subscribe({
       next: () => {
-        this.onReviewSubmitted(this.selectedOrder._id, { rating, comment });
+        this.reviewSubmitting = false;
+        this.scheduleReviewReveal(this.selectedOrder._id, { rating, comment });
+        this.reviewModalClosing = true;
+
+        setTimeout(() => {
+          this.reviewModal = false;
+          this.reviewModalClosing = false;
+          this.selectedOrder = null;
+          this.clearReviewModalTimer();
+          this.loadOrders();
+        }, 250);
       },
       error: () => {
         this.reviewSubmitting = false;
@@ -457,57 +494,24 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  private finishCompleteOrder(): void {
-    if (!this.selectedOrder) return;
-
-    this.reviewSubmitting = true;
-    this.orderService
-      .updateOrderStatus(this.selectedOrder._id, { status: 'completed' })
-      .subscribe({
-        next: () => {
-          this.onCompleteSuccess(this.selectedOrder._id, false);
-        },
-        error: () => {
-          this.reviewSubmitting = false;
-        },
-      });
-  }
-
-  private onReviewSubmitted(
+  private scheduleReviewReveal(
     orderId: string,
     review: { rating: number; comment?: string },
   ): void {
-    this.reviewSubmitting = false;
-    this.reviewModal = false;
-    this.selectedOrder = null;
-    this.clearReviewModalTimer();
-    this.revealReviewOnCard(orderId, review);
-    this.loadOrders(orderId);
+    this.pendingReviewReveal = { orderId, review };
+    if (this.reviewRevealTimer) clearTimeout(this.reviewRevealTimer);
+
+    this.reviewRevealTimer = setTimeout(() => {
+      this.flushPendingReviewReveal();
+    }, 30000);
   }
 
-  private onCompleteSuccess(
-    orderId: string,
-    withReview: boolean,
-    review?: { rating: number; comment?: string },
-  ): void {
-    this.reviewSubmitting = false;
-    this.reviewModalClosing = true;
+  private flushPendingReviewReveal(): void {
+    if (!this.pendingReviewReveal) return;
 
-    setTimeout(() => {
-      this.reviewModal = false;
-      this.reviewModalClosing = false;
-      this.selectedOrder = null;
-      this.clearReviewModalTimer();
-
-      if (withReview && review) {
-        this.revealReviewOnCard(orderId, review);
-      } else {
-        this.highlightOrder(orderId, 60000);
-        this.expandedOrderIds.add(orderId);
-      }
-
-      this.loadOrders(orderId);
-    }, 350);
+    const { orderId, review } = this.pendingReviewReveal;
+    this.pendingReviewReveal = null;
+    this.revealReviewOnCard(orderId, review);
   }
 
   private revealReviewOnCard(
@@ -523,12 +527,11 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         comment: review.comment || '',
         createdAt: new Date().toISOString(),
       };
-      order.status = 'completed';
     }
 
     this.reviewRevealOrderIds.add(orderId);
     this.expandedOrderIds.add(orderId);
-    this.highlightOrder(orderId, 60000);
+    this.highlightOrder(orderId, 30000);
   }
 
   private highlightOrder(orderId: string, durationMs: number): void {
