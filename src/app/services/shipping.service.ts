@@ -67,6 +67,18 @@ export class ShippingService {
     return headers;
   }
 
+  /** ApiResponseInterceptor unwraps `{ data }`; support both shapes. */
+  private unwrapPayload<T>(res: T | { data?: T } | null | undefined): T | undefined {
+    if (!res || typeof res !== 'object') return undefined;
+    if ('shippingFee' in res || 'grandTotal' in res || 'subtotal' in res) {
+      return res as T;
+    }
+    if ('data' in res && (res as { data?: T }).data != null) {
+      return (res as { data: T }).data;
+    }
+    return res as T;
+  }
+
   private normalizeQuote(raw: Partial<ShippingQuote> | undefined, subtotal: number): ShippingQuote {
     const shippingFee = Number(raw?.shippingFee) || 0;
     const normalizedSubtotal = Number(raw?.subtotal ?? subtotal) || subtotal;
@@ -131,11 +143,11 @@ export class ShippingService {
     }
 
     return this.http
-      .get<{ success?: boolean; data: ShippingQuote }>(
+      .get<ShippingQuote | { data: ShippingQuote }>(
         `${API_ENDPOINTS.shipping.quote}?${params.toString()}`,
       )
       .pipe(
-        map((res) => this.normalizeQuote(res.data, subtotal)),
+        map((res) => this.normalizeQuote(this.unwrapPayload(res), subtotal)),
         catchError(() =>
           this.publicSettings$.pipe(
             map((settings) => this.buildFallbackQuote(subtotal, settings, options)),
@@ -146,19 +158,20 @@ export class ShippingService {
 
   getOrderTracking(orderId: string): Observable<OrderTracking> {
     return this.http
-      .get<{ data: OrderTracking }>(`${API_ENDPOINTS.shipping.tracking(orderId)}`, {
-        headers: this.authHeaders(),
-      })
-      .pipe(map((res) => res.data));
+      .get<OrderTracking | { data: OrderTracking }>(
+        `${API_ENDPOINTS.shipping.tracking(orderId)}`,
+        { headers: this.authHeaders() },
+      )
+      .pipe(map((res) => this.unwrapPayload(res) as OrderTracking));
   }
 
   syncOrderTracking(orderId: string): Observable<OrderTracking> {
     return this.http
-      .post<{ data: OrderTracking; message?: string }>(
+      .post<OrderTracking | { data: OrderTracking; message?: string }>(
         `${API_ENDPOINTS.shipping.syncTracking(orderId)}`,
         {},
         { headers: this.authHeaders() },
       )
-      .pipe(map((res) => res.data));
+      .pipe(map((res) => this.unwrapPayload(res) as OrderTracking));
   }
 }

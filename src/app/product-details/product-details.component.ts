@@ -114,6 +114,19 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
       paymentMethod: ['COD', Validators.required],
     });
 
+    const user = this.auth.getUser();
+    if (user) {
+      this.orderForm.patchValue(
+        {
+          name: user.name || '',
+          email: user.email || '',
+          city: user.city || '',
+          country: user.country || '',
+        },
+        { emitEvent: false },
+      );
+    }
+
     this.orderForm
       .get('city')
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
