@@ -70,7 +70,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   reviewModalSecondsLeft = 0;
 
   private previousStatuses = new Map<string, string>();
-  private pollInterval: ReturnType<typeof setInterval> | null = null;
   private reviewModalTimer: ReturnType<typeof setInterval> | null = null;
   private reviewRevealTimer: ReturnType<typeof setTimeout> | null = null;
   private highlightTimer: ReturnType<typeof setTimeout> | null = null;
@@ -98,11 +97,9 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     });
 
     this.loadOrders();
-    this.pollInterval = setInterval(() => this.silentRefreshOrders(), 15000);
   }
 
   ngOnDestroy(): void {
-    if (this.pollInterval) clearInterval(this.pollInterval);
     this.clearReviewModalTimer();
     if (this.reviewRevealTimer) clearTimeout(this.reviewRevealTimer);
     if (this.highlightTimer) clearTimeout(this.highlightTimer);
@@ -300,7 +297,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
     this.orderService.getMyOrders(this.currentPage, this.itemsPerPage).subscribe({
       next: (res: any) => {
-        this.applyOrdersResponse(res, { openReviewForOrderId, detectChanges: false });
+        this.applyOrdersResponse(res, { openReviewForOrderId });
         this.loading = false;
         this.spinnerService.hide();
       },
@@ -311,25 +308,11 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  silentRefreshOrders(): void {
-    if (this.loading || this.reviewModal || this.completeConfirmModal) return;
-
-    this.orderService.getMyOrders(this.currentPage, this.itemsPerPage).subscribe({
-      next: (res: any) => {
-        this.applyOrdersResponse(res, { detectChanges: true });
-      },
-    });
-  }
-
   private applyOrdersResponse(
     res: any,
-    options: { openReviewForOrderId?: string; detectChanges?: boolean } = {},
+    options: { openReviewForOrderId?: string } = {},
   ): void {
     const newOrders = res.orders || [];
-    if (options.detectChanges) {
-      this.detectStatusChanges(newOrders);
-    }
-
     this.orders = newOrders;
     this.totalItems = res.pagination?.totalItems || 0;
     this.itemsPerPage = res.pagination?.pageSize || this.itemsPerPage;
@@ -354,16 +337,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       if (this.canWriteReview(order)) {
         this.reviewOrder(order);
       }
-    }
-  }
-
-  private detectStatusChanges(newOrders: any[]): void {
-    for (const order of newOrders) {
-      const previousStatus = this.previousStatuses.get(order._id);
-      if (previousStatus && previousStatus !== order.status && order.status === 'delivered') {
-        this.highlightOrder(order._id, 8000);
-      }
-      this.previousStatuses.set(order._id, order.status);
     }
   }
 
