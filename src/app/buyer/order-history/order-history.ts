@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { SpinnerService } from '../../shared/spinner.service';
 import { UiButtonComponent } from '../../shared/ui-button/ui-button.component';
 import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
@@ -12,6 +13,11 @@ import { ShippingService, OrderTracking } from '../../services/shipping.service'
 import { CLAIM_REASONS } from '../../core/config/api-endpoints';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
+import { AuthService } from '../../auth/auth.service';
+import {
+  OrderStatusUpdatePayload,
+  SocketService,
+} from '../../core/services/socket.service';
 
 @Component({
   selector: 'app-order-history',
@@ -73,6 +79,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   private reviewModalTimer: ReturnType<typeof setInterval> | null = null;
   private reviewRevealTimer: ReturnType<typeof setTimeout> | null = null;
   private highlightTimer: ReturnType<typeof setTimeout> | null = null;
+  private statusUpdateSub?: Subscription;
+  private visibilityHandler = () => this.onPageVisible();
 
   constructor(
     private orderService: ProductOrderService,
@@ -81,6 +89,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private spinnerService: SpinnerService,
     private route: ActivatedRoute,
+    private authService: AuthService,
+    private socketService: SocketService,
   ) {}
 
   ngOnInit(): void {
@@ -97,12 +107,57 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     });
 
     this.loadOrders();
+    this.initRealtimeUpdates();
   }
 
   ngOnDestroy(): void {
     this.clearReviewModalTimer();
     if (this.reviewRevealTimer) clearTimeout(this.reviewRevealTimer);
     if (this.highlightTimer) clearTimeout(this.highlightTimer);
+    this.statusUpdateSub?.unsubscribe();
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  private initRealtimeUpdates(): void {
+    const user = this.authService.getUser();
+    if (!user?.id) return;
+
+    this.socketService.connect(user.id);
+    this.statusUpdateSub = this.socketService.orderStatusUpdate$.subscribe((payload) => {
+      this.applyOrderStatusUpdate(payload);
+    });
+
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  private onPageVisible(): void {
+    if (document.visibilityState === 'visible') {
+      this.refreshOrdersSilently();
+    }
+  }
+
+  private applyOrderStatusUpdate(payload: OrderStatusUpdatePayload): void {
+    const orderId = String(payload.orderId);
+    const order = this.orders.find((item) => String(item._id) === orderId);
+    if (!order) {
+      this.refreshOrdersSilently();
+      return;
+    }
+
+    const previousStatus = order.status;
+    order.status = payload.status;
+
+    if (payload.shipmentStatus) order.shipmentStatus = payload.shipmentStatus;
+    if (payload.deliveredAt) order.deliveredAt = payload.deliveredAt;
+    if (payload.canReview != null) order.canReview = payload.canReview;
+    if (payload.canClaim != null) order.canClaim = payload.canClaim;
+    if (payload.trackingNumber) order.trackingNumber = payload.trackingNumber;
+    if (payload.courierPartner) order.courierPartner = payload.courierPartner;
+
+    if (payload.status === 'delivered' && previousStatus !== 'delivered') {
+      this.highlightOrder(orderId, 10000);
+      this.expandedOrderIds.add(orderId);
+    }
   }
 
   canCancel(order: any): boolean {
@@ -184,6 +239,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
           order.status = 'delivered';
           order.canReview = true;
           order.canClaim = true;
+          this.highlightOrder(order._id, 10000);
+          this.expandedOrderIds.add(order._id);
         }
         this.syncingTrackingId = null;
       },
@@ -304,6 +361,14 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       error: () => {
         this.loading = false;
         this.spinnerService.hide();
+      },
+    });
+  }
+
+  private refreshOrdersSilently(): void {
+    this.orderService.getMyOrders(this.currentPage, this.itemsPerPage).subscribe({
+      next: (res: any) => {
+        this.applyOrdersResponse(res);
       },
     });
   }
