@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatIconModule } from '@angular/material/icon';
 
 import { HeroSwiperComponent } from '../shared/components/hero-swiper/hero-swiper.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
@@ -24,6 +26,7 @@ import { SeoService } from '../services/seo';
     LocationFilterComponent,
     NgFor,
     MatPaginatorModule,
+    MatIconModule,
     NgIf,
   ],
   templateUrl: './home.component.html',
@@ -40,17 +43,62 @@ export class HomeComponent implements OnInit {
   heroLoading = true;
 
   locationFilters: LocationFilters = { country: '', state: '', city: '' };
+  showScrollDown = true;
+  showScrollUp = false;
+
+  private readonly isBrowser: boolean;
 
   constructor(
     private productService: ProductService,
     private spinnerService: SpinnerService,
     private seo: SeoService,
-  ) {}
+    @Inject(PLATFORM_ID) platformId: Object,
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
     this.seo.setDefaultSeo();
     this.loadHomeProducts();
     this.loadFeaturedProducts();
+    if (this.isBrowser) {
+      setTimeout(() => this.updateScrollButtons(), 0);
+    }
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    this.updateScrollButtons();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.updateScrollButtons();
+  }
+
+  scrollToBottom(): void {
+    if (!this.isBrowser) return;
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
+  }
+
+  scrollToTop(): void {
+    if (!this.isBrowser) return;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  private updateScrollButtons(): void {
+    if (!this.isBrowser) return;
+
+    const el = document.documentElement;
+    const scrollTop = el.scrollTop;
+    const maxScroll = Math.max(0, el.scrollHeight - el.clientHeight);
+    const nearBottom = scrollTop >= maxScroll - 120;
+
+    this.showScrollDown = !nearBottom;
+    this.showScrollUp = nearBottom;
   }
 
   onLocationFilter(filters: LocationFilters): void {
@@ -70,6 +118,7 @@ export class HomeComponent implements OnInit {
         this.page = res.pagination.currentPage;
         this.isLoading = false;
         this.spinnerService.hide();
+        setTimeout(() => this.updateScrollButtons(), 0);
       },
       error: () => {
         this.isLoading = false;
@@ -107,6 +156,7 @@ export class HomeComponent implements OnInit {
 
         this.featured = [...productBanners, ...imageBanners];
         this.heroLoading = false;
+        setTimeout(() => this.updateScrollButtons(), 100);
       },
       error: () => {
         this.heroLoading = false;
