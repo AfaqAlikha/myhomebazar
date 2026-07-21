@@ -165,13 +165,20 @@
             </div>
 
             <p
-              *ngIf="order.canClaim && !order.hasClaimed"
+              *ngIf="canFileClaim(order)"
               class="mt-2 text-sm font-medium text-amber-600 dark:text-amber-400"
             >
               {{ getClaimCountdownLabel(order) }}
               <span *ngIf="order.claimExpiresAt" class="block text-xs opacity-80">
                 Until {{ order.claimExpiresAt | date: 'mediumDate' }}
               </span>
+            </p>
+
+            <p
+              *ngIf="order.hasClaimed"
+              class="mt-2 text-sm font-medium text-blue-600 dark:text-blue-400"
+            >
+              Claim submitted — our team will review it shortly.
             </p>
           </div>
         </div>
@@ -204,21 +211,21 @@
             ></app-ui-button>
 
             <app-ui-button
-              *ngIf="order.canReview && !order.hasReviewed && order.status === 'delivered'"
-              label="Write Review"
+              *ngIf="canComplete(order)"
+              label="Complete Order"
+              variant="success"
+              (clicked)="openCompleteConfirm(order)"
+            ></app-ui-button>
+
+            <app-ui-button
+              *ngIf="canWriteReview(order)"
+              label="Write Review (Optional)"
               variant="accent"
               (clicked)="reviewOrder(order)"
             ></app-ui-button>
 
             <app-ui-button
-              *ngIf="order.status === 'delivered'"
-              label="Complete Order"
-              variant="success"
-              (clicked)="completeOrder(order)"
-            ></app-ui-button>
-
-            <app-ui-button
-              *ngIf="order.canClaim && !order.hasClaimed"
+              *ngIf="canFileClaim(order)"
               label="File Claim"
               variant="danger"
               (clicked)="fileClaim(order)"
@@ -240,7 +247,40 @@
   </div>
 </div>
 
-<!-- Complete / Review Modal -->
+<!-- Complete Order Confirm -->
+<div
+  *ngIf="completeConfirmModal"
+  class="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4 modal-backdrop"
+  (click)="closeCompleteConfirm()"
+>
+  <app-ui-card
+    borderRadius="12px"
+    class="w-full max-w-md modal-panel"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="text-center mb-4">
+      <div class="complete-success-icon inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-100 text-green-600 mb-3">
+        <mat-icon>local_shipping</mat-icon>
+      </div>
+      <h2 class="text-2xl font-bold text-[var(--color-text)]">Complete Order?</h2>
+      <p class="text-sm text-[var(--color-text-secondary)] mt-2">
+        Confirm you received <strong>{{ selectedOrder?.product?.name }}</strong> in good condition.
+        You can leave an optional review after completing.
+      </p>
+    </div>
+    <div class="flex justify-end gap-3">
+      <app-ui-button variant="danger" label="Not Yet" (click)="closeCompleteConfirm()"></app-ui-button>
+      <app-ui-button
+        variant="success"
+        label="Yes, Complete Order"
+        [loading]="completeSubmitting"
+        (click)="executeCompleteOrder()"
+      ></app-ui-button>
+    </div>
+  </app-ui-card>
+</div>
+
+<!-- Optional Review Modal -->
 <div
   *ngIf="reviewModal"
   class="fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4 modal-backdrop"
@@ -252,43 +292,34 @@
     class="w-full max-w-lg modal-panel"
     (click)="$event.stopPropagation()"
   >
-    <div class="text-center mb-4" *ngIf="reviewModalMode === 'complete'">
+    <div class="text-center mb-4">
       <div class="complete-success-icon inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-100 text-green-600 mb-3">
         <mat-icon>check_circle</mat-icon>
       </div>
-      <h2 class="text-2xl font-bold text-[var(--color-text)]">Order Delivered!</h2>
+      <h2 class="text-2xl font-bold text-[var(--color-text)]">Order Completed!</h2>
       <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-        Complete your order and tell us about {{ selectedOrder?.product?.name }}
+        Want to rate {{ selectedOrder?.product?.name }}? Review is completely optional.
       </p>
     </div>
 
-    <h2 *ngIf="reviewModalMode === 'standalone'" class="text-2xl font-bold mb-5 text-[var(--color-text)]">
-      Rate Product
-    </h2>
-
-    <p class="text-sm text-[var(--color-text-secondary)] mb-4">
-      {{
-        reviewModalMode === 'complete'
-          ? 'Your review helps other buyers. You can skip if you prefer.'
-          : 'Review is optional — you can close without submitting.'
-      }}
+    <p class="text-sm text-[var(--color-text-secondary)] mb-2">
+      Tap the left or right side of a star for half (0.5) or full (1.0) ratings.
     </p>
 
     <p
-      *ngIf="reviewModalMode === 'complete' && reviewModalSecondsLeft > 0"
+      *ngIf="reviewModalSecondsLeft > 0"
       class="text-xs text-[var(--color-accent)] mb-3 text-center"
     >
-      This prompt stays open for {{ reviewModalSecondsLeft }}s so you can complete your order.
+      This window closes in {{ reviewModalSecondsLeft }}s. Your review will appear on the order card shortly after.
     </p>
 
     <form [formGroup]="reviewForm">
       <div class="mb-5">
-        <p class="text-sm mb-2 text-[var(--color-text-secondary)]">Tap left/right of star for half ratings</p>
         <app-star-rating formControlName="rating"></app-star-rating>
       </div>
 
       <textarea
-        rows="5"
+        rows="4"
         formControlName="comment"
         class="w-full border border-[var(--color-border)] rounded-lg p-3 bg-[var(--color-card)] text-[var(--color-text)]"
         placeholder="Write your review (optional)"
@@ -297,12 +328,12 @@
       <div class="flex justify-end gap-3 mt-6">
         <app-ui-button
           variant="danger"
-          [label]="reviewModalMode === 'complete' ? 'Skip & Complete' : 'Skip'"
-          (click)="reviewModalMode === 'complete' ? skipReviewAndComplete() : closeReviewModal()"
+          label="Skip Review"
+          (click)="skipReview()"
         ></app-ui-button>
         <app-ui-button
           variant="accent"
-          [label]="reviewModalMode === 'complete' ? 'Submit & Complete' : 'Submit Review'"
+          label="Submit Review"
           [loading]="reviewSubmitting"
           (click)="submitReview()"
         ></app-ui-button>
