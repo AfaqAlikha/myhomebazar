@@ -68,6 +68,8 @@ export const API_ENDPOINTS = {
   },
   payments: {
     confirm: `${BASE}/payments/confirm`,
+    publicSettings: `${BASE}/payments/settings/public`,
+    methods: `${BASE}/payments/methods`,
   },
   promotions: {
     plans: `${BASE}/promotions/plans`,

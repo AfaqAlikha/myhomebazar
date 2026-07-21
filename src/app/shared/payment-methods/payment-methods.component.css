@@ -5,6 +5,13 @@
   color: var(--color-text);
 }
 
+.payment-methods__loading,
+.payment-methods__empty {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
 .payment-methods__grid {
   display: grid;
   gap: 0.75rem;
