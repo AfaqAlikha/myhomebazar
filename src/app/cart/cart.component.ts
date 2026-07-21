@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CartService } from '../services/cart.service';
 import { SpinnerService } from '../shared/spinner.service';
 import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../auth/auth.service';
 import { UiButtonComponent } from '../shared/ui-button/ui-button.component';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { UiInputComponent } from '../shared/ui-input/ui-input.component';
@@ -46,6 +47,7 @@ export class CartComponent implements OnInit {
     private cartService: CartService,
     private shippingService: ShippingService,
     private paymentGateway: PaymentGatewayService,
+    private authService: AuthService,
     private spinner: SpinnerService,
     private toastr: ToastrService,
     private fb: FormBuilder,
@@ -66,6 +68,19 @@ export class CartComponent implements OnInit {
       address: ['', Validators.required],
       paymentMethod: ['COD', Validators.required],
     });
+
+    const user = this.authService.getUser();
+    if (user) {
+      this.orderForm.patchValue(
+        {
+          name: user.name || '',
+          email: user.email || '',
+          city: user.city || '',
+          country: user.country || '',
+        },
+        { emitEvent: false },
+      );
+    }
 
     this.orderForm.get('city')?.valueChanges.subscribe(() => {
       if (this.cartItems.length) this.refreshShippingQuote();
