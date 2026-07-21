@@ -1,4 +1,24 @@
 <app-hero-swiper [slides]="featured" [loading]="heroLoading"></app-hero-swiper>
+
+<button
+  *ngIf="showScrollDown"
+  type="button"
+  class="home-scroll-fab home-scroll-fab--down"
+  (click)="scrollToBottom()"
+  aria-label="Scroll to bottom of page"
+>
+  <mat-icon>keyboard_arrow_down</mat-icon>
+</button>
+
+<button
+  *ngIf="showScrollUp"
+  type="button"
+  class="home-scroll-fab home-scroll-fab--up"
+  (click)="scrollToTop()"
+  aria-label="Scroll to top of page"
+>
+  <mat-icon>keyboard_arrow_up</mat-icon>
+</button>
 <div class="container mx-auto my-3">
   <div class="container mx-auto my-6 px-2">
     <h2 class="text-3xl font-bold mb-2 text-[var(--color-accent)] dark:text-[var(--color-accent)]">

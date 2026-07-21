@@ -3,19 +3,19 @@
   <div class="hero-skeleton-inner"></div>
 </div>
 
-<div
-  *ngIf="!loading && slides.length"
-  class="swiper hero-swiper relative w-full h-[220px] md:h-[380px]"
-  #swiper
->
+<div *ngIf="!loading && slides.length" class="swiper hero-swiper relative w-full" #swiper>
   <div class="swiper-wrapper">
     <div
-      class="swiper-slide relative w-full h-[220px] md:h-[380px]"
+      class="swiper-slide hero-slide"
+      [class.hero-slide--product]="slide.bannerType === 'product'"
+      [class.hero-slide--image]="slide.bannerType !== 'product'"
       *ngFor="let slide of slides"
     >
       <img
         [src]="slide.bannerImage || slide.images?.[0]"
-        class="absolute inset-0 w-full h-full object-cover"
+        class="hero-slide__img"
+        [class.hero-slide__img--cover]="slide.bannerType === 'product'"
+        [class.hero-slide__img--contain]="slide.bannerType !== 'product'"
         [alt]="slide.name || 'Banner'"
         loading="lazy"
       />
