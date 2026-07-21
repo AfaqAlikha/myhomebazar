@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { io, Socket } from 'socket.io-client';
 import { Subject } from 'rxjs';
 import { env } from '../../../environments/env';
+import { getSocketClientOptions, normalizeSocketUrl } from '../utils/socket-url';
 
 export interface OrderStatusUpdatePayload {
   orderId: string;
@@ -38,16 +39,16 @@ export class SocketService implements OnDestroy {
 
     this.disconnect();
 
-    this.socket = io(env.WEBSOCET_URL, {
-      transports: ['polling', 'websocket'],
-      withCredentials: true,
-      path: '/socket.io/',
-    });
+    this.socket = io(normalizeSocketUrl(env.WEBSOCET_URL), getSocketClientOptions());
 
     this.connectedUserId = userId;
 
     this.socket.on('connect', () => {
       this.socket?.emit('joinRoom', String(userId));
+    });
+
+    this.socket.on('connect_error', (err) => {
+      console.warn('Socket connect error:', err.message);
     });
 
     this.socket.on('orderStatusUpdate', (payload: OrderStatusUpdatePayload) => {

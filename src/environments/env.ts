@@ -9,4 +9,6 @@ export const env = {
   BASE_URL: 'https://api.myhomebazar.com/api',
   WEBSOCET_URL: 'https://api.myhomebazar.com',
   SELLER_PORTAL_URL: 'https://admin.myhomebazar.com',
+  // Use polling-only on live until nginx + single PM2 worker are confirmed.
+  SOCKET_TRANSPORTS: ['polling'] as ('polling' | 'websocket')[],
 };
