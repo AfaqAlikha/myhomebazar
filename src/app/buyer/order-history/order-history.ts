@@ -180,7 +180,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     return (
       !!order.canClaim &&
       !order.hasClaimed &&
-      ['delivered', 'completed'].includes(order.status)
+      order.status === 'completed'
     );
   }
 
