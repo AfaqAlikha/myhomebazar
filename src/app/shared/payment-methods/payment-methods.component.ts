@@ -1,16 +1,11 @@
-import { Component, forwardRef } from '@angular/core';
+import { Component, forwardRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { PaymentMethodOption } from '../../services/payment-gateway.service';
-
-interface PaymentOption {
-  value: PaymentMethodOption;
-  title: string;
-  subtitle: string;
-  icon: string;
-  accent: string;
-}
+import {
+  PaymentMethodOption,
+  PaymentSettingsService,
+} from '../../services/payment-settings.service';
 
 @Component({
   selector: 'app-payment-methods',
@@ -26,49 +21,39 @@ interface PaymentOption {
     },
   ],
 })
-export class PaymentMethodsComponent implements ControlValueAccessor {
-  value: PaymentMethodOption = 'COD';
+export class PaymentMethodsComponent implements ControlValueAccessor, OnInit {
+  private readonly paymentSettingsService = inject(PaymentSettingsService);
+
+  value = '';
   disabled = false;
+  options: PaymentMethodOption[] = [];
+  loading = true;
 
-  options: PaymentOption[] = [
-    {
-      value: 'COD',
-      title: 'Cash on Delivery',
-      subtitle: 'Pay when your order arrives',
-      icon: 'local_shipping',
-      accent: '#16a34a',
-    },
-    {
-      value: 'JazzCash',
-      title: 'JazzCash',
-      subtitle: 'Mobile wallet — Pakistan',
-      icon: 'account_balance_wallet',
-      accent: '#dc2626',
-    },
-    {
-      value: 'EasyPaisa',
-      title: 'EasyPaisa',
-      subtitle: 'Mobile wallet — Pakistan',
-      icon: 'payments',
-      accent: '#059669',
-    },
-    {
-      value: 'Card',
-      title: 'Credit / Debit Card',
-      subtitle: 'Visa, Mastercard via secure gateway',
-      icon: 'credit_card',
-      accent: '#2563eb',
-    },
-  ];
-
-  private onChange: (v: PaymentMethodOption) => void = () => {};
+  private onChange: (v: string) => void = () => {};
   private onTouched: () => void = () => {};
 
-  writeValue(value: PaymentMethodOption | null): void {
-    this.value = value || 'COD';
+  ngOnInit(): void {
+    this.paymentSettingsService.getOrderMethods().subscribe({
+      next: (settings) => {
+        this.options = settings.methods || [];
+        this.loading = false;
+        if (!this.value && this.options.length) {
+          this.select(this.options[0].value);
+        } else if (this.value && !this.options.some((opt) => opt.value === this.value)) {
+          this.select(this.options[0]?.value || '');
+        }
+      },
+      error: () => {
+        this.loading = false;
+      },
+    });
   }
 
-  registerOnChange(fn: (v: PaymentMethodOption) => void): void {
+  writeValue(value: string | null): void {
+    this.value = value || '';
+  }
+
+  registerOnChange(fn: (v: string) => void): void {
     this.onChange = fn;
   }
 
@@ -80,8 +65,8 @@ export class PaymentMethodsComponent implements ControlValueAccessor {
     this.disabled = isDisabled;
   }
 
-  select(method: PaymentMethodOption): void {
-    if (this.disabled) return;
+  select(method: string): void {
+    if (this.disabled || !method) return;
     this.value = method;
     this.onChange(method);
     this.onTouched();

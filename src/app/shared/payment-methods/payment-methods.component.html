@@ -1,6 +1,7 @@
 <div class="payment-methods">
   <p class="payment-methods__label">Payment Method</p>
-  <div class="payment-methods__grid">
+  <p *ngIf="loading" class="payment-methods__loading">Loading payment options…</p>
+  <div class="payment-methods__grid" *ngIf="!loading && options.length">
     <button
       type="button"
       *ngFor="let opt of options"
@@ -13,10 +14,13 @@
         <mat-icon>{{ opt.icon }}</mat-icon>
       </div>
       <div class="payment-card__text">
-        <span class="payment-card__title">{{ opt.title }}</span>
+        <span class="payment-card__title">{{ opt.label }}</span>
         <span class="payment-card__subtitle">{{ opt.subtitle }}</span>
       </div>
       <div class="payment-card__radio" [class.payment-card__radio--on]="value === opt.value"></div>
     </button>
   </div>
+  <p *ngIf="!loading && !options.length" class="payment-methods__empty">
+    No payment methods are available right now.
+  </p>
 </div>
