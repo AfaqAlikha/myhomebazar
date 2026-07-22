@@ -1,7 +1,5 @@
 <app-hero-swiper [slides]="featured" [loading]="heroLoading"></app-hero-swiper>
 
-<app-google-ad placement="home" [minHeight]="90" layoutClass="container mx-auto px-4"></app-google-ad>
-
 <button
   *ngIf="showScrollDown"
   type="button"
@@ -72,6 +70,8 @@
       >
         You have reached the end of the list.
       </p>
+
+      <app-google-ad variant="horizontal" layoutClass="container mx-auto px-4 mt-4 mb-2"></app-google-ad>
     </div>
   </div>
 </div>
