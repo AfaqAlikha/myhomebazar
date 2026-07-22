@@ -10,7 +10,6 @@ import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
 import { SeoService } from '../services/seo';
 import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
-import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
 
 @Component({
   selector: 'app-shop',
@@ -21,7 +20,6 @@ import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
     ProductCardComponent,
     UiCardComponent,
     UiSearchComponent,
-    GoogleAdComponent,
     NgClass,
     NgIf,
     NgxSpinnerModule,

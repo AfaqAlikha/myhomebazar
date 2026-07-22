@@ -18,16 +18,12 @@
   text-transform: uppercase;
   color: var(--color-text-secondary, #64748b);
   text-align: center;
-  flex-shrink: 0;
 }
 
-/* Compact horizontal banner */
 .google-ad-wrap--horizontal {
   width: 100%;
   max-width: 728px;
   min-height: 50px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .google-ad-wrap--horizontal ins.adsbygoogle {
@@ -35,9 +31,11 @@
   min-height: 50px;
 }
 
-/* Default vertical unit */
 .google-ad-wrap--vertical {
   width: 100%;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .google-ad-wrap--vertical ins.adsbygoogle {
@@ -45,35 +43,18 @@
   min-height: 200px;
 }
 
-/* Catalog right rail — matches left filter card (400px / 500px) */
-.google-ad-wrap--catalog-rail {
-  width: 100%;
-  height: 400px;
-  min-height: 400px;
-  max-height: 400px;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
+@media (min-width: 768px) {
+  .google-ad-wrap--vertical {
+    max-width: 160px;
+  }
 
-.google-ad-wrap--catalog-rail ins.adsbygoogle {
-  flex: 1 1 auto;
-  width: 100% !important;
-  min-height: 0;
-}
-
-@media (min-width: 1024px) {
-  .google-ad-wrap--catalog-rail {
-    height: 500px;
-    min-height: 500px;
-    max-height: 500px;
+  .google-ad-wrap--vertical ins.adsbygoogle {
+    min-height: 250px;
   }
 }
 
-@media (min-width: 768px) {
-  .google-ad-wrap--catalog-rail {
-    position: sticky;
-    top: 5.5rem;
+@media (max-width: 767px) {
+  .google-ad-wrap--vertical {
+    max-width: 100%;
   }
 }
