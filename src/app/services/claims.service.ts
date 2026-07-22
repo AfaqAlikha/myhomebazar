@@ -48,7 +48,7 @@ export class ClaimsService {
   }
 
   getClaims(params?: { page?: number; status?: string }): Observable<ClaimsListResponse> {
-    let queryParams = new HttpParams();
+    let queryParams = new HttpParams().set('scope', 'buyer');
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
