@@ -27,9 +27,11 @@ export interface Order {
   createdAt: string;
   name?: string;
   phone?: string;
+  state?: string;
   city?: string;
   country?: string;
   address?: string;
+  nearestLandmark?: string;
   canReview?: boolean;
   hasReviewed?: boolean;
   canClaim?: boolean;

@@ -1,38 +1,52 @@
 <div class="location-filter bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-4 mb-6">
   <p class="text-sm font-semibold mb-3 text-[var(--color-text)]">Filter by Location</p>
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-    <div>
-      <label class="block text-xs mb-1 text-[var(--color-text-secondary)]">Country</label>
-      <select
+    <mat-form-field appearance="outline" class="w-full location-field">
+      <mat-label>Country</mat-label>
+      <input
+        matInput
         [(ngModel)]="country"
-        class="w-full border border-[var(--color-border)] rounded-lg p-2 bg-[var(--color-background)] text-[var(--color-text)]"
-      >
-        <option value="">All Countries</option>
-        <option *ngFor="let c of countries" [value]="c">{{ c }}</option>
-      </select>
-    </div>
-    <div>
-      <label class="block text-xs mb-1 text-[var(--color-text-secondary)]">State</label>
-      <select
+        [matAutocomplete]="countryAuto"
+        (ngModelChange)="onCountryChange($event)"
+        placeholder="Search country"
+      />
+      <mat-autocomplete #countryAuto="matAutocomplete" (optionSelected)="onCountryChange($event.option.value)">
+        <mat-option value="">All Countries</mat-option>
+        <mat-option *ngFor="let c of countries" [value]="c">{{ c }}</mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full location-field">
+      <mat-label>State</mat-label>
+      <input
+        matInput
         [(ngModel)]="state"
-        class="w-full border border-[var(--color-border)] rounded-lg p-2 bg-[var(--color-background)] text-[var(--color-text)]"
-      >
-        <option value="">All States</option>
-        <option *ngFor="let s of states" [value]="s">{{ s }}</option>
-      </select>
-    </div>
-    <div>
-      <label class="block text-xs mb-1 text-[var(--color-text-secondary)]">City</label>
-      <select
+        [matAutocomplete]="stateAuto"
+        (ngModelChange)="onStateChange($event)"
+        placeholder="Search state"
+      />
+      <mat-autocomplete #stateAuto="matAutocomplete" (optionSelected)="onStateChange($event.option.value)">
+        <mat-option value="">All States</mat-option>
+        <mat-option *ngFor="let s of states" [value]="s">{{ s }}</mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full location-field">
+      <mat-label>City</mat-label>
+      <input
+        matInput
         [(ngModel)]="city"
-        class="w-full border border-[var(--color-border)] rounded-lg p-2 bg-[var(--color-background)] text-[var(--color-text)]"
-      >
-        <option value="">All Cities</option>
-        <option *ngFor="let c of cities" [value]="c">{{ c }}</option>
-      </select>
-    </div>
+        [matAutocomplete]="cityAuto"
+        (ngModelChange)="onCityChange($event)"
+        placeholder="Search city"
+      />
+      <mat-autocomplete #cityAuto="matAutocomplete" (optionSelected)="onCityChange($event.option.value)">
+        <mat-option value="">All Cities</mat-option>
+        <mat-option *ngFor="let c of cities" [value]="c">{{ c }}</mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
   </div>
-  <div class="flex gap-3 mt-4 justify-end">
+  <div class="flex gap-3 mt-2 justify-end">
     <app-ui-button variant="danger" label="Reset" (clicked)="reset()"></app-ui-button>
     <app-ui-button variant="accent" label="Apply Filter" (clicked)="apply()"></app-ui-button>
   </div>

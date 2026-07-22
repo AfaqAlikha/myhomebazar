@@ -23,6 +23,7 @@ import {
   hasLocalProductView,
   markLocalProductView,
 } from '../utils/visitor-id';
+import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
 
 declare global {
   interface Window {
@@ -108,10 +109,12 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
     this.orderForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
+      phone: ['', [Validators.required, pakistaniPhoneValidator]],
+      state: ['', Validators.required],
       city: ['', Validators.required],
       country: ['', Validators.required],
       address: ['', Validators.required],
+      nearestLandmark: ['', Validators.required],
       paymentMethod: ['COD', Validators.required],
     });
 
@@ -121,6 +124,7 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
         {
           name: user.name || '',
           email: user.email || '',
+          state: user.state || '',
           city: user.city || '',
           country: user.country || '',
         },

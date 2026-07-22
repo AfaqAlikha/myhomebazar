@@ -1,6 +1,5 @@
 import { Component, HostListener, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 
 import { HeroSwiperComponent } from '../shared/components/hero-swiper/hero-swiper.component';
@@ -25,7 +24,6 @@ import { SeoService } from '../services/seo';
     ProductCardComponent,
     LocationFilterComponent,
     NgFor,
-    MatPaginatorModule,
     MatIconModule,
     NgIf,
   ],
@@ -40,6 +38,8 @@ export class HomeComponent implements OnInit {
   totalItems = 0;
   itemsPerPage = 0;
   isLoading = true;
+  loadingMore = false;
+  hasMore = true;
   heroLoading = true;
 
   locationFilters: LocationFilters = { country: '', state: '', city: '' };
@@ -69,6 +69,7 @@ export class HomeComponent implements OnInit {
   @HostListener('window:scroll')
   onWindowScroll(): void {
     this.updateScrollButtons();
+    this.tryLoadMoreOnScroll();
   }
 
   @HostListener('window:resize')
@@ -101,27 +102,51 @@ export class HomeComponent implements OnInit {
     this.showScrollUp = nearBottom;
   }
 
+  private tryLoadMoreOnScroll(): void {
+    if (!this.isBrowser || this.isLoading || this.loadingMore || !this.hasMore) return;
+
+    const el = document.documentElement;
+    const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 320;
+
+    if (nearBottom) {
+      this.page += 1;
+      this.loadHomeProducts(true);
+    }
+  }
+
   onLocationFilter(filters: LocationFilters): void {
     this.locationFilters = filters;
     this.page = 1;
-    this.loadHomeProducts();
+    this.hasMore = true;
+    this.loadHomeProducts(false);
   }
 
-  loadHomeProducts(): void {
-    this.isLoading = true;
-    this.spinnerService.show();
+  loadHomeProducts(append = false): void {
+    if (append) {
+      if (this.loadingMore || !this.hasMore) return;
+      this.loadingMore = true;
+    } else {
+      this.isLoading = true;
+      this.spinnerService.show();
+    }
+
     this.productService.getHomeProducts(this.page, this.locationFilters).subscribe({
       next: (res: any) => {
-        this.products = res.products;
+        const incoming = res.products || [];
+        this.products = append ? [...this.products, ...incoming] : incoming;
         this.totalItems = res.pagination.totalItems;
         this.itemsPerPage = res.pagination.itemsPerPage;
         this.page = res.pagination.currentPage;
+        this.hasMore = this.page < res.pagination.totalPages;
         this.isLoading = false;
+        this.loadingMore = false;
         this.spinnerService.hide();
         setTimeout(() => this.updateScrollButtons(), 0);
       },
       error: () => {
+        if (append && this.page > 1) this.page -= 1;
         this.isLoading = false;
+        this.loadingMore = false;
         this.spinnerService.hide();
       },
     });
@@ -162,10 +187,5 @@ export class HomeComponent implements OnInit {
         this.heroLoading = false;
       },
     });
-  }
-
-  pageChanged(event: PageEvent): void {
-    this.page = event.pageIndex + 1;
-    this.loadHomeProducts();
   }
 }

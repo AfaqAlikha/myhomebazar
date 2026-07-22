@@ -99,8 +99,12 @@
                 <p class="text-xs uppercase tracking-wide text-[var(--color-text-secondary)] mb-1">Delivery Address</p>
                 <p class="text-sm text-[var(--color-text)]">{{ order.name }}</p>
                 <p class="text-sm text-[var(--color-text-secondary)]">{{ order.phone }}</p>
+                <p class="text-sm text-[var(--color-text)] mt-1">{{ order.address }}</p>
+                <p *ngIf="order.nearestLandmark" class="text-sm text-[var(--color-text)]">
+                  Near: {{ order.nearestLandmark }}
+                </p>
                 <p class="text-sm text-[var(--color-text-secondary)]">
-                  {{ order.address }}, {{ order.city }}, {{ order.country }}
+                  {{ order.city }}<span *ngIf="order.state">, {{ order.state }}</span>, {{ order.country }}
                 </p>
               </div>
 
