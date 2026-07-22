@@ -17,6 +17,7 @@ import { RouterLink } from '@angular/router';
 import { PaymentMethodsComponent } from '../shared/payment-methods/payment-methods.component';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
 import { ShippingService, ShippingQuote } from '../services/shipping.service';
+import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
 
 @Component({
   selector: 'app-cart',
@@ -62,7 +63,7 @@ export class CartComponent implements OnInit {
     this.orderForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
+      phone: ['', [Validators.required, pakistaniPhoneValidator]],
       city: ['', Validators.required],
       country: ['', Validators.required],
       address: ['', Validators.required],

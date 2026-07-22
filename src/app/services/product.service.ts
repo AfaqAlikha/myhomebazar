@@ -62,7 +62,12 @@ export class ProductService {
     return this.http.get(API_ENDPOINTS.products.list, { params });
   }
 
-  getProductLocations(): Observable<{ countries: string[]; states: string[]; cities: string[] }> {
+  getProductLocations(): Observable<{
+    countries: string[];
+    states: string[];
+    cities: string[];
+    locations: Array<{ country: string; state: string; city: string }>;
+  }> {
     return this.http.get(API_ENDPOINTS.products.locations).pipe(
       map((res: any) => res.data || res),
     );

@@ -14,5 +14,8 @@
     <span *ngIf="control.errors?.['minlength']">
       Minimum length is {{ control.errors?.['minlength'].requiredLength }}
     </span>
+    <span *ngIf="control.errors?.['pakistaniPhone']">
+      Enter a valid Pakistani mobile number (e.g. 03001234567 or +923001234567)
+    </span>
   </div>
 </div>

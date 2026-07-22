@@ -59,15 +59,17 @@
           ></div>
         </ng-container>
       </div>
-    </div>
-    <div class="flex justify-end mt-6">
-      <mat-paginator
-        [length]="totalItems"
-        [pageSize]="itemsPerPage"
-        [pageSizeOptions]="[itemsPerPage]"
-        (page)="pageChanged($event)"
+
+      <div *ngIf="loadingMore" class="flex justify-center py-6">
+        <div class="h-10 w-10 rounded-full border-4 border-[var(--color-accent)] border-t-transparent animate-spin"></div>
+      </div>
+
+      <p
+        *ngIf="!isLoading && !loadingMore && products.length && !hasMore"
+        class="text-center text-sm text-[var(--color-text-secondary)] py-4"
       >
-      </mat-paginator>
+        You have reached the end of the list.
+      </p>
     </div>
   </div>
 </div>
