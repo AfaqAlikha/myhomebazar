@@ -170,9 +170,9 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   canWriteReview(order: any): boolean {
     return (
-      !!order.canReview &&
       !order.hasReviewed &&
-      ['delivered', 'completed'].includes(order.status)
+      order.status === 'completed' &&
+      (order.canReview !== false)
     );
   }
 
