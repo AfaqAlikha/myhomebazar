@@ -144,9 +144,20 @@
       <app-ui-input label="Name" controlName="name"></app-ui-input>
       <app-ui-input label="Email" controlName="email" type="email"></app-ui-input>
       <app-ui-input label="Phone" controlName="phone" type="tel" placeholder="03001234567"></app-ui-input>
-      <app-ui-input label="City" controlName="city"></app-ui-input>
       <app-ui-input label="Country" controlName="country"></app-ui-input>
-      <app-ui-input label="Address" controlName="address"></app-ui-input>
+      <app-ui-input label="State / Province" controlName="state"></app-ui-input>
+      <app-ui-input label="City" controlName="city"></app-ui-input>
+      <app-ui-input
+        label="Complete Address"
+        controlName="address"
+        placeholder="House no, street, area"
+        [rows]="2"
+      ></app-ui-input>
+      <app-ui-input
+        label="Nearest Landmark / Famous Place"
+        controlName="nearestLandmark"
+        placeholder="e.g. near UBL Bank, Main Bazaar"
+      ></app-ui-input>
 
       <div class="mt-2 sm:mt-4">
         <app-payment-methods formControlName="paymentMethod"></app-payment-methods>

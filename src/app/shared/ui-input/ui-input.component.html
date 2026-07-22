@@ -1,12 +1,22 @@
 <div class="form-group w-full min-w-0">
   <label *ngIf="label" class="block text-sm font-medium mb-1">{{ label }}</label>
-  <input
-    [type]="type"
+  <textarea
+    *ngIf="rows; else singleLineInput"
     [placeholder]="placeholder"
     [formControlName]="controlName"
     [disabled]="disabled"
-    class="form-input w-full min-w-0 border rounded p-2.5 text-base sm:text-sm dark:text-black box-border"
-  />
+    [rows]="rows"
+    class="form-input w-full min-w-0 border rounded p-2.5 text-base sm:text-sm dark:text-black box-border resize-y"
+  ></textarea>
+  <ng-template #singleLineInput>
+    <input
+      [type]="type"
+      [placeholder]="placeholder"
+      [formControlName]="controlName"
+      [disabled]="disabled"
+      class="form-input w-full min-w-0 border rounded p-2.5 text-base sm:text-sm dark:text-black box-border"
+    />
+  </ng-template>
 
   <div class="text-red-500 mt-1" *ngIf="showError">
     <span *ngIf="control.errors?.['required']"> {{ label }} is required </span>

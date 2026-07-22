@@ -110,9 +110,11 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.required, pakistaniPhoneValidator]],
+      state: ['', Validators.required],
       city: ['', Validators.required],
       country: ['', Validators.required],
       address: ['', Validators.required],
+      nearestLandmark: ['', Validators.required],
       paymentMethod: ['COD', Validators.required],
     });
 
@@ -122,6 +124,7 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
         {
           name: user.name || '',
           email: user.email || '',
+          state: user.state || '',
           city: user.city || '',
           country: user.country || '',
         },

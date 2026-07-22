@@ -35,6 +35,7 @@ export class UiInputComponent {
   @Input() type: string = 'text';
   @Input() controlName!: string;
   @Input() disabled: boolean = false;
+  @Input() rows = 0;
 
   constructor(public parent: FormGroupDirective) {}
 
