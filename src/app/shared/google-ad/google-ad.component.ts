@@ -6,7 +6,6 @@ import {
   Inject,
   Input,
   OnDestroy,
-  OnInit,
   PLATFORM_ID,
   ViewChild,
 } from '@angular/core';
@@ -27,11 +26,11 @@ declare global {
   standalone: true,
   imports: [NgClass],
   template: `
-    @if (isBrowser && enabled && adSlot && effectiveVariant) {
+    @if (isBrowser && enabled && adSlot) {
       <div
         class="google-ad-wrap"
         [ngClass]="[
-          effectiveVariant === 'horizontal' ? 'google-ad-wrap--horizontal' : 'google-ad-wrap--vertical',
+          variant === 'horizontal' ? 'google-ad-wrap--horizontal' : 'google-ad-wrap--vertical',
           layoutClass,
         ]"
       >
@@ -50,10 +49,8 @@ declare global {
   `,
   styleUrl: './google-ad.component.css',
 })
-export class GoogleAdComponent implements OnInit, AfterViewInit, OnDestroy {
+export class GoogleAdComponent implements AfterViewInit, OnDestroy {
   @Input() variant: GoogleAdVariant = 'horizontal';
-  /** On mobile uses horizontal slot; on desktop uses vertical slot (shop/category rails). */
-  @Input() responsiveRail = false;
   @Input() layoutClass = '';
   @Input() fullWidthResponsive = true;
 
@@ -62,14 +59,13 @@ export class GoogleAdComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly isBrowser: boolean;
   readonly enabled = GOOGLE_ADS.enabled;
   readonly publisherId = GOOGLE_ADS.publisherId;
-  effectiveVariant: GoogleAdVariant | null = null;
 
   get adSlot(): string {
-    return this.effectiveVariant ? resolveAdSlot(this.effectiveVariant) : '';
+    return resolveAdSlot(this.variant);
   }
 
   get adFormat(): string {
-    return this.effectiveVariant === 'horizontal' ? 'horizontal' : 'auto';
+    return this.variant === 'horizontal' ? 'horizontal' : 'auto';
   }
 
   private loadTimer: ReturnType<typeof setTimeout> | null = null;
@@ -77,15 +73,6 @@ export class GoogleAdComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(@Inject(PLATFORM_ID) platformId: object) {
     this.isBrowser = isPlatformBrowser(platformId);
-  }
-
-  ngOnInit(): void {
-    if (!this.isBrowser) return;
-    this.effectiveVariant = this.responsiveRail
-      ? window.innerWidth < 768
-        ? 'horizontal'
-        : 'vertical'
-      : this.variant;
   }
 
   ngAfterViewInit(): void {
