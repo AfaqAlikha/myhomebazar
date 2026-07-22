@@ -60,3 +60,18 @@
     max-width: 100%;
   }
 }
+
+/* Sticky right rail on catalog pages (shop / category) */
+.google-ad-wrap--catalog-rail {
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .google-ad-wrap--catalog-rail {
+    position: sticky;
+    top: 5.5rem;
+    max-width: 160px;
+    margin-left: auto;
+    margin-right: 0;
+  }
+}

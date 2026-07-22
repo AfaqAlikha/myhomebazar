@@ -6,6 +6,7 @@ import {
   Inject,
   Input,
   OnDestroy,
+  OnInit,
   PLATFORM_ID,
   ViewChild,
 } from '@angular/core';
@@ -26,11 +27,11 @@ declare global {
   standalone: true,
   imports: [NgClass],
   template: `
-    @if (isBrowser && enabled && adSlot) {
+    @if (isBrowser && enabled && adSlot && effectiveVariant) {
       <div
         class="google-ad-wrap"
         [ngClass]="[
-          variant === 'horizontal' ? 'google-ad-wrap--horizontal' : 'google-ad-wrap--vertical',
+          effectiveVariant === 'horizontal' ? 'google-ad-wrap--horizontal' : 'google-ad-wrap--vertical',
           layoutClass,
         ]"
       >
@@ -51,6 +52,8 @@ declare global {
 })
 export class GoogleAdComponent implements AfterViewInit, OnDestroy {
   @Input() variant: GoogleAdVariant = 'horizontal';
+  /** On mobile uses horizontal slot; on desktop uses vertical slot (shop/category rails). */
+  @Input() responsiveRail = false;
   @Input() layoutClass = '';
   @Input() fullWidthResponsive = true;
 
@@ -59,13 +62,14 @@ export class GoogleAdComponent implements AfterViewInit, OnDestroy {
   readonly isBrowser: boolean;
   readonly enabled = GOOGLE_ADS.enabled;
   readonly publisherId = GOOGLE_ADS.publisherId;
+  effectiveVariant: GoogleAdVariant = 'horizontal';
 
   get adSlot(): string {
-    return resolveAdSlot(this.variant);
+    return resolveAdSlot(this.effectiveVariant);
   }
 
   get adFormat(): string {
-    return this.variant === 'horizontal' ? 'horizontal' : 'auto';
+    return this.effectiveVariant === 'horizontal' ? 'horizontal' : 'auto';
   }
 
   private loadTimer: ReturnType<typeof setTimeout> | null = null;
@@ -73,10 +77,19 @@ export class GoogleAdComponent implements AfterViewInit, OnDestroy {
 
   constructor(@Inject(PLATFORM_ID) platformId: object) {
     this.isBrowser = isPlatformBrowser(platformId);
+    this.effectiveVariant = this.variant;
   }
 
   ngAfterViewInit(): void {
-    if (!this.isBrowser || !this.enabled || !this.adSlot) return;
+    if (!this.isBrowser || !this.enabled) return;
+
+    if (this.responsiveRail) {
+      this.effectiveVariant = window.innerWidth < 768 ? 'horizontal' : 'vertical';
+    } else {
+      this.effectiveVariant = this.variant;
+    }
+
+    if (!this.adSlot) return;
     this.loadTimer = setTimeout(() => this.pushAd(), 150);
   }
 
