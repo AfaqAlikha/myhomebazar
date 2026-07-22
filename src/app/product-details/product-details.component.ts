@@ -84,6 +84,7 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
   orderSubmitting = false;
   currentUserId = '';
   canOrder = true;
+  isOutOfStock = false;
   likeLoading = false;
 
   private destroyRef = inject(DestroyRef);
@@ -186,7 +187,10 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
     this.bio = this.product?.user?.bio || '';
     this.id = this.product?.user?._id || this.product?.user?.id || '';
 
-    this.canOrder = !isOwnProduct(this.product, this.currentUserId);
+    const isOwn = isOwnProduct(this.product, this.currentUserId);
+    const inStock = Number(this.product?.countInStock ?? 0) > 0;
+    this.canOrder = !isOwn && inStock;
+    this.isOutOfStock = !inStock;
     this.product.isAwaitingReview =
       this.product.awaitingReviewUsers?.includes(this.currentUserId) || false;
 

@@ -137,9 +137,12 @@
                 <div
                   class="w-8 h-8 rounded-full flex items-center justify-center !bg-[var(--color-accent)] text-white font-semibold text-lg"
                 >
-                  {{ review.user.name ? review.user.name.charAt(0) : '?' }}
+                  {{ (review.user?.name || 'C').charAt(0) }}
                 </div>
                 <div>
+                  <p class="text-sm font-semibold text-gray-800 mb-1">
+                    {{ review.user?.name || 'Customer' }}
+                  </p>
                   <app-star-rating
                     [value]="review.rating"
                     [readonly]="true"
@@ -403,7 +406,10 @@
             ></app-ui-button>
           </div>
 
-          <p *ngIf="!canOrder" class="text-[var(--color-danger)] text-sm mt-2">
+          <p *ngIf="isOutOfStock" class="text-[var(--color-danger)] text-sm mt-2">
+            This product is currently out of stock.
+          </p>
+          <p *ngIf="!canOrder && !isOutOfStock" class="text-[var(--color-danger)] text-sm mt-2">
             You cannot order your own product.
           </p>
         </app-ui-card>
