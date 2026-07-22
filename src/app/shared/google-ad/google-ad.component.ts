@@ -50,7 +50,7 @@ declare global {
   `,
   styleUrl: './google-ad.component.css',
 })
-export class GoogleAdComponent implements AfterViewInit, OnDestroy {
+export class GoogleAdComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() variant: GoogleAdVariant = 'horizontal';
   /** On mobile uses horizontal slot; on desktop uses vertical slot (shop/category rails). */
   @Input() responsiveRail = false;
@@ -62,10 +62,10 @@ export class GoogleAdComponent implements AfterViewInit, OnDestroy {
   readonly isBrowser: boolean;
   readonly enabled = GOOGLE_ADS.enabled;
   readonly publisherId = GOOGLE_ADS.publisherId;
-  effectiveVariant: GoogleAdVariant = 'horizontal';
+  effectiveVariant: GoogleAdVariant | null = null;
 
   get adSlot(): string {
-    return resolveAdSlot(this.effectiveVariant);
+    return this.effectiveVariant ? resolveAdSlot(this.effectiveVariant) : '';
   }
 
   get adFormat(): string {
@@ -77,19 +77,19 @@ export class GoogleAdComponent implements AfterViewInit, OnDestroy {
 
   constructor(@Inject(PLATFORM_ID) platformId: object) {
     this.isBrowser = isPlatformBrowser(platformId);
-    this.effectiveVariant = this.variant;
+  }
+
+  ngOnInit(): void {
+    if (!this.isBrowser) return;
+    this.effectiveVariant = this.responsiveRail
+      ? window.innerWidth < 768
+        ? 'horizontal'
+        : 'vertical'
+      : this.variant;
   }
 
   ngAfterViewInit(): void {
-    if (!this.isBrowser || !this.enabled) return;
-
-    if (this.responsiveRail) {
-      this.effectiveVariant = window.innerWidth < 768 ? 'horizontal' : 'vertical';
-    } else {
-      this.effectiveVariant = this.variant;
-    }
-
-    if (!this.adSlot) return;
+    if (!this.isBrowser || !this.enabled || !this.adSlot) return;
     this.loadTimer = setTimeout(() => this.pushAd(), 150);
   }
 
