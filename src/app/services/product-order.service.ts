@@ -67,9 +67,12 @@ export class ProductOrderService {
   }
 
   getMyOrders(page = 1, limit = 10) {
-    return this.http.get(`${API_ENDPOINTS.productOrder.orders}?page=${page}&limit=${limit}`, {
-      headers: this.getHeaders(),
-    });
+    return this.http.get(
+      `${API_ENDPOINTS.productOrder.orders}?page=${page}&limit=${limit}&scope=buyer`,
+      {
+        headers: this.getHeaders(),
+      },
+    );
   }
 
   updateOrderStatus(

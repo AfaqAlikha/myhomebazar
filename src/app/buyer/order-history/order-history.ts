@@ -14,6 +14,7 @@ import { CLAIM_REASONS } from '../../core/config/api-endpoints';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../auth/auth.service';
+import { ToastrService } from 'ngx-toastr';
 import {
   OrderStatusUpdatePayload,
   SocketService,
@@ -91,6 +92,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private authService: AuthService,
     private socketService: SocketService,
+    private toastr: ToastrService,
   ) {}
 
   ngOnInit(): void {
@@ -342,6 +344,18 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.clearClaimImages();
   }
 
+  getProductImage(order: any): string | null {
+    return order?.product?.images?.[0] || null;
+  }
+
+  getProductId(order: any): string | null {
+    return order?.product?._id || null;
+  }
+
+  getProductName(order: any): string {
+    return order?.product?.name || 'Product unavailable';
+  }
+
   pageChanged(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1;
     this.itemsPerPage = event.pageSize;
@@ -358,9 +372,10 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.spinnerService.hide();
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
         this.spinnerService.hide();
+        this.toastr.error(err?.error?.message || 'Failed to load your orders');
       },
     });
   }
@@ -377,11 +392,12 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     res: any,
     options: { openReviewForOrderId?: string } = {},
   ): void {
-    const newOrders = res.orders || [];
+    const payload = res?.data && !Array.isArray(res?.orders) ? res.data : res;
+    const newOrders = (payload?.orders || []).filter(Boolean);
     this.orders = newOrders;
-    this.totalItems = res.pagination?.totalItems || 0;
-    this.itemsPerPage = res.pagination?.pageSize || this.itemsPerPage;
-    this.currentPage = res.pagination?.currentPage || this.currentPage;
+    this.totalItems = payload?.pagination?.totalItems || 0;
+    this.itemsPerPage = payload?.pagination?.pageSize || this.itemsPerPage;
+    this.currentPage = payload?.pagination?.currentPage || this.currentPage;
 
     newOrders.forEach((order: any) => {
       if (!this.previousStatuses.has(order._id)) {
