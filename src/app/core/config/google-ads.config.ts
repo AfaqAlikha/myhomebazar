@@ -9,7 +9,7 @@ import { env } from '../../../environments/env';
 
 export const GOOGLE_ADS = {
   enabled: true,
-  publisherId: 'ca-pub-1353355245412217',
+  publisherId: env.googleAdsPublisherId || 'ca-pub-1353355245412217',
   slots: {
     horizontal: env.googleAdsSlotHorizontal || '',
     home: '',
