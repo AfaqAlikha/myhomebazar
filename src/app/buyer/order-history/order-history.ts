@@ -19,6 +19,7 @@ import {
   OrderStatusUpdatePayload,
   SocketService,
 } from '../../core/services/socket.service';
+import { GoogleAdComponent } from '../../shared/google-ad/google-ad.component';
 
 @Component({
   selector: 'app-order-history',
@@ -33,6 +34,7 @@ import {
     MatPaginatorModule,
     MatIconModule,
     DatePipe,
+    GoogleAdComponent,
     DecimalPipe,
   ],
   templateUrl: './order-history.html',

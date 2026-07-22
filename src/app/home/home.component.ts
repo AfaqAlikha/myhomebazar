@@ -14,6 +14,7 @@ import { NgFor, NgIf } from '@angular/common';
 import { ProductService } from '../services/product.service';
 import { SpinnerService } from '../shared/spinner.service';
 import { SeoService } from '../services/seo';
+import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
 
 @Component({
   selector: 'app-home',
@@ -23,6 +24,7 @@ import { SeoService } from '../services/seo';
     CategoryLinksComponent,
     ProductCardComponent,
     LocationFilterComponent,
+    GoogleAdComponent,
     NgFor,
     MatIconModule,
     NgIf,

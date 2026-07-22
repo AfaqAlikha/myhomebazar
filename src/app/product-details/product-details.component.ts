@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -17,6 +17,7 @@ import { AuthService } from '../auth/auth.service';
 import { isOwnProduct } from '../utils/auth';
 import { ShippingService, ShippingQuote } from '../services/shipping.service';
 import { PaymentMethodsComponent } from '../shared/payment-methods/payment-methods.component';
+import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
 import { ProductEngagementService } from '../services/product-engagement.service';
 import {
@@ -24,12 +25,6 @@ import {
   markLocalProductView,
 } from '../utils/visitor-id';
 import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
-
-declare global {
-  interface Window {
-    adsbygoogle: any[];
-  }
-}
 
 @Component({
   selector: 'app-product-details',
@@ -51,9 +46,10 @@ declare global {
     RouterLink,
     MatIconModule,
     PaymentMethodsComponent,
+    GoogleAdComponent,
   ],
 })
-export class ProductDetailsComponent implements OnInit, AfterViewInit {
+export class ProductDetailsComponent implements OnInit {
   borderRadius = '10px';
   product: any = null;
 
@@ -166,15 +162,6 @@ export class ProductDetailsComponent implements OnInit, AfterViewInit {
         if (!res) return;
         this.applyProduct(res);
       });
-  }
-
-  ngAfterViewInit(): void {
-    try {
-      window.adsbygoogle = window.adsbygoogle || [];
-      window.adsbygoogle.push({});
-    } catch {
-      // AdSense unavailable during SSR
-    }
   }
 
   private applyProduct(res: any): void {

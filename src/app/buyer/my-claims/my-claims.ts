@@ -8,6 +8,7 @@ import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../shared/ui-button/ui-button.component';
 import { Claim, ClaimStatus } from '../../core/models/claim.model';
 import { CLAIM_REASONS } from '../../core/config/api-endpoints';
+import { GoogleAdComponent } from '../../shared/google-ad/google-ad.component';
 
 @Component({
   selector: 'app-my-claims',
@@ -18,6 +19,7 @@ import { CLAIM_REASONS } from '../../core/config/api-endpoints';
     MatPaginatorModule,
     UiCardComponent,
     UiButtonComponent,
+    GoogleAdComponent,
   ],
   templateUrl: './my-claims.html',
   styleUrls: ['./my-claims.css'],
