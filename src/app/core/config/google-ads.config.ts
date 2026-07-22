@@ -1,9 +1,5 @@
 /**
- * Google AdSense configuration for MyHomeBazar storefront.
- *
- * 1. AdSense → Ads → By ad unit → Display ads → create a responsive unit
- * 2. Copy data-ad-slot into env.googleAdsSlotHorizontal (or slots.horizontal below)
- * 3. Enable Auto ads in AdSense dashboard for extra placements
+ * Google AdSense — horizontal + vertical units for MyHomeBazar storefront.
  */
 import { env } from '../../../environments/env';
 
@@ -11,18 +7,14 @@ export const GOOGLE_ADS = {
   enabled: true,
   publisherId: env.googleAdsPublisherId || 'ca-pub-1353355245412217',
   slots: {
+    /** myhomebazar_horizontal_ads */
     horizontal: env.googleAdsSlotHorizontal || '',
-    home: '',
-    product: '',
-    shop: '',
-    orderHistory: '',
-    claims: '',
+    /** myhomebazar_verical_ads */
+    vertical: env.googleAdsSlotVertical || '',
   },
 } as const;
 
-export type GoogleAdPlacement = keyof typeof GOOGLE_ADS.slots;
+export type GoogleAdVariant = keyof typeof GOOGLE_ADS.slots;
 
-export const resolveAdSlot = (placement: GoogleAdPlacement): string => {
-  const { slots } = GOOGLE_ADS;
-  return slots[placement]?.trim() || slots.horizontal?.trim() || '';
-};
+export const resolveAdSlot = (variant: GoogleAdVariant): string =>
+  GOOGLE_ADS.slots[variant]?.trim() || '';

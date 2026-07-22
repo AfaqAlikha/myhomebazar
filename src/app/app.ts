@@ -20,7 +20,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProductService } from './services/product.service';
 import { ThemeService } from './core/services/theme.service';
 import { SiteThemeService } from './core/services/site-theme.service';
-import { GoogleAdComponent } from './shared/google-ad/google-ad.component';
 import { DOCUMENT } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 @Component({
@@ -43,7 +42,6 @@ import { Title } from '@angular/platform-browser';
     NgxPaginationModule,
     NgxSpinnerModule,
     MatProgressSpinnerModule,
-    GoogleAdComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],

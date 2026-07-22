@@ -1,4 +1,4 @@
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, NgClass } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import {
   GOOGLE_ADS,
-  GoogleAdPlacement,
+  GoogleAdVariant,
   resolveAdSlot,
 } from '../../core/config/google-ads.config';
 
@@ -24,9 +24,16 @@ declare global {
 @Component({
   selector: 'app-google-ad',
   standalone: true,
+  imports: [NgClass],
   template: `
     @if (isBrowser && enabled && adSlot) {
-      <div class="google-ad-wrap" [style.minHeight.px]="minHeight" [class]="layoutClass">
+      <div
+        class="google-ad-wrap"
+        [ngClass]="[
+          variant === 'horizontal' ? 'google-ad-wrap--horizontal' : 'google-ad-wrap--vertical',
+          layoutClass,
+        ]"
+      >
         <p class="google-ad-label" aria-hidden="true">Advertisement</p>
         <ins
           #adSlotRef
@@ -34,7 +41,7 @@ declare global {
           style="display:block"
           [attr.data-ad-client]="publisherId"
           [attr.data-ad-slot]="adSlot"
-          [attr.data-ad-format]="format"
+          [attr.data-ad-format]="adFormat"
           [attr.data-full-width-responsive]="fullWidthResponsive ? 'true' : null"
         ></ins>
       </div>
@@ -43,10 +50,8 @@ declare global {
   styleUrl: './google-ad.component.css',
 })
 export class GoogleAdComponent implements AfterViewInit, OnDestroy {
-  @Input() placement: GoogleAdPlacement = 'horizontal';
-  @Input() format: 'auto' | 'horizontal' | 'rectangle' | 'vertical' = 'auto';
+  @Input() variant: GoogleAdVariant = 'horizontal';
   @Input() layoutClass = '';
-  @Input() minHeight = 90;
   @Input() fullWidthResponsive = true;
 
   @ViewChild('adSlotRef') adSlotRef?: ElementRef<HTMLElement>;
@@ -56,7 +61,11 @@ export class GoogleAdComponent implements AfterViewInit, OnDestroy {
   readonly publisherId = GOOGLE_ADS.publisherId;
 
   get adSlot(): string {
-    return resolveAdSlot(this.placement);
+    return resolveAdSlot(this.variant);
+  }
+
+  get adFormat(): string {
+    return this.variant === 'horizontal' ? 'horizontal' : 'auto';
   }
 
   private loadTimer: ReturnType<typeof setTimeout> | null = null;
@@ -68,7 +77,6 @@ export class GoogleAdComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     if (!this.isBrowser || !this.enabled || !this.adSlot) return;
-
     this.loadTimer = setTimeout(() => this.pushAd(), 150);
   }
 
@@ -90,7 +98,7 @@ export class GoogleAdComponent implements AfterViewInit, OnDestroy {
       window.adsbygoogle.push({});
       this.loaded = true;
     } catch {
-      // AdSense unavailable (SSR, blocked script, etc.)
+      // AdSense unavailable
     }
   }
 }

@@ -1,7 +1,5 @@
 .google-ad-wrap {
-  width: 100%;
-  max-width: 100%;
-  margin: 1rem auto;
+  margin: 0.75rem auto;
   overflow: hidden;
   border-radius: 0.5rem;
   background: var(--color-card, #f8fafc);
@@ -10,16 +8,55 @@
 
 .google-ad-wrap ins.adsbygoogle {
   display: block;
-  width: 100%;
-  min-height: inherit;
 }
 
 .google-ad-label {
   margin: 0;
-  padding: 0.35rem 0.75rem;
-  font-size: 0.65rem;
-  letter-spacing: 0.08em;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-text-secondary, #64748b);
   text-align: center;
+}
+
+/* Compact horizontal banner — one per page at bottom */
+.google-ad-wrap--horizontal {
+  width: 100%;
+  max-width: 728px;
+  min-height: 50px;
+}
+
+.google-ad-wrap--horizontal ins.adsbygoogle {
+  width: 100%;
+  min-height: 50px;
+}
+
+/* Sidebar / rail vertical unit */
+.google-ad-wrap--vertical {
+  width: 100%;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.google-ad-wrap--vertical ins.adsbygoogle {
+  width: 100%;
+  min-height: 200px;
+}
+
+@media (min-width: 768px) {
+  .google-ad-wrap--vertical {
+    max-width: 160px;
+  }
+
+  .google-ad-wrap--vertical ins.adsbygoogle {
+    min-height: 250px;
+  }
+}
+
+@media (max-width: 767px) {
+  .google-ad-wrap--vertical {
+    max-width: 100%;
+  }
 }
