@@ -17,7 +17,6 @@ import { AuthService } from '../auth/auth.service';
 import { isOwnProduct } from '../utils/auth';
 import { ShippingService, ShippingQuote } from '../services/shipping.service';
 import { PaymentMethodsComponent } from '../shared/payment-methods/payment-methods.component';
-import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
 import { ProductEngagementService } from '../services/product-engagement.service';
 import {
@@ -46,7 +45,6 @@ import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
     RouterLink,
     MatIconModule,
     PaymentMethodsComponent,
-    GoogleAdComponent,
   ],
 })
 export class ProductDetailsComponent implements OnInit {
