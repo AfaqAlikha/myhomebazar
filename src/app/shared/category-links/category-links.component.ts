@@ -24,6 +24,8 @@ import { CategoryService, Category } from '../../services/category.service';
 })
 export class CategoryLinksComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('swiperEl') swiperEl!: ElementRef<HTMLDivElement>;
+  @ViewChild('prevBtn') prevBtn!: ElementRef<HTMLButtonElement>;
+  @ViewChild('nextBtn') nextBtn!: ElementRef<HTMLButtonElement>;
 
   categories: Category[] = [];
   private swiper?: Swiper;
@@ -40,47 +42,59 @@ export class CategoryLinksComponent implements OnInit, AfterViewInit, OnDestroy 
     this.categoryService.getCategories().subscribe({
       next: (res) => {
         this.categories = res;
-        if (this.isBrowser) {
-          setTimeout(() => this.initSwiper(), 0);
-        }
+        this.scheduleSwiperInit();
       },
       error: (err) => console.error(err),
     });
   }
 
   ngAfterViewInit(): void {
-    if (this.categories.length) {
-      this.initSwiper();
-    }
+    this.scheduleSwiperInit();
   }
 
   ngOnDestroy(): void {
     this.swiper?.destroy(true, true);
   }
 
+  private scheduleSwiperInit(): void {
+    if (!this.isBrowser || !this.categories.length) return;
+    setTimeout(() => this.initSwiper(), 0);
+  }
+
   private initSwiper(): void {
-    if (!this.isBrowser || !this.swiperEl?.nativeElement || !this.categories.length) return;
+    if (
+      !this.isBrowser ||
+      !this.swiperEl?.nativeElement ||
+      !this.prevBtn?.nativeElement ||
+      !this.nextBtn?.nativeElement ||
+      !this.categories.length
+    ) {
+      return;
+    }
 
     this.swiper?.destroy(true, true);
 
     this.swiper = new Swiper(this.swiperEl.nativeElement, {
       modules: [Navigation],
-      slidesPerView: 3.5,
+      slidesPerView: 'auto',
+      slidesPerGroup: 1,
       spaceBetween: 12,
+      speed: 300,
       watchOverflow: true,
       observer: true,
       observeParents: true,
+      grabCursor: true,
+      resistanceRatio: 0.85,
       navigation: {
-        nextEl: '.category-swiper-next',
-        prevEl: '.category-swiper-prev',
+        nextEl: this.nextBtn.nativeElement,
+        prevEl: this.prevBtn.nativeElement,
       },
       breakpoints: {
-        480: { slidesPerView: 4.5 },
-        640: { slidesPerView: 5.5 },
-        768: { slidesPerView: 6.5 },
-        1024: { slidesPerView: 8 },
-        1280: { slidesPerView: 9 },
+        0: { spaceBetween: 10 },
+        640: { spaceBetween: 12 },
       },
     });
+
+    requestAnimationFrame(() => this.swiper?.update());
   }
 }

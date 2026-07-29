@@ -21,6 +21,7 @@
 .category-swiper .swiper-slide {
   width: 10.5rem !important;
   height: auto !important;
+  flex-shrink: 0;
 }
 
 .category-slide {
