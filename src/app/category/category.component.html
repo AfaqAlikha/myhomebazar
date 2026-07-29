@@ -1,38 +1,60 @@
 <div class="container mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 mt-6 min-h-screen">
   <!-- Sidebar -->
-  <div class="md:col-span-3 mb-4 order-2 md:order-1">
-    <app-ui-card [borderRadius]="borderRadius" class="mt-4 h-[400px] md:h-[500px] overflow-y-auto">
-      <h2 class="text-lg font-semibold mb-3">Sub Categories</h2>
+  <div class="md:col-span-3 mb-4">
+    <app-ui-card [borderRadius]="borderRadius" class="mt-4 max-h-[400px] md:max-h-[500px] overflow-y-auto">
+      <h2 class="text-lg font-semibold mb-3">Categories</h2>
       <div class="flex flex-wrap gap-4">
-        <div class="flex items-center gap-2">
+        <div *ngFor="let cat of categories" class="flex items-center gap-2">
           <input
             type="checkbox"
             class="w-4 h-4 accent-yellow-500 cursor-pointer"
-            [checked]="!selectedSubCategoryId"
-            (change)="showAllProducts()"
+            [checked]="selectedCategoryId === cat._id"
+            (change)="selectCategory(cat)"
           />
 
-          <label class="cursor-pointer" (click)="showAllProducts()"> See All Products </label>
-        </div>
-
-        <div *ngFor="let sub of subCategories" class="flex items-center gap-2">
-          <input
-            type="checkbox"
-            class="w-4 h-4 accent-yellow-500 cursor-pointer"
-            [checked]="selectedSubCategoryId === sub._id"
-            (change)="selectSubCategory(sub)"
-          />
-
-          <label class="cursor-pointer" (click)="selectSubCategory(sub)">
-            {{ sub.subCategory }}
+          <label
+            class="cursor-pointer"
+            [ngClass]="{ 'text-[var(--color-accent)] font-semibold': selectedCategoryId === cat._id }"
+            (click)="selectCategory(cat)"
+          >
+            {{ cat.name }}
           </label>
+        </div>
+      </div>
+
+      <div *ngIf="selectedCategoryId && subCategories.length > 0" class="mt-6">
+        <h3 class="text-md font-semibold mb-2">Sub Categories</h3>
+        <div class="flex flex-wrap gap-4">
+          <div class="flex items-center gap-2">
+            <input
+              type="checkbox"
+              class="w-4 h-4 accent-yellow-500 cursor-pointer"
+              [checked]="!selectedSubCategoryId"
+              (change)="showAllProducts()"
+            />
+
+            <label class="cursor-pointer" (click)="showAllProducts()">All</label>
+          </div>
+
+          <div *ngFor="let sub of subCategories" class="flex items-center gap-2">
+            <input
+              type="checkbox"
+              class="w-4 h-4 accent-yellow-500 cursor-pointer"
+              [checked]="selectedSubCategoryId === sub._id"
+              (change)="selectSubCategory(sub)"
+            />
+
+            <label class="cursor-pointer" (click)="selectSubCategory(sub)">
+              {{ sub.subCategory }}
+            </label>
+          </div>
         </div>
       </div>
     </app-ui-card>
   </div>
 
   <!-- Products Section -->
-  <div class="md:col-span-9 flex flex-col order-1 md:order-2">
+  <div class="md:col-span-9 flex flex-col">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 px-3">
       <div class="w-full md:w-auto">
         <app-ui-search (search)="onSearch($event)"></app-ui-search>

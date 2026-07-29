@@ -1,7 +1,7 @@
 <div class="container mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 mt-6 min-h-screen py-4 px-10">
   <!-- Sidebar -->
-  <div class="md:col-span-3 mb-4 order-2 md:order-1">
-    <app-ui-card [borderRadius]="borderRadius" class="mt-4 h-[500px] overflow-y-auto">
+  <div class="md:col-span-3 mb-4">
+    <app-ui-card [borderRadius]="borderRadius" class="mt-4 max-h-[500px] overflow-y-auto">
       <h2 class="text-lg font-semibold mb-3">Categories</h2>
       <div class="flex flex-wrap gap-4">
         <div class="flex items-center gap-2">
@@ -73,7 +73,7 @@
   </div>
 
   <!-- Products Section -->
-  <div class="md:col-span-9 flex flex-col order-1 md:order-2">
+  <div class="md:col-span-9 flex flex-col">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 px-3">
       <div class="w-full md:w-auto">
         <app-ui-search (search)="onSearch($event)"></app-ui-search>

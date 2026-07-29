@@ -29,7 +29,7 @@
   </div>
 
   <!-- Wishlist Products -->
-  <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-20">
+  <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
     <!-- Products -->
     <ng-container *ngIf="!isLoading">
       <app-product-card
@@ -47,8 +47,8 @@
     </ng-container>
   </div>
 
-  <!-- Pagination Fixed at Bottom-Right -->
-  <div class="absolute bottom-80 right-4  bg-white w-[350px] dark:bg-gray-800 p-2 rounded shadow-lg">
+  <!-- Pagination -->
+  <div class="flex justify-center md:justify-end mt-4 mb-6 w-full overflow-x-auto">
     <mat-paginator
       [length]="totalItems"
       [pageSize]="itemsPerPage"
