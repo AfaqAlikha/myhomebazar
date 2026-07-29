@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
@@ -51,6 +51,7 @@ export class CategoryComponent implements OnInit {
     private productService: ProductService,
     private categoryService: CategoryService,
     private route: ActivatedRoute,
+    private router: Router,
     private spinner: NgxSpinnerService,
     private seo: SeoService,
   ) {}
@@ -70,6 +71,7 @@ export class CategoryComponent implements OnInit {
       this.seo.setCategorySeo(this.selectedCategoryName, this.selectedCategoryId);
 
       // Reset filters
+      this.selectedSubCategoryId = '';
       this.selectedSubCategory = '';
       this.searchQuery = '';
       this.sortOrder = '';
@@ -83,6 +85,11 @@ export class CategoryComponent implements OnInit {
         error: (err) => console.error('Error loading subcategories', err),
       });
     });
+  }
+
+  selectCategory(cat: Category): void {
+    if (this.selectedCategoryId === cat._id) return;
+    this.router.navigate(['/category', cat.name, cat._id]);
   }
 
   // Fetch products with filters
@@ -139,6 +146,7 @@ export class CategoryComponent implements OnInit {
   }
 
   showAllProducts() {
+    this.selectedSubCategoryId = '';
     this.selectedSubCategory = '';
     this.currentPage = 1;
     this.fetchProducts();
