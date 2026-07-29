@@ -35,7 +35,7 @@
 
         <!-- Navigation (Desktop Only) -->
         <nav>
-          <ul class="hidden md:flex items-center gap-6">
+          <ul class="hidden md:flex items-center gap-5">
             <li>
               <a
                 routerLink="/"
@@ -45,49 +45,58 @@
                 >Home</a
               >
             </li>
+
             <li>
-              <a
-                routerLink="/shop"
-                routerLinkActive="active-link"
-                [routerLinkActiveOptions]="{ exact: true }"
-                class="nav-link"
-                >Shop</a
+              <button
+                type="button"
+                class="nav-link nav-menu-trigger"
+                [matMenuTriggerFor]="shopMenu"
               >
-            </li>
-            <li>
-              <a
-                routerLink="/sellers"
-                routerLinkActive="active-link"
-                [routerLinkActiveOptions]="{ exact: true }"
-                class="nav-link"
-                >Sellers</a
-              >
+                Shop
+                <mat-icon class="nav-menu-caret">arrow_drop_down</mat-icon>
+              </button>
+              <mat-menu #shopMenu="matMenu" xPosition="before">
+                <a mat-menu-item routerLink="/shop" routerLinkActive="active-link">All Products</a>
+                <a mat-menu-item routerLink="/sellers" routerLinkActive="active-link">Sellers</a>
+              </mat-menu>
             </li>
 
             @if (token) {
               <li>
-                <a routerLink="/cart" routerLinkActive="active-link" class="nav-link">Cart</a>
-              </li>
-              <li>
-                <a routerLink="/wishlist" routerLinkActive="active-link" class="nav-link">Wishlist</a>
-              </li>
-              <li>
-                <a routerLink="/order-history" routerLinkActive="active-link" class="nav-link"
-                  >Order History</a
+                <button
+                  type="button"
+                  class="nav-link nav-menu-trigger"
+                  [matMenuTriggerFor]="accountMenu"
                 >
-              </li>
-              <li>
-                <a routerLink="/my-claims" routerLinkActive="active-link" class="nav-link"
-                  >My Claims</a
-                >
+                  My Account
+                  <mat-icon class="nav-menu-caret">arrow_drop_down</mat-icon>
+                </button>
+                <mat-menu #accountMenu="matMenu" xPosition="before">
+                  <a mat-menu-item routerLink="/cart" routerLinkActive="active-link">Cart</a>
+                  <a mat-menu-item routerLink="/wishlist" routerLinkActive="active-link">Wishlist</a>
+                  <a mat-menu-item routerLink="/order-history" routerLinkActive="active-link"
+                    >Order History</a
+                  >
+                  <a mat-menu-item routerLink="/my-claims" routerLinkActive="active-link"
+                    >My Claims</a
+                  >
+                </mat-menu>
               </li>
             }
 
             <li>
-              <a routerLink="/contact" routerLinkActive="active-link" class="nav-link">Contact</a>
-            </li>
-            <li>
-              <a routerLink="/about" routerLinkActive="active-link" class="nav-link">About</a>
+              <button
+                type="button"
+                class="nav-link nav-menu-trigger"
+                [matMenuTriggerFor]="companyMenu"
+              >
+                More
+                <mat-icon class="nav-menu-caret">arrow_drop_down</mat-icon>
+              </button>
+              <mat-menu #companyMenu="matMenu" xPosition="before">
+                <a mat-menu-item routerLink="/contact" routerLinkActive="active-link">Contact</a>
+                <a mat-menu-item routerLink="/about" routerLinkActive="active-link">About</a>
+              </mat-menu>
             </li>
           </ul>
         </nav>

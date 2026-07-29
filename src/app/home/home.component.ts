@@ -1,4 +1,4 @@
-import { Component, HostListener, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -10,7 +10,7 @@ import {
   LocationFilters,
 } from '../shared/location-filter/location-filter.component';
 
-import { NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf, NgClass } from '@angular/common';
 import { ProductService } from '../services/product.service';
 import { SpinnerService } from '../shared/spinner.service';
 import { SeoService } from '../services/seo';
@@ -28,11 +28,12 @@ import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
     NgFor,
     MatIconModule,
     NgIf,
+    NgClass,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   featured: any[] = [];
   products: any[] = [];
   page = 1;
@@ -47,8 +48,15 @@ export class HomeComponent implements OnInit {
   locationFilters: LocationFilters = { country: '', state: '', city: '' };
   showScrollDown = true;
   showScrollUp = false;
+  gridColumns = 4;
+  isMobileViewport = false;
+
+  readonly mobileGridOptions = [1, 2];
+  readonly desktopGridOptions = [1, 2, 3, 4];
+  private readonly gridStorageKey = 'myhomebazar.homeGridColumns';
 
   private readonly isBrowser: boolean;
+  private scrollTick = false;
 
   constructor(
     private productService: ProductService,
@@ -61,6 +69,8 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.seo.setDefaultSeo();
+    this.syncViewport();
+    this.loadGridPreference();
     this.loadHomeProducts();
     this.loadFeaturedProducts();
     if (this.isBrowser) {
@@ -68,14 +78,71 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    if (this.isBrowser) {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+  }
+
+  get gridOptions(): number[] {
+    return this.isMobileViewport ? this.mobileGridOptions : this.desktopGridOptions;
+  }
+
+  get effectiveGridColumns(): number {
+    if (this.isMobileViewport) {
+      return Math.min(this.gridColumns, 2);
+    }
+    return this.gridColumns;
+  }
+
+  get productGridClass(): string {
+    const map: Record<number, string> = {
+      1: 'grid-cols-1',
+      2: 'grid-cols-2',
+      3: 'grid-cols-3',
+      4: 'grid-cols-4',
+    };
+    return map[this.effectiveGridColumns] || 'grid-cols-1';
+  }
+
+  setGridColumns(columns: number): void {
+    this.gridColumns = columns;
+    if (this.isBrowser) {
+      localStorage.setItem(this.gridStorageKey, String(columns));
+    }
+  }
+
+  private loadGridPreference(): void {
+    if (!this.isBrowser) return;
+
+    const saved = Number(localStorage.getItem(this.gridStorageKey));
+    if ([1, 2, 3, 4].includes(saved)) {
+      this.gridColumns = saved;
+    }
+  }
+
+  private syncViewport(): void {
+    if (!this.isBrowser) return;
+    this.isMobileViewport = window.innerWidth < 768;
+    if (this.isMobileViewport && this.gridColumns > 2) {
+      this.gridColumns = 2;
+    }
+  }
+
   @HostListener('window:scroll')
   onWindowScroll(): void {
-    this.updateScrollButtons();
-    this.tryLoadMoreOnScroll();
+    if (this.scrollTick) return;
+    this.scrollTick = true;
+    requestAnimationFrame(() => {
+      this.updateScrollButtons();
+      this.tryLoadMoreOnScroll();
+      this.scrollTick = false;
+    });
   }
 
   @HostListener('window:resize')
   onWindowResize(): void {
+    this.syncViewport();
     this.updateScrollButtons();
   }
 
