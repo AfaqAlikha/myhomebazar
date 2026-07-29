@@ -250,3 +250,36 @@ html {
     font-size: 14px !important;
   }
 }
+
+.grid-layout-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.grid-layout-toggle:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.grid-layout-toggle mat-icon {
+  font-size: 1.35rem;
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.product-grid {
+  align-items: stretch;
+}
+
+.product-grid > .product-grid-item {
+  min-width: 0;
+}
