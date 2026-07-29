@@ -8,7 +8,7 @@ import {
   Inject,
   PLATFORM_ID,
 } from '@angular/core';
-import { NgFor, NgIf, NgStyle, isPlatformBrowser } from '@angular/common';
+import { NgFor, NgIf, isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import Swiper from 'swiper';
@@ -18,7 +18,7 @@ import { CategoryService, Category } from '../../services/category.service';
 @Component({
   selector: 'app-category-links',
   standalone: true,
-  imports: [NgFor, NgIf, RouterLink, RouterLinkActive, NgStyle, MatIconModule],
+  imports: [NgFor, NgIf, RouterLink, RouterLinkActive, MatIconModule],
   templateUrl: './category-links.component.html',
   styleUrls: ['./category-links.component.css'],
 })

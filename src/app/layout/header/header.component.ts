@@ -4,7 +4,6 @@ import {
   EventEmitter,
   OnInit,
   OnDestroy,
-  HostListener,
   Inject,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
@@ -40,7 +39,6 @@ import { ProductService } from '../../services/product.service';
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  isSticky = false;
   isDarkMode = false;
   logo: any = null;
   user: any = null;
@@ -61,13 +59,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
-  }
-
-  @HostListener('window:scroll', [])
-  onScroll(): void {
-    if (this.isBrowser) {
-      this.isSticky = window.scrollY > 50;
-    }
   }
 
   loadLogo(): void {

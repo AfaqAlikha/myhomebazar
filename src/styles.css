@@ -120,8 +120,8 @@ html {
   display: block;
 }
 
-/* Swiper */
-.swiper {
+/* Swiper — hero banner only (category swiper uses auto height) */
+.hero-swiper {
   width: 100%;
   height: 220px;
   position: relative;
@@ -129,18 +129,19 @@ html {
 }
 
 @media (min-width: 768px) {
-  .swiper {
+  .hero-swiper {
     height: 380px;
   }
 }
 
-/* Slides */
-.swiper-slide {
+/* Hero slides */
+.hero-swiper .swiper-slide {
   position: relative;
   overflow: hidden;
 }
 
-.swiper-slide img {
+.hero-swiper .swiper-slide img,
+.hero-swiper .hero-slide__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -212,7 +213,7 @@ html {
    Image Zoom Animation
 =========================== */
 
-.swiper-slide-active img {
+.hero-swiper .swiper-slide-active img {
   animation: heroZoom 5s linear forwards;
 }
 
@@ -230,7 +231,7 @@ html {
 =========================== */
 
 @media (max-width: 768px) {
-  .swiper {
+  .hero-swiper {
     height: 220px;
   }
 

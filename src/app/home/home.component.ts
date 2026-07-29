@@ -1,5 +1,6 @@
-import { Component, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, HostListener, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, NgFor, NgIf, NgClass } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 import { HeroSwiperComponent } from '../shared/components/hero-swiper/hero-swiper.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
@@ -26,11 +27,12 @@ import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
     NgFor,
     NgIf,
     NgClass,
+    MatIconModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit {
   featured: any[] = [];
   products: any[] = [];
   page = 1;
@@ -43,12 +45,25 @@ export class HomeComponent implements OnInit, OnDestroy {
   heroLoading = true;
 
   locationFilters: LocationFilters = { country: '', state: '', city: '' };
-  gridColumns = 4;
-  isMobileViewport = false;
+  viewportTier: ViewportTier = 'desktop';
+  gridPreferences: GridPreferences = {
+    mobile: 2,
+    tablet: 3,
+    desktop: 4,
+  };
 
-  readonly mobileGridOptions = [1, 2];
-  readonly desktopGridOptions = [1, 2, 3, 4];
-  private readonly gridStorageKey = 'myhomebazar.homeGridColumns';
+  private readonly gridStorageKey = 'myhomebazar.homeGridPreferences';
+  private readonly gridOptionsByTier: Record<ViewportTier, number[]> = {
+    mobile: [1, 2],
+    tablet: [2, 3],
+    desktop: [3, 4],
+  };
+  private readonly gridIconByColumns: Record<number, string> = {
+    1: 'view_agenda',
+    2: 'view_column',
+    3: 'view_comfy',
+    4: 'grid_view',
+  };
 
   private readonly isBrowser: boolean;
   private scrollTick = false;
@@ -70,21 +85,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadFeaturedProducts();
   }
 
-  ngOnDestroy(): void {
-    if (this.isBrowser) {
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    }
-  }
-
-  get gridOptions(): number[] {
-    return this.isMobileViewport ? this.mobileGridOptions : this.desktopGridOptions;
-  }
-
   get effectiveGridColumns(): number {
-    if (this.isMobileViewport) {
-      return Math.min(this.gridColumns, 2);
-    }
-    return this.gridColumns;
+    const preferred = this.gridPreferences[this.viewportTier];
+    const options = this.gridOptionsByTier[this.viewportTier];
+    return options.includes(preferred) ? preferred : options[options.length - 1];
+  }
+
+  get gridLayoutIcon(): string {
+    return this.gridIconByColumns[this.effectiveGridColumns] || 'grid_view';
+  }
+
+  get gridLayoutLabel(): string {
+    const options = this.gridOptionsByTier[this.viewportTier];
+    const currentIndex = options.indexOf(this.effectiveGridColumns);
+    const next = options[(currentIndex + 1) % options.length];
+    return `Current ${this.effectiveGridColumns} cards per row. Switch to ${next}.`;
   }
 
   get productGridClass(): string {
@@ -97,28 +112,52 @@ export class HomeComponent implements OnInit, OnDestroy {
     return map[this.effectiveGridColumns] || 'grid-cols-1';
   }
 
-  setGridColumns(columns: number): void {
-    this.gridColumns = columns;
-    if (this.isBrowser) {
-      localStorage.setItem(this.gridStorageKey, String(columns));
-    }
+  cycleGridLayout(): void {
+    const options = this.gridOptionsByTier[this.viewportTier];
+    const currentIndex = options.indexOf(this.effectiveGridColumns);
+    const next = options[(currentIndex + 1) % options.length];
+    this.gridPreferences = {
+      ...this.gridPreferences,
+      [this.viewportTier]: next,
+    };
+    this.saveGridPreferences();
+  }
+
+  private saveGridPreferences(): void {
+    if (!this.isBrowser) return;
+    localStorage.setItem(this.gridStorageKey, JSON.stringify(this.gridPreferences));
   }
 
   private loadGridPreference(): void {
     if (!this.isBrowser) return;
 
-    const saved = Number(localStorage.getItem(this.gridStorageKey));
-    if ([1, 2, 3, 4].includes(saved)) {
-      this.gridColumns = saved;
+    try {
+      const saved = JSON.parse(localStorage.getItem(this.gridStorageKey) || '{}') as Partial<GridPreferences>;
+      this.gridPreferences = {
+        mobile:
+          saved.mobile && this.gridOptionsByTier.mobile.includes(saved.mobile) ? saved.mobile : 2,
+        tablet:
+          saved.tablet && this.gridOptionsByTier.tablet.includes(saved.tablet) ? saved.tablet : 3,
+        desktop:
+          saved.desktop && this.gridOptionsByTier.desktop.includes(saved.desktop)
+            ? saved.desktop
+            : 4,
+      };
+    } catch {
+      this.gridPreferences = { mobile: 2, tablet: 3, desktop: 4 };
     }
   }
 
   private syncViewport(): void {
     if (!this.isBrowser) return;
-    this.isMobileViewport = window.innerWidth < 768;
-    if (this.isMobileViewport && this.gridColumns > 2) {
-      this.gridColumns = 2;
-    }
+    this.viewportTier = this.getViewportTier();
+  }
+
+  private getViewportTier(): ViewportTier {
+    const width = window.innerWidth;
+    if (width < 640) return 'mobile';
+    if (width < 768) return 'tablet';
+    return 'desktop';
   }
 
   @HostListener('window:scroll')
@@ -220,4 +259,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
     });
   }
+}
+
+type ViewportTier = 'mobile' | 'tablet' | 'desktop';
+
+interface GridPreferences {
+  mobile: number;
+  tablet: number;
+  desktop: number;
 }

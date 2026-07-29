@@ -14,21 +14,33 @@
         [routerLink]="['/category', category.name, category._id]"
         routerLinkActive="active-link"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="swiper-slide category-slide"
-        [ngStyle]="{ 'background-color': category.color || '#888' }"
+        class="swiper-slide category-slide group"
       >
-        <div class="category-slide-inner">
+        <div
+          class="relative flex flex-col items-center justify-center w-full h-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg shadow-md p-3 transition-colors duration-300"
+        >
           <div
-            *ngIf="category.images && category.images.length > 0"
-            class="category-image-wrap"
+            class="category-image-wrap flex items-center justify-center overflow-hidden rounded-full border border-[var(--color-border)] bg-[var(--color-background)]"
           >
             <img
+              *ngIf="category.images && category.images.length > 0"
               [src]="category.images[0]"
               [alt]="category.name"
-              class="category-image"
+              class="category-image w-full h-full object-contain"
             />
+            <span
+              *ngIf="!category.images?.length"
+              class="category-fallback flex items-center justify-center w-full h-full bg-[var(--color-accent)] text-[var(--color-text)] dark:text-[var(--color-text)] text-xl font-bold"
+            >
+              {{ category.name.charAt(0) }}
+            </span>
           </div>
-          <span class="category-name">{{ category.name }}</span>
+
+          <p
+            class="category-name font-medium text-sm text-[var(--color-text)] dark:text-[var(--color-text)] text-center mt-2 line-clamp-2 w-full"
+          >
+            {{ category.name }}
+          </p>
         </div>
       </a>
     </div>

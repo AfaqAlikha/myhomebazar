@@ -10,32 +10,29 @@
   </section>
 
   <section class="my-4">
-    <h2 class="text-3xl font-bold mb-2 text-[var(--color-accent)] dark:text-[var(--color-accent)]">
-      Popular Products
-    </h2>
-    <div class="w-16 h-1 rounded my-2" style="background-color: var(--color-accent)"></div>
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
+      <div>
+        <h2 class="text-3xl font-bold mb-2 text-[var(--color-accent)] dark:text-[var(--color-accent)]">
+          Popular Products
+        </h2>
+        <div class="w-16 h-1 rounded my-2" style="background-color: var(--color-accent)"></div>
+      </div>
+
+      <button
+        type="button"
+        class="grid-layout-toggle"
+        (click)="cycleGridLayout()"
+        [attr.aria-label]="gridLayoutLabel"
+        [title]="gridLayoutLabel"
+      >
+        <mat-icon>{{ gridLayoutIcon }}</mat-icon>
+      </button>
+    </div>
 
     <app-location-filter
       [initial]="locationFilters"
       (filterChange)="onLocationFilter($event)"
     ></app-location-filter>
-
-    <div class="flex flex-wrap items-center justify-between gap-3 my-3">
-      <p class="text-sm text-[var(--color-text-secondary)] mb-0">Cards per row</p>
-      <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Grid column options">
-        <button
-          *ngFor="let cols of gridOptions"
-          type="button"
-          class="grid-toggle-btn"
-          [class.is-active]="effectiveGridColumns === cols"
-          (click)="setGridColumns(cols)"
-          [attr.aria-pressed]="effectiveGridColumns === cols"
-          [attr.aria-label]="'Show ' + cols + ' cards per row'"
-        >
-          {{ cols }}
-        </button>
-      </div>
-    </div>
 
     <div class="my-3 grid gap-4 home-product-grid" [ngClass]="productGridClass">
       <ng-container *ngIf="!isLoading">
