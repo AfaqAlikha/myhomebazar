@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatIconModule } from '@angular/material/icon';
 
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
+import { ProductGridLayoutService } from '../shared/product-grid-layout.service';
 
 import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
@@ -23,6 +25,7 @@ import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
     NgClass,
     NgIf,
     NgxSpinnerModule,
+    MatIconModule,
   ],
   templateUrl: './shop.component.html',
   styleUrls: ['./shop.component.css'],
@@ -53,7 +56,17 @@ export class ShopComponent implements OnInit {
     private categoryService: CategoryService,
     private spinner: NgxSpinnerService,
     private seo: SeoService,
+    public gridLayout: ProductGridLayoutService,
   ) {}
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.gridLayout.syncViewport();
+  }
+
+  cycleGridLayout(): void {
+    this.gridLayout.cycleGridLayout();
+  }
 
   ngOnInit(): void {
     this.seo.setShopSeo();
