@@ -65,8 +65,8 @@ export class CategoryLinksComponent implements OnInit, AfterViewInit, OnDestroy 
 
     this.swiper = new Swiper(this.swiperEl.nativeElement, {
       modules: [Navigation],
-      slidesPerView: 2.3,
-      spaceBetween: 16,
+      slidesPerView: 3.5,
+      spaceBetween: 12,
       watchOverflow: true,
       observer: true,
       observeParents: true,
@@ -75,11 +75,11 @@ export class CategoryLinksComponent implements OnInit, AfterViewInit, OnDestroy 
         prevEl: '.category-swiper-prev',
       },
       breakpoints: {
-        480: { slidesPerView: 3.3 },
-        640: { slidesPerView: 4.3 },
-        768: { slidesPerView: 5.3 },
-        1024: { slidesPerView: 6.3 },
-        1280: { slidesPerView: 7.3 },
+        480: { slidesPerView: 4.5 },
+        640: { slidesPerView: 5.5 },
+        768: { slidesPerView: 6.5 },
+        1024: { slidesPerView: 8 },
+        1280: { slidesPerView: 9 },
       },
     });
   }

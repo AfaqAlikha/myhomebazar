@@ -14,16 +14,22 @@
         [routerLink]="['/category', category.name, category._id]"
         routerLinkActive="active-link"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="swiper-slide category-slide w-36 h-36 rounded-lg shadow-md flex flex-col items-center justify-center text-white font-semibold transition-transform transform hover:scale-105"
+        class="swiper-slide category-slide"
         [ngStyle]="{ 'background-color': category.color || '#888' }"
       >
-        <img
-          *ngIf="category.images && category.images.length > 0"
-          [src]="category.images[0]"
-          [alt]="category.name"
-          class="w-16 h-16 object-cover rounded-full mb-2"
-        />
-        <span class="text-center px-2 text-sm leading-tight">{{ category.name }}</span>
+        <div class="category-slide-inner">
+          <div
+            *ngIf="category.images && category.images.length > 0"
+            class="category-image-wrap"
+          >
+            <img
+              [src]="category.images[0]"
+              [alt]="category.name"
+              class="category-image"
+            />
+          </div>
+          <span class="category-name">{{ category.name }}</span>
+        </div>
       </a>
     </div>
   </div>

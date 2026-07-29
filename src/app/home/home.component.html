@@ -1,96 +1,68 @@
 <app-hero-swiper [slides]="featured" [loading]="heroLoading"></app-hero-swiper>
 
-<button
-  *ngIf="showScrollDown"
-  type="button"
-  class="home-scroll-fab"
-  (click)="scrollToBottom()"
-  aria-label="Scroll to bottom of page"
->
-  <mat-icon>keyboard_arrow_down</mat-icon>
-</button>
-
-<button
-  *ngIf="showScrollUp"
-  type="button"
-  class="home-scroll-fab"
-  (click)="scrollToTop()"
-  aria-label="Scroll to top of page"
->
-  <mat-icon>keyboard_arrow_up</mat-icon>
-</button>
-<div class="container mx-auto my-3">
-  <div class="container mx-auto my-6 px-2">
+<div class="container mx-auto px-2 my-4">
+  <section class="my-4">
     <h2 class="text-3xl font-bold mb-2 text-[var(--color-accent)] dark:text-[var(--color-accent)]">
       Shop by Categories
     </h2>
-    <div class="w-16 h-1 rounded my-3" style="background-color: var(--color-accent)"></div>
+    <div class="w-16 h-1 rounded my-2" style="background-color: var(--color-accent)"></div>
     <app-category-links></app-category-links>
-    <div *ngIf="isLoading" class="flex gap-3 mb-6">
-      <div
-        *ngFor="let i of [1, 2, 3, 4, 5]"
-        class="w-24 h-8 bg-gray-300 rounded animate-pulse"
-      ></div>
+  </section>
+
+  <section class="my-4">
+    <h2 class="text-3xl font-bold mb-2 text-[var(--color-accent)] dark:text-[var(--color-accent)]">
+      Popular Products
+    </h2>
+    <div class="w-16 h-1 rounded my-2" style="background-color: var(--color-accent)"></div>
+
+    <app-location-filter
+      [initial]="locationFilters"
+      (filterChange)="onLocationFilter($event)"
+    ></app-location-filter>
+
+    <div class="flex flex-wrap items-center justify-between gap-3 my-3">
+      <p class="text-sm text-[var(--color-text-secondary)] mb-0">Cards per row</p>
+      <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Grid column options">
+        <button
+          *ngFor="let cols of gridOptions"
+          type="button"
+          class="grid-toggle-btn"
+          [class.is-active]="effectiveGridColumns === cols"
+          (click)="setGridColumns(cols)"
+          [attr.aria-pressed]="effectiveGridColumns === cols"
+          [attr.aria-label]="'Show ' + cols + ' cards per row'"
+        >
+          {{ cols }}
+        </button>
+      </div>
     </div>
-    <div class="container mx-auto my-6 px-2">
-      <h2
-        class="text-3xl font-bold mb-2 text-[var(--color-accent)] dark:text-[var(--color-accent)]"
-      >
-        Popular Products
-      </h2>
-      <div class="w-16 h-1 rounded mb-2" style="background-color: var(--color-accent)"></div>
 
-      <app-location-filter
-        [initial]="locationFilters"
-        (filterChange)="onLocationFilter($event)"
-      ></app-location-filter>
-
-      <div class="flex flex-wrap items-center justify-between gap-3 my-3">
-        <p class="text-sm text-[var(--color-text-secondary)] mb-0">Cards per row</p>
-        <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Grid column options">
-          <button
-            *ngFor="let cols of gridOptions"
-            type="button"
-            class="grid-toggle-btn"
-            [class.is-active]="effectiveGridColumns === cols"
-            (click)="setGridColumns(cols)"
-            [attr.aria-pressed]="effectiveGridColumns === cols"
-            [attr.aria-label]="'Show ' + cols + ' cards per row'"
-          >
-            {{ cols }}
-          </button>
+    <div class="my-3 grid gap-4 home-product-grid" [ngClass]="productGridClass">
+      <ng-container *ngIf="!isLoading">
+        <div *ngFor="let product of products" class="home-product-grid-item">
+          <app-product-card [product]="product"></app-product-card>
         </div>
-      </div>
+      </ng-container>
 
-      <div class="my-3 grid gap-4 home-product-grid" [ngClass]="productGridClass">
-        <!-- Products -->
-        <ng-container *ngIf="!isLoading">
-          <div *ngFor="let product of products" class="home-product-grid-item">
-            <app-product-card [product]="product"></app-product-card>
-          </div>
-        </ng-container>
-
-        <!-- Skeletons -->
-        <ng-container *ngIf="isLoading">
-          <div
-            *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]"
-            class="home-product-grid-item p-4 bg-gray-200 rounded animate-pulse h-80 w-full"
-          ></div>
-        </ng-container>
-      </div>
-
-      <div *ngIf="loadingMore" class="flex justify-center py-6">
-        <div class="h-10 w-10 rounded-full border-4 border-[var(--color-accent)] border-t-transparent animate-spin"></div>
-      </div>
-
-      <p
-        *ngIf="!isLoading && !loadingMore && products.length && !hasMore"
-        class="text-center text-sm text-[var(--color-text-secondary)] py-4"
-      >
-        You have reached the end of the list.
-      </p>
-
-      <app-google-ad variant="horizontal" layoutClass="container mx-auto px-4 mt-4 mb-2"></app-google-ad>
+      <ng-container *ngIf="isLoading">
+        <div
+          *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]"
+          class="home-product-grid-item p-4 bg-gray-200 rounded animate-pulse h-80 w-full"
+        ></div>
+      </ng-container>
     </div>
-  </div>
+
+    <div *ngIf="loadingMore" class="flex justify-center py-4">
+      <div class="h-10 w-10 rounded-full border-4 border-[var(--color-accent)] border-t-transparent animate-spin"></div>
+    </div>
+
+    <p
+      *ngIf="!isLoading && !loadingMore && products.length && !hasMore"
+      class="text-center text-sm text-[var(--color-text-secondary)] py-3"
+    >
+      You have reached the end of the list.
+    </p>
+
+    <app-google-ad variant="horizontal" layoutClass="container mx-auto px-4 mt-4 mb-2"></app-google-ad>
+  </section>
 </div>

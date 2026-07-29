@@ -1,6 +1,5 @@
 import { Component, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
+import { isPlatformBrowser, NgFor, NgIf, NgClass } from '@angular/common';
 
 import { HeroSwiperComponent } from '../shared/components/hero-swiper/hero-swiper.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
@@ -10,7 +9,6 @@ import {
   LocationFilters,
 } from '../shared/location-filter/location-filter.component';
 
-import { NgFor, NgIf, NgClass } from '@angular/common';
 import { ProductService } from '../services/product.service';
 import { SpinnerService } from '../shared/spinner.service';
 import { SeoService } from '../services/seo';
@@ -26,7 +24,6 @@ import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
     LocationFilterComponent,
     GoogleAdComponent,
     NgFor,
-    MatIconModule,
     NgIf,
     NgClass,
   ],
@@ -46,8 +43,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   heroLoading = true;
 
   locationFilters: LocationFilters = { country: '', state: '', city: '' };
-  showScrollDown = true;
-  showScrollUp = false;
   gridColumns = 4;
   isMobileViewport = false;
 
@@ -73,9 +68,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadGridPreference();
     this.loadHomeProducts();
     this.loadFeaturedProducts();
-    if (this.isBrowser) {
-      setTimeout(() => this.updateScrollButtons(), 0);
-    }
   }
 
   ngOnDestroy(): void {
@@ -134,7 +126,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.scrollTick) return;
     this.scrollTick = true;
     requestAnimationFrame(() => {
-      this.updateScrollButtons();
       this.tryLoadMoreOnScroll();
       this.scrollTick = false;
     });
@@ -143,32 +134,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   @HostListener('window:resize')
   onWindowResize(): void {
     this.syncViewport();
-    this.updateScrollButtons();
-  }
-
-  scrollToBottom(): void {
-    if (!this.isBrowser) return;
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: 'smooth',
-    });
-  }
-
-  scrollToTop(): void {
-    if (!this.isBrowser) return;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  private updateScrollButtons(): void {
-    if (!this.isBrowser) return;
-
-    const el = document.documentElement;
-    const scrollTop = el.scrollTop;
-    const maxScroll = Math.max(0, el.scrollHeight - el.clientHeight);
-    const nearBottom = scrollTop >= maxScroll - 120;
-
-    this.showScrollDown = !nearBottom;
-    this.showScrollUp = nearBottom;
   }
 
   private tryLoadMoreOnScroll(): void {
@@ -210,7 +175,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.loadingMore = false;
         this.spinnerService.hide();
-        setTimeout(() => this.updateScrollButtons(), 0);
       },
       error: () => {
         if (append && this.page > 1) this.page -= 1;
@@ -250,7 +214,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         this.featured = [...productBanners, ...imageBanners];
         this.heroLoading = false;
-        setTimeout(() => this.updateScrollButtons(), 100);
       },
       error: () => {
         this.heroLoading = false;
