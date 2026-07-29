@@ -12,7 +12,6 @@ import { NgFor, NgIf, isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import Swiper from 'swiper';
-import { Navigation } from 'swiper/modules';
 import { CategoryService, Category } from '../../services/category.service';
 
 @Component({
@@ -24,10 +23,10 @@ import { CategoryService, Category } from '../../services/category.service';
 })
 export class CategoryLinksComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('swiperEl') swiperEl!: ElementRef<HTMLDivElement>;
-  @ViewChild('prevBtn') prevBtn!: ElementRef<HTMLButtonElement>;
-  @ViewChild('nextBtn') nextBtn!: ElementRef<HTMLButtonElement>;
 
   categories: Category[] = [];
+  prevDisabled = true;
+  nextDisabled = false;
   private swiper?: Swiper;
   private readonly isBrowser: boolean;
 
@@ -56,26 +55,27 @@ export class CategoryLinksComponent implements OnInit, AfterViewInit, OnDestroy 
     this.swiper?.destroy(true, true);
   }
 
+  slidePrev(): void {
+    this.swiper?.slidePrev();
+  }
+
+  slideNext(): void {
+    this.swiper?.slideNext();
+  }
+
   private scheduleSwiperInit(): void {
     if (!this.isBrowser || !this.categories.length) return;
-    setTimeout(() => this.initSwiper(), 0);
+    setTimeout(() => this.initSwiper(), 50);
   }
 
   private initSwiper(): void {
-    if (
-      !this.isBrowser ||
-      !this.swiperEl?.nativeElement ||
-      !this.prevBtn?.nativeElement ||
-      !this.nextBtn?.nativeElement ||
-      !this.categories.length
-    ) {
+    if (!this.isBrowser || !this.swiperEl?.nativeElement || !this.categories.length) {
       return;
     }
 
     this.swiper?.destroy(true, true);
 
     this.swiper = new Swiper(this.swiperEl.nativeElement, {
-      modules: [Navigation],
       slidesPerView: 'auto',
       slidesPerGroup: 1,
       spaceBetween: 12,
@@ -85,16 +85,29 @@ export class CategoryLinksComponent implements OnInit, AfterViewInit, OnDestroy 
       observeParents: true,
       grabCursor: true,
       resistanceRatio: 0.85,
-      navigation: {
-        nextEl: this.nextBtn.nativeElement,
-        prevEl: this.prevBtn.nativeElement,
-      },
       breakpoints: {
         0: { spaceBetween: 10 },
         640: { spaceBetween: 12 },
       },
+      on: {
+        init: () => this.updateNavState(),
+        slideChange: () => this.updateNavState(),
+        resize: () => this.updateNavState(),
+        reachBeginning: () => this.updateNavState(),
+        reachEnd: () => this.updateNavState(),
+        fromEdge: () => this.updateNavState(),
+      },
     });
 
-    requestAnimationFrame(() => this.swiper?.update());
+    requestAnimationFrame(() => {
+      this.swiper?.update();
+      this.updateNavState();
+    });
+  }
+
+  private updateNavState(): void {
+    if (!this.swiper) return;
+    this.prevDisabled = this.swiper.isBeginning;
+    this.nextDisabled = this.swiper.isEnd;
   }
 }

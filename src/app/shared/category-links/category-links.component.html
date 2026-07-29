@@ -1,9 +1,11 @@
 <div class="category-swiper-shell">
   <button
-    #prevBtn
     type="button"
     class="category-swiper-nav category-swiper-prev"
     aria-label="Previous categories"
+    [class.swiper-button-disabled]="prevDisabled"
+    [disabled]="prevDisabled"
+    (click)="slidePrev()"
   >
     <mat-icon>chevron_left</mat-icon>
   </button>
@@ -48,10 +50,12 @@
   </div>
 
   <button
-    #nextBtn
     type="button"
     class="category-swiper-nav category-swiper-next"
     aria-label="Next categories"
+    [class.swiper-button-disabled]="nextDisabled"
+    [disabled]="nextDisabled"
+    (click)="slideNext()"
   >
     <mat-icon>chevron_right</mat-icon>
   </button>
