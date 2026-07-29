@@ -3,7 +3,7 @@
 <button
   *ngIf="showScrollDown"
   type="button"
-  class="home-scroll-fab home-scroll-fab--down"
+  class="home-scroll-fab"
   (click)="scrollToBottom()"
   aria-label="Scroll to bottom of page"
 >
@@ -13,7 +13,7 @@
 <button
   *ngIf="showScrollUp"
   type="button"
-  class="home-scroll-fab home-scroll-fab--up"
+  class="home-scroll-fab"
   (click)="scrollToTop()"
   aria-label="Scroll to top of page"
 >
@@ -25,7 +25,7 @@
       Shop by Categories
     </h2>
     <div class="w-16 h-1 rounded my-3" style="background-color: var(--color-accent)"></div>
-    <app-category-links *ngIf="!isLoading"></app-category-links>
+    <app-category-links></app-category-links>
     <div *ngIf="isLoading" class="flex gap-3 mb-6">
       <div
         *ngFor="let i of [1, 2, 3, 4, 5]"
@@ -45,17 +45,36 @@
         (filterChange)="onLocationFilter($event)"
       ></app-location-filter>
 
-      <div class="my-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 my-3">
+        <p class="text-sm text-[var(--color-text-secondary)] mb-0">Cards per row</p>
+        <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Grid column options">
+          <button
+            *ngFor="let cols of gridOptions"
+            type="button"
+            class="grid-toggle-btn"
+            [class.is-active]="effectiveGridColumns === cols"
+            (click)="setGridColumns(cols)"
+            [attr.aria-pressed]="effectiveGridColumns === cols"
+            [attr.aria-label]="'Show ' + cols + ' cards per row'"
+          >
+            {{ cols }}
+          </button>
+        </div>
+      </div>
+
+      <div class="my-3 grid gap-4 home-product-grid" [ngClass]="productGridClass">
         <!-- Products -->
         <ng-container *ngIf="!isLoading">
-          <app-product-card *ngFor="let product of products" [product]="product"></app-product-card>
+          <div *ngFor="let product of products" class="home-product-grid-item">
+            <app-product-card [product]="product"></app-product-card>
+          </div>
         </ng-container>
 
         <!-- Skeletons -->
         <ng-container *ngIf="isLoading">
           <div
             *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]"
-            class="p-4 bg-gray-200 rounded animate-pulse h-80 w-full"
+            class="home-product-grid-item p-4 bg-gray-200 rounded animate-pulse h-80 w-full"
           ></div>
         </ng-container>
       </div>

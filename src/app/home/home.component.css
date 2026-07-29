@@ -1,6 +1,7 @@
 .home-scroll-fab {
   position: fixed;
   right: 1.25rem;
+  top: 50%;
   z-index: 40;
   display: flex;
   align-items: center;
@@ -13,20 +14,13 @@
   color: #fff;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   cursor: pointer;
+  transform: translateY(-50%);
   transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
 }
 
 .home-scroll-fab:hover {
-  transform: translateY(-2px);
+  transform: translateY(calc(-50% - 2px));
   background: var(--color-accent-hover, var(--color-accent));
-}
-
-.home-scroll-fab--down {
-  bottom: 1.5rem;
-}
-
-.home-scroll-fab--up {
-  bottom: 1.5rem;
 }
 
 @media (min-width: 768px) {
@@ -35,9 +29,40 @@
     width: 3.25rem;
     height: 3.25rem;
   }
+}
 
-  .home-scroll-fab--down,
-  .home-scroll-fab--up {
-    bottom: 2rem;
-  }
+.grid-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 0.65rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.grid-toggle-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.grid-toggle-btn.is-active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+.home-product-grid {
+  align-items: stretch;
+}
+
+.home-product-grid > .home-product-grid-item {
+  min-width: 0;
 }

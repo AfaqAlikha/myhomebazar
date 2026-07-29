@@ -1,36 +1,52 @@
-.ui-card.category-links {
+.category-swiper-shell {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem;
-  padding: 1rem;
-  background: var(--color-card);
+  padding: 0.25rem 0;
+}
+
+.category-swiper {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.category-slide {
+  width: 9rem !important;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.category-swiper-nav {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
   border: 1px solid var(--color-border);
-  color: var(--color-text);
-  border-radius: 8px;
-  transition: background 0.3s, border-color 0.3s, color 0.3s;
-}
-
-.category-btn {
-  font-weight: 600;
-  color: var(--color-text);
-  background: none;
-  text-transform: none;
-}
-
-.category-btn:hover {
-  color: var(--color-accent);
-}
-
-.category-menu {
+  border-radius: 9999px;
   background: var(--color-card);
   color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-.mat-menu-item {
-  color: var(--color-text);
+.category-swiper-nav:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
 }
 
-.mat-menu-item:hover {
-  background-color: var(--color-accent-hover);
-  color: white;
+.category-swiper-nav.swiper-button-disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .category-swiper-nav {
+    width: 2rem;
+    height: 2rem;
+  }
 }
