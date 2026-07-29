@@ -45,20 +45,29 @@
                 >Home</a
               >
             </li>
-
             <li>
-              <button
-                type="button"
-                class="nav-link nav-menu-trigger"
-                [matMenuTriggerFor]="shopMenu"
+              <a
+                routerLink="/sellers"
+                routerLinkActive="active-link"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="nav-link"
+                >Sellers</a
               >
-                Shop
-                <mat-icon class="nav-menu-caret">arrow_drop_down</mat-icon>
-              </button>
-              <mat-menu #shopMenu="matMenu" xPosition="before">
-                <a mat-menu-item routerLink="/shop" routerLinkActive="active-link">All Products</a>
-                <a mat-menu-item routerLink="/sellers" routerLinkActive="active-link">Sellers</a>
-              </mat-menu>
+            </li>
+            <li>
+              <a
+                routerLink="/shop"
+                routerLinkActive="active-link"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="nav-link"
+                >Shop</a
+              >
+            </li>
+            <li>
+              <a routerLink="/about" routerLinkActive="active-link" class="nav-link">About</a>
+            </li>
+            <li>
+              <a routerLink="/contact" routerLinkActive="active-link" class="nav-link">Contact</a>
             </li>
 
             @if (token) {
@@ -83,21 +92,6 @@
                 </mat-menu>
               </li>
             }
-
-            <li>
-              <button
-                type="button"
-                class="nav-link nav-menu-trigger"
-                [matMenuTriggerFor]="companyMenu"
-              >
-                More
-                <mat-icon class="nav-menu-caret">arrow_drop_down</mat-icon>
-              </button>
-              <mat-menu #companyMenu="matMenu" xPosition="before">
-                <a mat-menu-item routerLink="/contact" routerLinkActive="active-link">Contact</a>
-                <a mat-menu-item routerLink="/about" routerLinkActive="active-link">About</a>
-              </mat-menu>
-            </li>
           </ul>
         </nav>
 
