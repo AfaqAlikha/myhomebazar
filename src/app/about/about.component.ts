@@ -1,70 +1,65 @@
 import { Component, OnInit } from '@angular/core';
 import { trigger, style, animate, transition } from '@angular/animations';
-import { NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { SeoService } from '../services/seo';
+import {
+  AboutContent,
+  AboutFeature,
+  AboutService,
+  AboutStat,
+  AboutTeamMember,
+} from '../services/about.service';
 
 @Component({
   selector: 'app-about',
   templateUrl: './about.component.html',
-  styleUrls: ['./about.component.css'],
   standalone: true,
-  imports: [UiCardComponent, NgFor],
+  imports: [UiCardComponent, NgFor, NgIf],
   animations: [
     trigger('fadeIn', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(20px)' }),
-        animate(
-          '800ms ease-out',
-          style({ opacity: 1, transform: 'translateY(0)' })
-        ),
+        animate('800ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
       ]),
     ]),
     trigger('fadeLeft', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateX(-20px)' }),
-        animate(
-          '800ms ease-out',
-          style({ opacity: 1, transform: 'translateX(0)' })
-        ),
+        animate('800ms ease-out', style({ opacity: 1, transform: 'translateX(0)' })),
       ]),
     ]),
     trigger('fadeRight', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateX(20px)' }),
-        animate(
-          '800ms ease-out',
-          style({ opacity: 1, transform: 'translateX(0)' })
-        ),
+        animate('800ms ease-out', style({ opacity: 1, transform: 'translateX(0)' })),
       ]),
     ]),
   ],
 })
 export class AboutComponent implements OnInit {
   borderRadius = '8px';
+  isLoading = true;
 
-  constructor(private seo: SeoService) {}
+  story = {
+    title: 'Our Story',
+    paragraphs: [
+      'MyHomeBazar is a growing online marketplace connecting buyers with trusted sellers across Pakistan.',
+      'We help customers discover quality products for home and daily life, while giving sellers a simple platform to reach more buyers.',
+      'Our goal is to make online shopping easy, secure, and accessible for everyone.',
+    ],
+    image:
+      '/portrait-two-african-females-holding-shopping-bags-while-reacting-something-their-smartphone 1.png',
+  };
 
-  ngOnInit(): void {
-    this.seo.setAboutSeo();
-  }
-
-  deliveryStats = [
-    {
-      icon: 'store',
-      title: '10.5k',
-      description: 'Sellers active on our site',
-    },
+  deliveryStats: AboutStat[] = [
+    { icon: 'store', title: '10.5k', description: 'Sellers active on our site' },
     { icon: 'attach_money', title: '33k', description: 'Monthly Product Sale' },
-    {
-      icon: 'shopping_basket',
-      title: '45.5k',
-      description: 'Customers active on our site',
-    },
+    { icon: 'shopping_basket', title: '45.5k', description: 'Customers active on our site' },
     { icon: 'money', title: '25k', description: 'Annual gross sale' },
   ];
 
-  owners = [
+  owners: AboutTeamMember[] = [
     {
       img: '/image 46.png',
       name: 'Tom Cruise',
@@ -85,7 +80,7 @@ export class AboutComponent implements OnInit {
     },
   ];
 
-  deliveryFeatures = [
+  deliveryFeatures: AboutFeature[] = [
     {
       icon: 'local_shipping',
       title: 'FREE AND FAST DELIVERY',
@@ -102,4 +97,35 @@ export class AboutComponent implements OnInit {
       desc: 'We return money within 30 days',
     },
   ];
+
+  constructor(
+    private seo: SeoService,
+    private aboutService: AboutService,
+  ) {}
+
+  ngOnInit(): void {
+    this.seo.setAboutSeo();
+    this.aboutService.getPublicAbout().subscribe({
+      next: (content) => {
+        if (content) this.applyContent(content);
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  private applyContent(content: AboutContent): void {
+    if (content.story) {
+      this.story = {
+        title: content.story.title || this.story.title,
+        paragraphs: content.story.paragraphs?.length ? content.story.paragraphs : this.story.paragraphs,
+        image: content.story.image || this.story.image,
+      };
+    }
+    if (content.stats?.length) this.deliveryStats = content.stats;
+    if (content.team?.length) this.owners = content.team;
+    if (content.features?.length) this.deliveryFeatures = content.features;
+  }
 }

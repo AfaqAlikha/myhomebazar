@@ -81,6 +81,9 @@ export const API_ENDPOINTS = {
   theme: {
     public: `${BASE}/theme/public`,
   },
+  about: {
+    public: `${BASE}/about/public`,
+  },
   shipping: {
     quote: `${BASE}/shipping/quote`,
     publicSettings: `${BASE}/shipping/settings/public`,
