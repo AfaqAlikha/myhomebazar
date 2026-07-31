@@ -165,7 +165,7 @@
 
       <!-- Product Info -->
       <div class="md:col-span-6 flex flex-col gap-3">
-        <app-ui-card [borderRadius]="borderRadius" class="p-4 flex flex-col gap-4">
+        <app-ui-card [borderRadius]="borderRadius" class="p-4 flex flex-col gap-4 min-w-0 overflow-hidden">
           <div class="flex items-center justify-between flex-wrap gap-2">
             <h1 class="text-xl font-bold my-1">{{ product.name }}</h1>
             <app-star-rating
@@ -221,7 +221,7 @@
           </p>
 
           <!-- Colors -->
-          <div *ngIf="product.colors?.length > 0" class="flex items-center gap-2 my-3">
+          <div *ngIf="product.colors?.length > 0" class="product-option-row">
             <span>Colors:</span>
             <button
               *ngFor="let color of product.colors"
@@ -234,7 +234,7 @@
           </div>
 
           <!-- Sizes -->
-          <div *ngIf="product.sizes?.length > 0" class="flex items-center gap-2 my-3">
+          <div *ngIf="product.sizes?.length > 0" class="product-option-row">
             <span>Sizes:</span>
             <button
               *ngFor="let size of product.sizes"
@@ -247,7 +247,7 @@
           </div>
 
           <!-- Word Sizes -->
-          <div *ngIf="product.wordSizes?.length > 0" class="flex items-center gap-2 my-3">
+          <div *ngIf="product.wordSizes?.length > 0" class="product-option-row">
             <span>Word Sizes:</span>
             <button
               *ngFor="let word of product.wordSizes"
@@ -262,7 +262,7 @@
           </div>
 
           <!-- Number Sizes -->
-          <div *ngIf="product.numberSizes?.length > 0" class="flex items-center gap-2 my-3">
+          <div *ngIf="product.numberSizes?.length > 0" class="product-option-row">
             <span>Number Sizes:</span>
             <button
               *ngFor="let num of product.numberSizes"
@@ -277,7 +277,7 @@
           </div>
 
           <!-- RAM -->
-          <div *ngIf="product.mobileRam?.length > 0" class="flex items-center gap-2 my-3">
+          <div *ngIf="product.mobileRam?.length > 0" class="product-option-row">
             <span>RAM:</span>
             <button
               *ngFor="let ram of product.mobileRam"
@@ -290,7 +290,7 @@
           </div>
 
           <!-- Materials -->
-          <div *ngIf="product.materials?.length > 0" class="flex items-center gap-2 my-3 flex-wrap">
+          <div *ngIf="product.materials?.length > 0" class="product-option-row">
             <span>Material:</span>
             <button
               *ngFor="let material of product.materials"
@@ -305,7 +305,7 @@
           </div>
 
           <!-- Styles -->
-          <div *ngIf="product.styles?.length > 0" class="flex items-center gap-2 my-3 flex-wrap">
+          <div *ngIf="product.styles?.length > 0" class="product-option-row">
             <span>Style:</span>
             <button
               *ngFor="let style of product.styles"
@@ -318,7 +318,7 @@
           </div>
 
           <!-- Capacity -->
-          <div *ngIf="product.capacities?.length > 0" class="flex items-center gap-2 my-3 flex-wrap">
+          <div *ngIf="product.capacities?.length > 0" class="product-option-row">
             <span>Capacity:</span>
             <button
               *ngFor="let capacity of product.capacities"
@@ -333,7 +333,7 @@
           </div>
 
           <!-- Storage -->
-          <div *ngIf="product.storages?.length > 0" class="flex items-center gap-2 my-3 flex-wrap">
+          <div *ngIf="product.storages?.length > 0" class="product-option-row">
             <span>Storage:</span>
             <button
               *ngFor="let storage of product.storages"
