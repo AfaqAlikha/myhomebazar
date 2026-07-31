@@ -40,6 +40,7 @@ import {
 export class AboutComponent implements OnInit {
   borderRadius = '8px';
   isLoading = true;
+  readonly placeholderImage = '/assets/placeholder-product.png';
 
   story = {
     title: 'Our Story',
@@ -127,5 +128,12 @@ export class AboutComponent implements OnInit {
     if (content.stats?.length) this.deliveryStats = content.stats;
     if (content.team?.length) this.owners = content.team;
     if (content.features?.length) this.deliveryFeatures = content.features;
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img && img.src !== this.placeholderImage) {
+      img.src = this.placeholderImage;
+    }
   }
 }
