@@ -36,7 +36,7 @@ export class AuthInterceptor implements HttpInterceptor {
             return this.handle401(authed, next);
           }
 
-          if (this.auth.wasSessionActive()) {
+          if (this.auth.wasSessionActive() && !this.auth.isLoggingOut()) {
             this.auth.handleSessionExpired();
           } else {
             this.auth.clearStaleSession();
@@ -45,10 +45,18 @@ export class AuthInterceptor implements HttpInterceptor {
           return throwError(() => error);
         }
 
+        if (error.status === 401 && this.shouldSuppressError(req.url, error)) {
+          return throwError(() => error);
+        }
+
         if (error.status === 403) {
-          this.toastr.error('Access denied');
+          if (!this.shouldSuppressError(req.url, error)) {
+            this.toastr.error('Access denied');
+          }
         } else if (error.status === 404) {
-          this.toastr.error('Not found');
+          if (!this.shouldSuppressError(req.url, error)) {
+            this.toastr.error('Not found');
+          }
         } else if (error.status === 500) {
           this.toastr.error('Something went wrong, please try again');
         } else if (error.status === 0) {
@@ -75,11 +83,21 @@ export class AuthInterceptor implements HttpInterceptor {
       url.includes('/signup') ||
       url.includes('/verify-email') ||
       url.includes('/refresh-token') ||
+      url.includes('/logout') ||
       url.includes('/public/')
     );
   }
 
+  private shouldSuppressError(url: string, error: HttpErrorResponse): boolean {
+    if (this.auth.isLoggingOut()) return true;
+    if (url.includes('/about/public')) return true;
+    if (url.includes('/refresh-token') && error.status === 401) return true;
+    if (url.includes('/logout')) return true;
+    return false;
+  }
+
   private shouldRefresh(error: HttpErrorResponse, req: HttpRequest<unknown>): boolean {
+    if (this.auth.isLoggingOut()) return false;
     if (error.status !== 401) return false;
     if (req.headers.has('X-Retry-After-Refresh')) return false;
     if (this.isPublicAuthRequest(req.url)) return false;
@@ -102,7 +120,7 @@ export class AuthInterceptor implements HttpInterceptor {
         }),
         catchError((err) => {
           this.isRefreshing = false;
-          if (this.auth.wasSessionActive()) {
+          if (this.auth.wasSessionActive() && !this.auth.isLoggingOut()) {
             this.auth.handleSessionExpired();
           } else {
             this.auth.clearStaleSession();

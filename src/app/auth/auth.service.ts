@@ -2,7 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { catchError, map, throwError, BehaviorSubject, Observable, of } from 'rxjs';
+import { catchError, map, throwError, BehaviorSubject, Observable, of, finalize } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
 import { API_ENDPOINTS } from '../core/config/api-endpoints';
@@ -23,6 +23,7 @@ export class AuthService {
   private isBrowser: boolean;
   private sessionWasActive = false;
   private sessionExpiredNotified = false;
+  private loggingOut = false;
 
   constructor(
     private http: HttpClient,
@@ -97,6 +98,10 @@ export class AuthService {
 
   wasSessionActive(): boolean {
     return this.sessionWasActive;
+  }
+
+  isLoggingOut(): boolean {
+    return this.loggingOut;
   }
 
   isGuestAuthRoute(url = this.router.url): boolean {
@@ -192,10 +197,22 @@ export class AuthService {
   }
 
   logout(): void {
+    this.loggingOut = true;
+    this.sessionWasActive = false;
+    this.sessionExpiredNotified = true;
+    this.clearSession(false);
+
     this.http
       .post(API_ENDPOINTS.auth.logout, {}, { withCredentials: true })
-      .pipe(catchError(() => of(null)))
-      .subscribe(() => this.clearSession(true));
+      .pipe(
+        catchError(() => of(null)),
+        finalize(() => {
+          this.loggingOut = false;
+        }),
+      )
+      .subscribe(() => {
+        this.toastr.success('Logged out successfully!');
+      });
   }
 
   private getAuthHeaders(): { headers?: HttpHeaders } {
