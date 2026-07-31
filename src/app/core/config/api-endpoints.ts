@@ -19,6 +19,7 @@ export const API_ENDPOINTS = {
   },
   products: {
     list: `${BASE}/products`,
+    publicList: `${BASE}/products/public`,
     locations: `${BASE}/products/locations`,
     myProducts: `${BASE}/products/my-products`,
     byId: (id: string) => `${BASE}/products/${id}`,

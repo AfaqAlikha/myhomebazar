@@ -29,7 +29,7 @@ export class ProductService {
       });
     }
 
-    return this.http.get(API_ENDPOINTS.products.list, { params: queryParams });
+    return this.http.get(API_ENDPOINTS.products.publicList, { params: queryParams });
   }
 
   getMyProducts(params?: Record<string, unknown>): Observable<any> {
@@ -59,7 +59,7 @@ export class ProductService {
     if (filters?.state) params = params.set('state', filters.state);
     if (filters?.city) params = params.set('city', filters.city);
 
-    return this.http.get(API_ENDPOINTS.products.list, { params });
+    return this.http.get(API_ENDPOINTS.products.publicList, { params });
   }
 
   getProductLocations(): Observable<{
@@ -100,7 +100,7 @@ export class ProductService {
     if (filters.sort) params = params.set('sort', filters.sort);
     if (filters.search) params = params.set('search', filters.search);
 
-    return this.http.get<any>(API_ENDPOINTS.products.list, { params });
+    return this.http.get<any>(API_ENDPOINTS.products.publicList, { params });
   }
 
   getProductById(id: string): Observable<any> {
