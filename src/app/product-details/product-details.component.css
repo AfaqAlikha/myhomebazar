@@ -15,6 +15,31 @@ div.p-rating-option.p-rating-option-active {
   color: var(--color-accent);
 }
 
+.product-option-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.product-option-row > span:first-child {
+  flex: 0 0 auto;
+  font-size: 0.875rem;
+  line-height: 2rem;
+}
+
+.product-option-row button {
+  flex: 0 1 auto;
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-word;
+  text-align: center;
+}
+
 .engagement-row {
   display: flex;
   align-items: center;
