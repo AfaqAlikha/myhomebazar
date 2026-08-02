@@ -18,6 +18,7 @@ export interface Product {
   description: string;
   images: string[];
   price: number;
+  countInStock?: number;
   brand?: string;
   catName?: string;
   averageRating: number;

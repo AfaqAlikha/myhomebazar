@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { trigger, style, animate, transition } from '@angular/animations';
-import { NgFor, NgIf } from '@angular/common';
+import { NgFor } from '@angular/common';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { SeoService } from '../services/seo';
 import {
@@ -15,7 +15,7 @@ import {
   selector: 'app-about',
   templateUrl: './about.component.html',
   standalone: true,
-  imports: [UiCardComponent, NgFor, NgIf],
+  imports: [UiCardComponent, NgFor],
   animations: [
     trigger('fadeIn', [
       transition(':enter', [
