@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, Inject } from '@angular/core';
+import { Component, inject, OnInit, Inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,8 +20,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProductService } from './services/product.service';
 import { ThemeService } from './core/services/theme.service';
 import { SiteThemeService } from './core/services/site-theme.service';
-import { DOCUMENT } from '@angular/common';
-import { Title } from '@angular/platform-browser';
+import { SeoService } from './services/seo';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -59,10 +58,9 @@ export class AppComponent implements OnInit {
     private auth: AuthService,
     private spinnerService: SpinnerService,
     private productService: ProductService,
-    private pageTitle: Title,
+    private seo: SeoService,
     private themeService: ThemeService,
     private siteThemeService: SiteThemeService,
-    @Inject(DOCUMENT) private document: Document,
   ) {}
 
   ngOnInit(): void {
@@ -85,33 +83,7 @@ export class AppComponent implements OnInit {
     this.productService.getAppLogo().subscribe({
       next: (res: any) => {
         if (!res.success || !res.logo) return;
-
-        const logo = res.logo;
-
-        // ✅ Page Title
-        this.pageTitle.setTitle(logo.siteName || 'MyHomeBazar');
-
-        // ✅ Favicon
-        let favicon = this.document.querySelector("link[rel='icon']") as HTMLLinkElement;
-
-        if (!favicon) {
-          favicon = this.document.createElement('link');
-          favicon.rel = 'icon';
-          this.document.head.appendChild(favicon);
-        }
-
-        favicon.href = logo.image;
-
-        // ✅ Theme Color
-        let metaTheme = this.document.querySelector("meta[name='theme-color']") as HTMLMetaElement;
-
-        if (!metaTheme) {
-          metaTheme = this.document.createElement('meta');
-          metaTheme.name = 'theme-color';
-          this.document.head.appendChild(metaTheme);
-        }
-
-        metaTheme.content = logo.themeColor || '#16a34a';
+        this.seo.setOrganizationBranding(res.logo);
       },
     });
   }

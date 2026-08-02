@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './auth/auth.guard';
 import { GuestGuard } from './auth/guest.guard';
+import { productDetailsResolver } from './product-details/product.resolver';
 
 export const routes: Routes = [
   {
@@ -68,6 +69,7 @@ export const routes: Routes = [
     path: 'product/details/:id',
     loadComponent: () =>
       import('./product-details/product-details.component').then((m) => m.ProductDetailsComponent),
+    resolve: { product: productDetailsResolver },
   },
   {
     path: 'category/:slug/:id',
