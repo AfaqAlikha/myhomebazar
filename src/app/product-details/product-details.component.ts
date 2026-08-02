@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgFor, NgIf, NgClass, DatePipe, DecimalPipe } from '@angular/common';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { MatIconModule } from '@angular/material/icon';
-import { switchMap, tap, catchError, of } from 'rxjs';
+import { switchMap, tap, catchError, of, EMPTY } from 'rxjs';
 import { ProductService } from '../services/product.service';
 import { ProductOrderService } from '../services/product-order.service';
 import { SeoService } from '../services/seo';
@@ -131,14 +131,13 @@ export class ProductDetailsComponent implements OnInit {
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.calculateTotalPrice());
 
+    const resolvedProduct = this.route.snapshot.data['product'];
+    if (resolvedProduct) {
+      this.applyProduct(resolvedProduct);
+    }
+
     this.route.paramMap
       .pipe(
-        tap(() => {
-          this.isLoading = true;
-          this.loadError = false;
-          this.product = null;
-          this.showModal = false;
-        }),
         switchMap((params) => {
           const id = params.get('id');
           if (!id) {
@@ -146,6 +145,13 @@ export class ProductDetailsComponent implements OnInit {
             this.isLoading = false;
             return of(null);
           }
+          if (this.product?._id === id) {
+            return EMPTY;
+          }
+          this.isLoading = true;
+          this.loadError = false;
+          this.product = null;
+          this.showModal = false;
           return this.productService.getProductById(id).pipe(
             catchError(() => {
               this.loadError = true;
@@ -163,7 +169,7 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   private applyProduct(res: any): void {
-    const product = res?.product ?? res?.data?.product ?? null;
+    const product = res?.product ?? res?.data?.product ?? (res?._id ? res : null);
 
     if (!product) {
       this.loadError = true;
