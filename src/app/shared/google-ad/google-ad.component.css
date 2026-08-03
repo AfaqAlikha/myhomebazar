@@ -54,6 +54,17 @@
 }
 
 @media (max-width: 767px) {
+  .google-ad-wrap--horizontal {
+    max-height: 200px;
+    min-height: 0;
+  }
+
+  .google-ad-wrap--horizontal ins.adsbygoogle {
+    max-height: 200px;
+    min-height: 0;
+    overflow: hidden;
+  }
+
   .google-ad-wrap--vertical {
     max-width: 100%;
   }

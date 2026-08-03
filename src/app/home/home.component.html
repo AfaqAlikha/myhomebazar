@@ -53,6 +53,17 @@
       <div class="h-10 w-10 rounded-full border-4 border-[var(--color-accent)] border-t-transparent animate-spin"></div>
     </div>
 
+    <div *ngIf="!isLoading && hasMore && products.length" class="flex justify-center py-4">
+      <button
+        type="button"
+        class="load-more-btn"
+        (click)="loadMoreProducts()"
+        [disabled]="loadingMore"
+      >
+        {{ loadingMore ? 'Loading…' : 'Load More' }}
+      </button>
+    </div>
+
     <p
       *ngIf="!isLoading && !loadingMore && products.length && !hasMore"
       class="text-center text-sm text-[var(--color-text-secondary)] py-3"

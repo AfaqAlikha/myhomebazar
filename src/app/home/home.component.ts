@@ -66,7 +66,6 @@ export class HomeComponent implements OnInit {
   };
 
   private readonly isBrowser: boolean;
-  private scrollTick = false;
 
   constructor(
     private productService: ProductService,
@@ -160,31 +159,15 @@ export class HomeComponent implements OnInit {
     return 'desktop';
   }
 
-  @HostListener('window:scroll')
-  onWindowScroll(): void {
-    if (this.scrollTick) return;
-    this.scrollTick = true;
-    requestAnimationFrame(() => {
-      this.tryLoadMoreOnScroll();
-      this.scrollTick = false;
-    });
-  }
-
   @HostListener('window:resize')
   onWindowResize(): void {
     this.syncViewport();
   }
 
-  private tryLoadMoreOnScroll(): void {
+  loadMoreProducts(): void {
     if (!this.isBrowser || this.isLoading || this.loadingMore || !this.hasMore) return;
-
-    const el = document.documentElement;
-    const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 320;
-
-    if (nearBottom) {
-      this.page += 1;
-      this.loadHomeProducts(true);
-    }
+    this.page += 1;
+    this.loadHomeProducts(true);
   }
 
   onLocationFilter(filters: LocationFilters): void {
