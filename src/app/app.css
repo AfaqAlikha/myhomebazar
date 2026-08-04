@@ -1,10 +1,4 @@
 /* Sidebar */
-:host {
-  display: block;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
 .custom-sidenav {
   width: 250px !important;
   background-color: var(--color-card) !important;
