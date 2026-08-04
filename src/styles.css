@@ -73,7 +73,9 @@ body {
 .page-main {
   background-color: var(--color-background);
   color: var(--color-text);
-  min-height: calc(100vh - 120px);
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
