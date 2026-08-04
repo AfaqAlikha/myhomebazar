@@ -1,12 +1,12 @@
 <main class="p-3 sm:p-4 container mx-auto max-w-6xl">
-  <div *ngIf="!cartItems.length" class="text-center py-16">
-    <p class="text-[var(--color-text-secondary)] mb-4">Your cart is empty.</p>
-    <a routerLink="/shop" class="text-[var(--color-accent)] hover:underline">Continue Shopping</a>
-  </div>
+  <app-ui-card [borderRadius]="borderRadius" class="cart-shell p-3 sm:p-4">
+    <div *ngIf="!cartItems.length" class="cart-empty-state">
+      <p class="text-[var(--color-text-secondary)] mb-4">Your cart is empty.</p>
+      <a routerLink="/shop" class="text-[var(--color-accent)] hover:underline">Continue Shopping</a>
+    </div>
 
-  <app-ui-card *ngIf="cartItems.length" [borderRadius]="borderRadius" class="p-3 sm:p-4">
     <!-- Desktop table -->
-    <div class="hidden md:block overflow-x-auto">
+    <div *ngIf="cartItems.length" class="hidden md:block overflow-x-auto">
       <table class="w-full border-collapse min-w-[640px]">
         <thead class="bg-[var(--color-border)]">
           <tr>
@@ -56,7 +56,7 @@
     </div>
 
     <!-- Mobile cards -->
-    <div class="md:hidden space-y-3">
+    <div *ngIf="cartItems.length" class="md:hidden space-y-3">
       <div
         *ngFor="let item of cartItems"
         class="border border-[var(--color-border)] rounded-lg p-3 bg-[var(--color-card)]"
@@ -126,7 +126,8 @@
         </div>
         <button
           (click)="proceedToCheckout()"
-          class="bg-[var(--color-accent)] text-white w-full py-2.5 rounded"
+          class="bg-[var(--color-accent)] text-white w-full py-2.5 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="!cartItems.length"
         >
           Proceed to Checkout
         </button>
