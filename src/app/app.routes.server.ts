@@ -100,6 +100,14 @@ export const serverRoutes: ServerRoute[] = [
     path: 'payment-success-cart',
     renderMode: RenderMode.Client,
   },
+  {
+    path: 'order-success',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'track-order',
+    renderMode: RenderMode.Client,
+  },
 
   // ❌ 404 LAST
   {

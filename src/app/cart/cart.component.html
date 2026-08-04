@@ -1,5 +1,10 @@
 <main class="p-3 sm:p-4 container mx-auto max-w-6xl">
-  <app-ui-card [borderRadius]="borderRadius" class="p-3 sm:p-4">
+  <div *ngIf="isGuestMode && !cartItems.length" class="text-center py-16">
+    <p class="text-[var(--color-text-secondary)] mb-4">Your cart is empty.</p>
+    <a routerLink="/shop" class="text-[var(--color-accent)] hover:underline">Continue Shopping</a>
+  </div>
+
+  <app-ui-card *ngIf="cartItems.length" [borderRadius]="borderRadius" class="p-3 sm:p-4">
     <!-- Desktop table -->
     <div class="hidden md:block overflow-x-auto">
       <table class="w-full border-collapse min-w-[640px]">
@@ -128,6 +133,12 @@
       </app-ui-card>
     </div>
   </app-ui-card>
+
+  <p *ngIf="isGuestMode && cartItems.length" class="text-center text-sm mt-4">
+    <a routerLink="/track-order" class="text-[var(--color-accent)] hover:underline">
+      Already ordered? Track your order
+    </a>
+  </p>
 </main>
 
 <!-- Order Modal -->

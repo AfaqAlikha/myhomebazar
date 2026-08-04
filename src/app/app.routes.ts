@@ -102,6 +102,16 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'order-success',
+    loadComponent: () =>
+      import('./order-success/order-success.component').then((m) => m.OrderSuccessComponent),
+  },
+  {
+    path: 'track-order',
+    loadComponent: () =>
+      import('./track-order/track-order.component').then((m) => m.TrackOrderComponent),
+  },
+  {
     path: 'my-acount',
     loadComponent: () =>
       import('./my-account/my-account.component').then((m) => m.MyAccountComponent),

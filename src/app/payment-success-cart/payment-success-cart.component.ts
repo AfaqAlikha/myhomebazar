@@ -1,7 +1,7 @@
-// src/app/payment-success-cart/payment-success-cart.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CartService } from '../services/cart.service';
+import { AuthService } from '../auth/auth.service';
 import { SpinnerService } from '../shared/spinner.service';
 import { Subscription } from 'rxjs';
 import { NgClass, NgIf } from '@angular/common';
@@ -16,6 +16,7 @@ import { NgClass, NgIf } from '@angular/common';
 export class PaymentSuccessCartComponent implements OnInit, OnDestroy {
   success: boolean | null = null;
   error: string | null = null;
+  orderId = '';
 
   private subscription: Subscription = new Subscription();
 
@@ -23,6 +24,7 @@ export class PaymentSuccessCartComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private cartService: CartService,
+    private authService: AuthService,
     private spinnerService: SpinnerService
   ) {}
 
@@ -33,9 +35,19 @@ export class PaymentSuccessCartComponent implements OnInit, OnDestroy {
     this.spinnerService.show();
 
     const sub = this.cartService.confirmPayment(sessionId).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.success = true;
         this.spinnerService.hide();
+
+        const orders = res?.data?.orders || res?.orders;
+        this.orderId = orders?.[0]?._id || '';
+
+        if (!this.authService.isLoggedIn() && this.orderId) {
+          this.router.navigate(['/order-success'], {
+            queryParams: { orderId: this.orderId, guest: '1' },
+            replaceUrl: true,
+          });
+        }
       },
       error: (err) => {
         this.error = err?.error?.message || 'Payment verification failed.';
