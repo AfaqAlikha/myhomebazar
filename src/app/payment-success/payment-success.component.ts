@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductOrderService } from '../services/product-order.service';
+import { AuthService } from '../auth/auth.service';
 import { Subscription } from 'rxjs';
 import { SpinnerService } from '../shared/spinner.service';
 import { NgClass, NgIf } from '@angular/common';
@@ -15,6 +16,7 @@ import { NgClass, NgIf } from '@angular/common';
 export class PaymentSuccessComponent implements OnInit, OnDestroy {
   success: boolean | null = null;
   error: string | null = null;
+  orderId = '';
 
   private subscription: Subscription = new Subscription();
 
@@ -22,6 +24,7 @@ export class PaymentSuccessComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private productOrderService: ProductOrderService,
+    private authService: AuthService,
     private spinnerService: SpinnerService
   ) {}
 
@@ -29,13 +32,23 @@ export class PaymentSuccessComponent implements OnInit, OnDestroy {
     const sessionId = this.route.snapshot.queryParamMap.get('session_id');
     if (!sessionId) return;
 
-    // Show spinner globally
     this.spinnerService.show();
 
     const sub = this.productOrderService.confirmPayment(sessionId).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.success = true;
         this.spinnerService.hide();
+
+        const order = res?.order || res?.data?.order;
+        const orders = res?.orders || res?.data?.orders;
+        this.orderId = order?._id || orders?.[0]?._id || '';
+
+        if (!this.authService.isLoggedIn() && this.orderId) {
+          this.router.navigate(['/order-success'], {
+            queryParams: { orderId: this.orderId, guest: '1' },
+            replaceUrl: true,
+          });
+        }
       },
       error: (err) => {
         this.error = err?.error?.message || 'Payment verification failed.';

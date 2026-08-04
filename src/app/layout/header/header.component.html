@@ -63,6 +63,9 @@
             <li>
               <a routerLink="/contact" routerLinkActive="active-link" class="nav-link">Contact</a>
             </li>
+            <li>
+              <a routerLink="/track-order" routerLinkActive="active-link" class="nav-link">Track Order</a>
+            </li>
 
             @if (token) {
               <li>
@@ -91,16 +94,22 @@
 
         <!-- Right Side -->
         <div class="flex items-center gap-1">
+          <a routerLink="/cart" routerLinkActive="active-link">
+            <button mat-icon-button class="flex items-center justify-center">
+              <mat-icon>shopping_cart</mat-icon>
+            </button>
+          </a>
+
           @if (token) {
             <a routerLink="/wishlist" routerLinkActive="active-link">
               <button mat-icon-button class="flex items-center justify-center">
                 <mat-icon>favorite</mat-icon>
               </button>
             </a>
-
-            <a routerLink="/cart" routerLinkActive="active-link">
-              <button mat-icon-button class="flex items-center justify-center">
-                <mat-icon>shopping_cart</mat-icon>
+          } @else {
+            <a routerLink="/track-order" routerLinkActive="active-link" class="hidden md:inline-flex">
+              <button mat-icon-button class="flex items-center justify-center" title="Track Order">
+                <mat-icon>local_shipping</mat-icon>
               </button>
             </a>
           }

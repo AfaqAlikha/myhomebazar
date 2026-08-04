@@ -1,0 +1,56 @@
+<main class="container mx-auto max-w-2xl px-4 py-8">
+  <app-ui-card class="p-4 sm:p-6">
+    <h1 class="text-xl font-bold mb-1">Track Your Order</h1>
+    <p class="text-sm text-[var(--color-text-secondary)] mb-6">
+      Enter your Order ID and phone number used during checkout.
+    </p>
+
+    <form [formGroup]="form" class="space-y-3" (ngSubmit)="track()">
+      <app-ui-input label="Order ID" controlName="orderId"></app-ui-input>
+      <app-ui-input
+        label="Phone Number"
+        controlName="phone"
+        type="tel"
+        placeholder="03001234567"
+      ></app-ui-input>
+
+      <app-ui-button
+        label="Track Order"
+        variant="accent"
+        [loading]="loading"
+        (clicked)="track()"
+      ></app-ui-button>
+    </form>
+
+    <p *ngIf="error" class="text-[var(--color-danger)] text-sm mt-4">{{ error }}</p>
+  </app-ui-card>
+
+  <app-ui-card *ngIf="order" class="p-4 sm:p-6 mt-6">
+    <div class="flex flex-col sm:flex-row gap-4">
+      <img
+        *ngIf="order.product?.images?.[0]"
+        [src]="order.product.images[0]"
+        alt="Product"
+        class="w-24 h-24 object-cover rounded-lg shrink-0"
+      />
+      <div class="min-w-0 flex-1">
+        <h2 class="font-semibold text-lg">{{ order.product?.name || 'Order' }}</h2>
+        <p class="text-sm text-[var(--color-text-secondary)] mt-1">
+          Order ID: <span class="font-mono break-all">{{ order._id }}</span>
+        </p>
+        <p class="text-sm mt-2">
+          Status:
+          <span class="font-semibold capitalize">{{ getStatusLabel(order.status) }}</span>
+        </p>
+        <p class="text-sm mt-1">
+          Payment:
+          <span class="capitalize">{{ order.paymentStatus || order.paymentMethod }}</span>
+        </p>
+        <p class="text-sm mt-1">Total: Rs {{ order.totalPrice | number }}</p>
+        <p *ngIf="order.createdAt" class="text-xs text-[var(--color-text-secondary)] mt-2">
+          Placed on {{ order.createdAt | date: 'medium' }}
+        </p>
+      </div>
+    </div>
+  </app-ui-card>
+</main>

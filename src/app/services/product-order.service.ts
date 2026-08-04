@@ -4,6 +4,7 @@ import { ToastrService } from 'ngx-toastr';
 import { catchError, map, throwError } from 'rxjs';
 import { API_ENDPOINTS } from '../core/config/api-endpoints';
 import { AuthService } from '../auth/auth.service';
+import { getOrCreateVisitorId } from '../utils/visitor-id';
 
 @Injectable({
   providedIn: 'root',
@@ -14,18 +15,6 @@ export class ProductOrderService {
     private toastr: ToastrService,
     private authService: AuthService,
   ) {}
-
-  private getHeaders(): HttpHeaders {
-    const token = this.authService.getToken();
-
-    let headers = new HttpHeaders();
-
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
-    }
-
-    return headers;
-  }
 
   confirmPayment(sessionId: string) {
     return this.http
@@ -55,6 +44,14 @@ export class ProductOrderService {
           return throwError(() => err);
         }),
       );
+  }
+
+  trackGuestOrder(orderId: string, phone: string) {
+    return this.http.post(
+      API_ENDPOINTS.productOrder.trackGuest,
+      { orderId, phone },
+      { headers: this.getHeaders() },
+    );
   }
 
   getOrderByProduct(productId: string) {
@@ -108,5 +105,20 @@ export class ProductOrderService {
           return throwError(() => err);
         }),
       );
+  }
+
+  private getHeaders(): HttpHeaders {
+    let headers = new HttpHeaders();
+    const visitorId = getOrCreateVisitorId();
+    if (visitorId) {
+      headers = headers.set('X-Visitor-Id', visitorId);
+    }
+
+    const token = this.authService.getToken();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return headers;
   }
 }

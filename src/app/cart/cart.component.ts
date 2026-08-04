@@ -13,11 +13,18 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgFor, NgIf, DecimalPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { PaymentMethodsComponent } from '../shared/payment-methods/payment-methods.component';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
 import { ShippingService, ShippingQuote } from '../services/shipping.service';
 import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
+import {
+  GuestCartItem,
+  readGuestCart,
+  removeGuestCartItem,
+  updateGuestCartQuantity,
+  clearGuestCart,
+} from '../services/guest-cart.service';
 
 @Component({
   selector: 'app-cart',
@@ -43,6 +50,7 @@ export class CartComponent implements OnInit {
   showModal = false;
   orderSubmitting = false;
   orderForm!: FormGroup;
+  isGuestMode = false;
 
   constructor(
     private cartService: CartService,
@@ -52,11 +60,13 @@ export class CartComponent implements OnInit {
     private spinner: SpinnerService,
     private toastr: ToastrService,
     private fb: FormBuilder,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
-    this.loadCart();
+    this.isGuestMode = !this.authService.isLoggedIn();
     this.initForm();
+    this.loadCart();
   }
 
   initForm(): void {
@@ -92,6 +102,16 @@ export class CartComponent implements OnInit {
   }
 
   loadCart(): void {
+    if (this.isGuestMode) {
+      this.cartItems = this.mapGuestItems(readGuestCart());
+      if (this.cartItems.length) {
+        this.refreshShippingQuote();
+      } else {
+        this.shippingQuote = null;
+      }
+      return;
+    }
+
     this.spinner.show();
     this.cartService.getCart().subscribe({
       next: (res) => {
@@ -130,6 +150,18 @@ export class CartComponent implements OnInit {
       },
       error: () => this.spinner.hide(),
     });
+  }
+
+  private mapGuestItems(items: GuestCartItem[]) {
+    return items.map((item) => ({
+      _id: item.id,
+      product: item.product,
+      productId: item.productId,
+      name: item.product.name,
+      image: item.product.images?.[0] || '',
+      price: item.product.price,
+      quantity: item.quantity || 1,
+    }));
   }
 
   calculateItemTotal(item: any): number {
@@ -187,6 +219,13 @@ export class CartComponent implements OnInit {
     const value = (event.target as HTMLInputElement).valueAsNumber;
     if (value <= 0) return;
 
+    if (this.isGuestMode) {
+      this.cartItems = this.mapGuestItems(updateGuestCartQuantity(item._id, value));
+      item.quantity = value;
+      this.refreshShippingQuote();
+      return;
+    }
+
     this.cartService.updateQuantity(item._id, value).subscribe({
       next: () => {
         item.quantity = value;
@@ -199,6 +238,12 @@ export class CartComponent implements OnInit {
   }
 
   deleteItem(item: any): void {
+    if (this.isGuestMode) {
+      this.cartItems = this.mapGuestItems(removeGuestCartItem(item._id));
+      this.refreshShippingQuote();
+      return;
+    }
+
     this.spinner.show();
     this.cartService.removeFromCart(item._id).subscribe({
       next: () => {
@@ -235,9 +280,18 @@ export class CartComponent implements OnInit {
       this.cartService
         .checkoutCart({ ...buyerData, paymentMethod: 'COD', items: itemsPayload })
         .subscribe({
-          next: () => {
+          next: (res) => {
             this.orderSubmitting = false;
             this.showModal = false;
+            if (this.isGuestMode) {
+              clearGuestCart();
+              const orders = res?.data?.orders || res?.orders || [];
+              const orderId = orders[0]?._id;
+              this.router.navigate(['/order-success'], {
+                queryParams: orderId ? { orderId, guest: '1' } : { guest: '1' },
+              });
+              return;
+            }
             this.toastr.success('Order placed with COD!');
             this.loadCart();
           },
@@ -256,6 +310,9 @@ export class CartComponent implements OnInit {
           this.showModal = false;
           const checkout = res?.data?.checkout || res?.checkout;
           if (checkout) {
+            if (this.isGuestMode) {
+              clearGuestCart();
+            }
             this.paymentGateway.redirectToGateway(checkout);
           } else {
             this.toastr.error('Failed to start payment!');

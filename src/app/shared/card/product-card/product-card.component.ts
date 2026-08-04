@@ -9,6 +9,8 @@ import { WishlistService } from '../../../services/wishlist.service';
 import { CartService } from '../../../services/cart.service';
 import { AuthService } from '../../../auth/auth.service';
 import { isOwnProduct as checkOwnProduct } from '../../../utils/auth';
+import { addProductToGuestCart } from '../../../services/guest-cart.service';
+import { ToastrService } from 'ngx-toastr';
 
 interface Product {
   _id: string;
@@ -59,6 +61,7 @@ export class ProductCardComponent implements OnInit {
     private wishlistService: WishlistService,
     private cartService: CartService,
     private auth: AuthService,
+    private toastr: ToastrService,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
@@ -106,6 +109,24 @@ export class ProductCardComponent implements OnInit {
 
   addToCart(product: Product): void {
     if (this.isOwnProduct()) return;
+
+    if (!this.auth.isLoggedIn()) {
+      addProductToGuestCart(
+        {
+          _id: product._id,
+          name: product.name,
+          images: product.images,
+          price: product.price,
+          weightKg: (product as any).weightKg,
+          user: product.user,
+        },
+        1,
+      );
+      this.toastr.success('Added to cart');
+      this.router.navigate(['/cart']);
+      return;
+    }
+
     this.cartLoading = true;
     this.cartService.addToCart(product._id).subscribe({
       next: () => {

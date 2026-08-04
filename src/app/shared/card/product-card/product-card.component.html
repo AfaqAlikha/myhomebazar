@@ -3,11 +3,17 @@
 >
   <!-- Product Image -->
   <div class="relative overflow-hidden rounded-lg w-full h-52">
-    <img
-      [src]="product.images[0]"
-      alt="Product Image"
-      class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
-    />
+    <a
+      [routerLink]="['/product/details', product._id]"
+      class="block w-full h-full cursor-pointer"
+      aria-label="View product details"
+    >
+      <img
+        [src]="product.images[0]"
+        alt="Product Image"
+        class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
+      />
+    </a>
 
     <!-- Deal badge (Amazon-style — not banner) -->
     <span

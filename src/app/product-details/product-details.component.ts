@@ -347,10 +347,23 @@ export class ProductDetailsComponent implements OnInit {
       next: (res: any) => {
         this.orderSubmitting = false;
         this.showModal = false;
-        if (res.checkout) {
-          this.paymentGateway.redirectToGateway(res.checkout);
+
+        const checkout = res?.checkout || res?.data?.checkout;
+        if (checkout) {
+          this.paymentGateway.redirectToGateway(checkout);
           return;
         }
+
+        const order = res?.order || res?.data?.order;
+        const orderId = order?._id;
+
+        if (!this.auth.isLoggedIn() && orderId) {
+          this.router.navigate(['/order-success'], {
+            queryParams: { orderId, guest: '1' },
+          });
+          return;
+        }
+
         const id = this.route.snapshot.paramMap.get('id');
         if (id) {
           this.productService.getProductById(id).subscribe((r) => this.applyProduct(r));
