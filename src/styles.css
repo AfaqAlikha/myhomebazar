@@ -109,6 +109,13 @@ app-root {
   min-height: 100%;
 }
 
+/* Home page uses natural height — no forced min-height stretch */
+.page-main > app-home {
+  flex: 0 0 auto;
+  min-height: auto;
+  display: block;
+}
+
 /* small Material overrides to respect variables (global) */
 .app-input .mat-form-field-flex {
   background: var(--color-card);

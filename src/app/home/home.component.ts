@@ -50,12 +50,7 @@ export class HomeComponent implements OnInit {
   heroLoading = true;
 
   locationFilters: LocationFilters = { country: '', state: '', city: '' };
-  productSearchFilters: ProductSearchFilters = {
-    search: '',
-    categoryId: '',
-    subCategoryId: '',
-    sort: '',
-  };
+  productSearchFilters: ProductSearchFilters = { search: '' };
   viewportTier: ViewportTier = 'desktop';
   gridPreferences: GridPreferences = {
     mobile: 2,
@@ -203,9 +198,6 @@ export class HomeComponent implements OnInit {
       state: this.locationFilters.state,
       city: this.locationFilters.city,
       search: this.productSearchFilters.search,
-      category: this.productSearchFilters.categoryId,
-      subCategory: this.productSearchFilters.subCategoryId,
-      sort: this.productSearchFilters.sort,
     };
   }
 

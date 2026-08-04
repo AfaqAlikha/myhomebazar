@@ -1,78 +1,16 @@
 <div class="product-search-filter bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-4 mb-6">
   <p class="text-sm font-semibold mb-3 text-[var(--color-text)]">Search Products</p>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-    <div class="md:col-span-2 xl:col-span-2">
-      <label class="block text-xs text-[var(--color-text-secondary)] mb-1">Search</label>
-      <input
-        type="text"
-        [(ngModel)]="search"
-        (keydown)="onEnter($event)"
-        placeholder="Product name, brand, category, subcategory..."
-        class="search-input w-full px-4 py-2.5 border rounded-lg bg-[var(--color-card)] text-[var(--color-text)] border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
-      />
-    </div>
+  <div class="flex flex-col sm:flex-row gap-3">
+    <input
+      type="text"
+      [(ngModel)]="search"
+      (keydown)="onEnter($event)"
+      placeholder="Search by product name, brand, category..."
+      class="search-input flex-1 px-4 py-2.5 border rounded-lg bg-[var(--color-card)] text-[var(--color-text)] border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+    />
 
-    <div>
-      <label class="block text-xs text-[var(--color-text-secondary)] mb-1">Category</label>
-      <mat-form-field appearance="outline" class="w-full filter-field">
-        <mat-select
-          [(ngModel)]="categoryId"
-          (ngModelChange)="onCategoryChange($event)"
-          placeholder="All Categories"
-        >
-          <mat-option value="">All Categories</mat-option>
-          <mat-option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <div>
-      <label class="block text-xs text-[var(--color-text-secondary)] mb-1">Subcategory</label>
-      <mat-form-field appearance="outline" class="w-full filter-field">
-        <mat-select
-          [(ngModel)]="subCategoryId"
-          [disabled]="!categoryId"
-          placeholder="All Subcategories"
-        >
-          <mat-option value="">All Subcategories</mat-option>
-          <mat-option *ngFor="let sub of subCategories" [value]="sub._id">
-            {{ sub.subCategory }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-  </div>
-
-  <div class="flex flex-wrap items-center justify-between gap-3 mt-2">
-    <div class="flex flex-wrap gap-2">
-      <button
-        type="button"
-        class="sort-btn"
-        [class.sort-btn-active]="sort === ''"
-        (click)="sort = ''"
-      >
-        All Prices
-      </button>
-      <button
-        type="button"
-        class="sort-btn"
-        [class.sort-btn-active]="sort === 'low'"
-        (click)="sort = 'low'"
-      >
-        Low to High
-      </button>
-      <button
-        type="button"
-        class="sort-btn"
-        [class.sort-btn-active]="sort === 'high'"
-        (click)="sort = 'high'"
-      >
-        High to Low
-      </button>
-    </div>
-
-    <div class="flex gap-3">
+    <div class="flex gap-3 shrink-0">
       <app-ui-button variant="danger" label="Reset" (clicked)="reset()"></app-ui-button>
       <app-ui-button variant="accent" label="Search" (clicked)="apply()"></app-ui-button>
     </div>
