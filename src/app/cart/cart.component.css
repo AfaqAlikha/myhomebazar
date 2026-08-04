@@ -2,6 +2,22 @@
   display: block;
 }
 
+.cart-shell {
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 420px;
+}
+
 .order-modal-panel {
   -webkit-overflow-scrolling: touch;
 }
