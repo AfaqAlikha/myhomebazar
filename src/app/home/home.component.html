@@ -34,6 +34,18 @@
       (filterChange)="onLocationFilter($event)"
     ></app-location-filter>
 
+    <app-product-search-filter
+      [initial]="productSearchFilters"
+      (filterChange)="onProductSearchFilter($event)"
+    ></app-product-search-filter>
+
+    <p
+      *ngIf="!isLoading && !products.length"
+      class="text-center text-sm text-[var(--color-text-secondary)] py-8"
+    >
+      No products found. Try changing your search or filters.
+    </p>
+
     <div class="my-3 grid gap-4 home-product-grid" [ngClass]="productGridClass">
       <ng-container *ngIf="!isLoading">
         <div *ngFor="let product of products" class="home-product-grid-item">

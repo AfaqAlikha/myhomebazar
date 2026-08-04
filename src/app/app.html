@@ -1,4 +1,4 @@
-<mat-sidenav-container class="site-shell min-h-screen min-h-[100dvh] bg-[var(--color-background)] text-[var(--color-text)]">
+<mat-sidenav-container class="min-h-screen flex flex-col bg-[var(--color-background)] text-[var(--color-text)]">
   <!-- Drawer -->
   <mat-sidenav #drawer mode="over" class="custom-sidenav bg-[var(--color-card)]">
     <nav class="flex flex-col p-6 gap-4">
@@ -193,8 +193,8 @@
   </mat-sidenav>
 
   <!-- Main Content -->
-  <mat-sidenav-content class="site-content bg-[var(--color-background)] flex flex-col min-h-screen min-h-[100dvh]">
-    <app-header class="site-header shrink-0" (toggleDrawerEvent)="drawer.toggle()"></app-header>
+  <mat-sidenav-content class="bg-[var(--color-background)] flex flex-col flex-1 min-h-screen">
+    <app-header class="shrink-0" (toggleDrawerEvent)="drawer.toggle()"></app-header>
     <ngx-spinner
       bdColor="rgba(51,51,51,0.8)"
       size="medium"
@@ -204,10 +204,10 @@
     >
     </ngx-spinner>
 
-    <main class="page-main flex-1 flex flex-col w-full min-h-0">
+    <main class="page-main flex-1 min-h-0">
       <router-outlet></router-outlet>
     </main>
 
-    <app-footer class="site-footer shrink-0 mt-auto"></app-footer>
+    <app-footer class="shrink-0 mt-auto"></app-footer>
   </mat-sidenav-content>
 </mat-sidenav-container>

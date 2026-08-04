@@ -9,6 +9,10 @@ import {
   LocationFilterComponent,
   LocationFilters,
 } from '../shared/location-filter/location-filter.component';
+import {
+  ProductSearchFilterComponent,
+  ProductSearchFilters,
+} from '../shared/product-search-filter/product-search-filter.component';
 
 import { ProductService } from '../services/product.service';
 import { SpinnerService } from '../shared/spinner.service';
@@ -23,6 +27,7 @@ import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
     CategoryLinksComponent,
     ProductCardComponent,
     LocationFilterComponent,
+    ProductSearchFilterComponent,
     GoogleAdComponent,
     NgFor,
     NgIf,
@@ -45,6 +50,12 @@ export class HomeComponent implements OnInit {
   heroLoading = true;
 
   locationFilters: LocationFilters = { country: '', state: '', city: '' };
+  productSearchFilters: ProductSearchFilters = {
+    search: '',
+    categoryId: '',
+    subCategoryId: '',
+    sort: '',
+  };
   viewportTier: ViewportTier = 'desktop';
   gridPreferences: GridPreferences = {
     mobile: 2,
@@ -172,9 +183,30 @@ export class HomeComponent implements OnInit {
 
   onLocationFilter(filters: LocationFilters): void {
     this.locationFilters = filters;
+    this.resetProductsAndReload();
+  }
+
+  onProductSearchFilter(filters: ProductSearchFilters): void {
+    this.productSearchFilters = filters;
+    this.resetProductsAndReload();
+  }
+
+  private resetProductsAndReload(): void {
     this.page = 1;
     this.hasMore = true;
     this.loadHomeProducts(false);
+  }
+
+  private buildProductQuery() {
+    return {
+      country: this.locationFilters.country,
+      state: this.locationFilters.state,
+      city: this.locationFilters.city,
+      search: this.productSearchFilters.search,
+      category: this.productSearchFilters.categoryId,
+      subCategory: this.productSearchFilters.subCategoryId,
+      sort: this.productSearchFilters.sort,
+    };
   }
 
   loadHomeProducts(append = false): void {
@@ -186,7 +218,7 @@ export class HomeComponent implements OnInit {
       this.spinnerService.show();
     }
 
-    this.productService.getHomeProducts(this.page, this.locationFilters).subscribe({
+    this.productService.getHomeProducts(this.page, this.buildProductQuery()).subscribe({
       next: (res: any) => {
         const incoming = res.products || [];
         this.products = append ? [...this.products, ...incoming] : incoming;
