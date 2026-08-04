@@ -1,5 +1,5 @@
-<div class="cart-page p-3 sm:p-4 container mx-auto max-w-6xl w-full">
-  <div *ngIf="!cartItems.length" class="cart-empty py-16 text-center">
+<main class="p-3 sm:p-4 container mx-auto max-w-6xl">
+  <div *ngIf="!cartItems.length" class="text-center py-16">
     <p class="text-[var(--color-text-secondary)] mb-4">Your cart is empty.</p>
     <a routerLink="/shop" class="text-[var(--color-accent)] hover:underline">Continue Shopping</a>
   </div>
@@ -139,7 +139,7 @@
       Already ordered? Track your order
     </a>
   </p>
-</div>
+</main>
 
 <!-- Order Modal -->
 <div

@@ -51,8 +51,7 @@ body,
 app-root {
   background-color: var(--color-background);
   color: var(--color-text);
-  min-height: 100vh;
-  height: 100%;
+  min-height: 100%;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -61,20 +60,8 @@ body {
   margin: 0;
 }
 
-app-root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
 /* Angular Material layout shells */
 .mat-drawer-container,
-.mat-sidenav-container {
-  flex: 1 1 auto;
-  min-height: 100vh !important;
-  height: auto !important;
-}
-
 .mat-sidenav-container,
 .mat-drawer-content,
 .mat-sidenav-content {
@@ -83,37 +70,10 @@ app-root {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.mat-sidenav-content {
-  min-height: 100vh !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
 .page-main {
   background-color: var(--color-background);
   color: var(--color-text);
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  min-height: 0;
   transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Routed pages fill remaining space so footer stays at bottom */
-.page-main > :not(router-outlet) {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  min-height: 100%;
-}
-
-/* Home page uses natural height — no forced min-height stretch */
-.page-main > app-home {
-  flex: 0 0 auto;
-  min-height: auto;
-  display: block;
 }
 
 /* small Material overrides to respect variables (global) */
