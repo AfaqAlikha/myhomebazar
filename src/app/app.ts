@@ -21,6 +21,7 @@ import { ProductService } from './services/product.service';
 import { ThemeService } from './core/services/theme.service';
 import { SiteThemeService } from './core/services/site-theme.service';
 import { SeoService } from './services/seo';
+import { PushService } from './core/services/push.service';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -61,12 +62,18 @@ export class AppComponent implements OnInit {
     private seo: SeoService,
     private themeService: ThemeService,
     private siteThemeService: SiteThemeService,
+    private pushService: PushService,
   ) {}
 
   ngOnInit(): void {
     // 🔹 Subscribe to user + token changes
     this.subs.push(
-      this.auth.user$.subscribe((u) => (this.user = u)),
+      this.auth.user$.subscribe((u) => {
+        this.user = u;
+        if (u?.id) {
+          this.pushService.register().catch(() => {});
+        }
+      }),
       this.auth.token$.subscribe((t) => (this.token = t)),
     );
     this.siteThemeService.loadAndApply();
