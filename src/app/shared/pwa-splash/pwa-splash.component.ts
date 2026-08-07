@@ -16,25 +16,13 @@ import { PwaService } from '../../core/services/pwa.service';
   imports: [NgIf],
   template: `
     <div
-      *ngIf="visible()"
+      *ngIf="visible() && imageUrl()"
       class="pwa-splash"
       [class.pwa-splash--hide]="hiding()"
       aria-hidden="true"
     >
       <div class="pwa-splash__inner">
-        <img
-          *ngIf="imageUrl()"
-          [src]="imageUrl()"
-          alt="MyHomeBazar"
-          class="pwa-splash__image"
-        />
-        <img
-          *ngIf="!imageUrl()"
-          src="/icons/icon-192.png"
-          alt="MyHomeBazar"
-          class="pwa-splash__fallback"
-        />
-        <p class="pwa-splash__brand">MyHomeBazar</p>
+        <img [src]="imageUrl()" alt="" class="pwa-splash__image" />
       </div>
     </div>
   `,
@@ -61,7 +49,6 @@ import { PwaService } from '../../core/services/pwa.service';
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
         padding: 1.5rem;
         max-width: min(92vw, 420px);
       }
@@ -71,24 +58,6 @@ import { PwaService } from '../../core/services/pwa.service';
         max-height: 70vh;
         object-fit: contain;
         border-radius: 1rem;
-      }
-
-      .pwa-splash__fallback {
-        width: 128px;
-        height: 128px;
-        object-fit: contain;
-      }
-
-      .pwa-splash__brand {
-        margin: 0;
-        font-family: system-ui, -apple-system, sans-serif;
-        font-size: 1.15rem;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        background: linear-gradient(90deg, #4caf50 0%, #ff9800 100%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
       }
     `,
   ],
@@ -115,24 +84,39 @@ export class PwaSplashComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (!this.isBrowser) return;
-
-    // Show splash on cold load / PWA launch (not every soft navigation)
     if (!this.shouldShowSplash()) return;
 
-    this.visible.set(true);
-    this.shownAt = Date.now();
+    // Prefer cached dynamic splash immediately (no static fallback)
+    const cached = this.branding.getSplashSnapshot()?.image;
+    if (cached) {
+      this.imageUrl.set(cached);
+      this.visible.set(true);
+      this.shownAt = Date.now();
+      this.hideTimer = setTimeout(() => this.hide(), this.maxVisibleMs);
+    }
 
     this.branding.getSplash().subscribe({
       next: (res) => {
-        const url = res?.splash?.image;
-        if (url) this.imageUrl.set(url);
-        this.scheduleHide();
+        const url = res?.splash?.isActive !== false ? res?.splash?.image : null;
+        if (url) {
+          this.imageUrl.set(url);
+          if (!this.visible()) {
+            this.visible.set(true);
+            this.shownAt = Date.now();
+            this.hideTimer = setTimeout(() => this.hide(), this.maxVisibleMs);
+          }
+          this.scheduleHide();
+        } else {
+          // No dynamic splash — show nothing (never static)
+          this.imageUrl.set(null);
+          this.visible.set(false);
+        }
       },
-      error: () => this.scheduleHide(),
+      error: () => {
+        if (!this.imageUrl()) this.visible.set(false);
+        else this.scheduleHide();
+      },
     });
-
-    // Safety: never leave splash forever
-    this.hideTimer = setTimeout(() => this.hide(), this.maxVisibleMs);
   }
 
   ngOnDestroy(): void {
@@ -154,6 +138,7 @@ export class PwaSplashComponent implements OnInit, OnDestroy {
   }
 
   private scheduleHide(): void {
+    if (!this.shownAt) return;
     const elapsed = Date.now() - this.shownAt;
     const wait = Math.max(0, this.minVisibleMs - elapsed);
     if (this.hideTimer) clearTimeout(this.hideTimer);
