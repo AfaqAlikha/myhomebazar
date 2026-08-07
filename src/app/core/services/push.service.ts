@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { env } from '../../../environments/env';
+import { PwaService } from './pwa.service';
 
 @Injectable({ providedIn: 'root' })
 export class PushService {
@@ -10,6 +11,7 @@ export class PushService {
 
   constructor(
     private http: HttpClient,
+    private pwa: PwaService,
     @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -44,7 +46,8 @@ export class PushService {
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') return { ok: false, reason: 'denied' };
 
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      const registration = await this.pwa.registerServiceWorker();
+      if (!registration) return { ok: false, reason: 'sw-failed' };
       await navigator.serviceWorker.ready;
 
       let subscription = await registration.pushManager.getSubscription();
