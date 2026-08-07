@@ -20,6 +20,7 @@ import { SpinnerService } from '../../shared/spinner.service';
 import { isPlatformBrowser, NgIf } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { ProductService } from '../../services/product.service';
+import { PwaService } from '../../core/services/pwa.service';
 
 @Component({
   selector: 'app-header',
@@ -56,6 +57,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private spinnerService: SpinnerService,
     private router: Router,
     private productService: ProductService,
+    public pwa: PwaService,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -97,6 +99,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   toggleTheme(): void {
     this.themeService.toggleTheme();
+  }
+
+  openInstallPrompt(): void {
+    this.pwa.showInstallPrompt.set(true);
   }
 
   openDrawer(): void {

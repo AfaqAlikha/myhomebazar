@@ -22,6 +22,9 @@ import { ThemeService } from './core/services/theme.service';
 import { SiteThemeService } from './core/services/site-theme.service';
 import { SeoService } from './services/seo';
 import { PushService } from './core/services/push.service';
+import { PwaService } from './core/services/pwa.service';
+import { PwaSplashComponent } from './shared/pwa-splash/pwa-splash.component';
+import { PwaInstallPromptComponent } from './shared/pwa-install-prompt/pwa-install-prompt.component';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -42,6 +45,8 @@ import { PushService } from './core/services/push.service';
     NgxPaginationModule,
     NgxSpinnerModule,
     MatProgressSpinnerModule,
+    PwaSplashComponent,
+    PwaInstallPromptComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
@@ -63,6 +68,7 @@ export class AppComponent implements OnInit {
     private themeService: ThemeService,
     private siteThemeService: SiteThemeService,
     private pushService: PushService,
+    private pwa: PwaService,
   ) {}
 
   ngOnInit(): void {
@@ -78,6 +84,11 @@ export class AppComponent implements OnInit {
     );
     this.siteThemeService.loadAndApply();
     this.loadLogo();
+
+    // PWA: register SW early (installability + offline), then offer install UI
+    this.pwa.registerServiceWorker().then(() => {
+      this.pwa.maybeShowInstallPrompt(4500);
+    });
 
     if (!this.auth.isGuestAuthRoute()) {
       this.auth.trySilentRefresh().subscribe();

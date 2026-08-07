@@ -114,6 +114,18 @@
             </a>
           }
 
+          <button
+            *ngIf="!pwa.isStandalone() && (pwa.canInstall() || pwa.isIos())"
+            mat-icon-button
+            type="button"
+            (click)="openInstallPrompt()"
+            class="flex items-center justify-center"
+            title="Install MyHomeBazar App"
+            aria-label="Install MyHomeBazar App"
+          >
+            <mat-icon>install_mobile</mat-icon>
+          </button>
+
           <button mat-icon-button (click)="toggleTheme()" class="flex items-center justify-center">
             <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
           </button>
