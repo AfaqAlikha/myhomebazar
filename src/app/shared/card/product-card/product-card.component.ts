@@ -93,6 +93,18 @@ export class ProductCardComponent implements OnInit {
     return String(count);
   }
 
+  onWishlistClick(event: Event, productId: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.addToWishlist(productId);
+  }
+
+  onCartClick(event: Event, product: Product): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.addToCart(product);
+  }
+
   addToWishlist(productId: string): void {
     if (this.isOwnProduct()) return;
     this.wishlistLoading = true;

@@ -1,39 +1,72 @@
-/* Card hover shadow */
-.group:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+.product-card {
+  cursor: pointer;
+}
+
+.product-card:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
   transform: translateY(-2px);
-  transition: all 0.3s ease;
+  border-color: color-mix(in srgb, var(--color-accent) 35%, var(--color-border));
 }
 
-/* Smooth icon hover transitions */
-.group button,
-.group a {
-  transition: background-color 0.3s, color 0.3s;
+.product-card__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
 }
 
-/* Add to Cart button fade in */
-.group button:last-child {
-  opacity: 0;
-  transition: opacity 0.3s ease;
+.product-card__image {
+  height: 200px;
 }
 
-.group:hover button:last-child {
-  opacity: 1;
+@media (min-width: 640px) {
+  .product-card__image {
+    height: 220px;
+  }
 }
 
-.small-icon-btn {
-  width: 40px !important;
-  height: 40px !important;
-  min-width: 40px !important;
-  min-height: 40px !important;
+.product-card__badge {
+  background-color: var(--color-danger);
+}
+
+.product-card__actions {
+  pointer-events: auto;
+}
+
+.product-card__action-btn {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
   padding: 0 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  border-radius: 9999px !important;
+  background-color: var(--color-accent) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  pointer-events: auto;
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.small-icon-btn mat-icon {
-  font-size: 23px; /* icon chhota kare */
-  line-height: 1 !important;
-  color: white;
+.product-card__action-btn:hover:not(:disabled) {
+  background-color: var(--color-accent-hover) !important;
+  transform: scale(1.05);
+}
+
+.product-card__action-btn:disabled {
+  opacity: 0.75;
+}
+
+.product-card__action-btn mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  line-height: 18px !important;
+  color: #fff !important;
+}
+
+.product-card__body {
+  pointer-events: none;
 }
