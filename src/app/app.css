@@ -1,3 +1,32 @@
+/* App shell — header fixed, only content scrolls */
+.app-shell {
+  height: 100dvh !important;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden !important;
+}
+
+.app-shell__content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden !important;
+}
+
+.app-shell__header {
+  flex: 0 0 auto;
+  z-index: 50;
+}
+
+.app-shell__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Sidebar drawer */
 .custom-sidenav {
   width: min(280px, 86vw) !important;
