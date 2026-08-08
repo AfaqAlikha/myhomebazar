@@ -1,4 +1,4 @@
-<mat-sidenav-container class="min-h-screen bg-[var(--color-background)] text-[var(--color-text)]">
+<mat-sidenav-container class="app-shell bg-[var(--color-background)] text-[var(--color-text)]">
   <!-- Drawer -->
   <mat-sidenav #drawer mode="over" class="custom-sidenav bg-[var(--color-card)]">
     <nav class="flex h-full flex-col overflow-y-auto p-6 gap-4">
@@ -193,21 +193,26 @@
   </mat-sidenav>
 
   <!-- Main Content -->
-  <mat-sidenav-content class="bg-[var(--color-background)]">
-    <app-header (toggleDrawerEvent)="drawer.toggle()"></app-header>
-    <ngx-spinner
-      bdColor="rgba(51,51,51,0.8)"
-      size="medium"
-      color="#fff"
-      type="ball-scale-multiple"
-      [fullScreen]="true"
-    >
-    </ngx-spinner>
+  <mat-sidenav-content class="app-shell__content bg-[var(--color-background)]">
+    <div class="app-shell__header">
+      <app-header (toggleDrawerEvent)="drawer.toggle()"></app-header>
+    </div>
 
-    <main class="page-main min-h-screen">
-      <router-outlet></router-outlet>
-    </main>
+    <div class="app-shell__scroll">
+      <ngx-spinner
+        bdColor="rgba(51,51,51,0.8)"
+        size="medium"
+        color="#fff"
+        type="ball-scale-multiple"
+        [fullScreen]="true"
+      >
+      </ngx-spinner>
 
-    <app-footer></app-footer>
+      <main class="page-main">
+        <router-outlet></router-outlet>
+      </main>
+
+      <app-footer></app-footer>
+    </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
