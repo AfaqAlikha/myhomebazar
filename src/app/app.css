@@ -1,9 +1,27 @@
-/* Sidebar */
+/* Sidebar drawer */
 .custom-sidenav {
-  width: 250px !important;
+  width: min(280px, 86vw) !important;
+  height: 100% !important;
+  max-height: 100dvh !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background-color: var(--color-card) !important;
   color: var(--color-text);
   box-shadow: none !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.custom-sidenav nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mat-drawer-backdrop {

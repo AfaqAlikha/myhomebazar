@@ -197,7 +197,7 @@
           <p class="text-lg font-semibold my-1">PKR {{ product.price | number }}</p>
 
           <div class="engagement-row">
-            <div class="engagement-stat" aria-label="Product views">
+            <div *ngIf="isProductOwner()" class="engagement-stat" aria-label="Product views">
               <mat-icon>visibility</mat-icon>
               <span>{{ formatEngagementCount(product.viewCount) }} views</span>
             </div>
