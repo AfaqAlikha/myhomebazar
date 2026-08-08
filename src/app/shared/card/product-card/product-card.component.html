@@ -72,7 +72,7 @@
     ></app-star-rating>
 
     <div class="mt-1.5 flex items-center gap-3 text-[11px] text-[var(--color-text-secondary)]">
-      <span class="inline-flex items-center gap-1">
+      <span *ngIf="isOwnProduct()" class="inline-flex items-center gap-1">
         <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">visibility</mat-icon>
         {{ formatEngagementCount(product.viewCount) }}
       </span>

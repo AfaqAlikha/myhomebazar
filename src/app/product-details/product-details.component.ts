@@ -270,6 +270,10 @@ export class ProductDetailsComponent implements OnInit {
     return String(count);
   }
 
+  isProductOwner(): boolean {
+    return isOwnProduct(this.product, this.currentUserId);
+  }
+
   calculateTotalPrice(): void {
     this.subtotal = (this.product?.price || 0) * this.quantity;
     const weightKg = (Number(this.product?.weightKg) || 0.5) * this.quantity;
