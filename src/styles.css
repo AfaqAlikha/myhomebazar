@@ -53,8 +53,11 @@ app-root {
   color: var(--color-text);
   height: 100%;
   min-height: 100%;
-  overflow: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+app-root {
+  display: block;
 }
 
 body {
@@ -72,10 +75,13 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.mat-sidenav-container.app-shell {
+  height: 100dvh !important;
+}
+
 .page-main {
   background-color: var(--color-background);
   color: var(--color-text);
-  min-height: 100%;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
