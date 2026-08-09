@@ -10,6 +10,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
 
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
+import { UserAvatarComponent } from '../shared/user-avatar/user-avatar.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 
@@ -27,6 +28,7 @@ import { SpinnerService } from '../shared/spinner.service';
 
     ProductCardComponent,
     StarRatingComponent,
+    UserAvatarComponent,
     UiSearchComponent,
     CommonModule,
     NgFor,

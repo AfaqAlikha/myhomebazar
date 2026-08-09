@@ -88,26 +88,59 @@ div.p-rating-option.p-rating-option-active {
   font-size: 18px;
 }
 
-.product-share-actions {
+.product-share-actions,
+.seller-share-actions {
   display: inline-flex;
   align-items: center;
-  gap: 0.15rem;
+  gap: 0.35rem;
   flex-shrink: 0;
 }
 
+.seller-profile-card {
+  position: relative;
+  align-items: flex-start;
+}
+
+.seller-profile-body {
+  padding-right: 4.75rem;
+}
+
+.seller-profile-bio {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.seller-share-actions {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+}
+
 .product-share-btn {
-  color: var(--color-text-secondary) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
   border: 1px solid var(--color-border);
-  border-radius: 999px !important;
-  width: 36px !important;
-  height: 36px !important;
-  padding: 0 !important;
-  background: var(--color-card) !important;
+  border-radius: 999px;
+  background: var(--color-card);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .product-share-btn:hover {
-  color: var(--color-accent) !important;
+  color: var(--color-accent);
   border-color: var(--color-accent);
 }
 
@@ -115,6 +148,8 @@ div.p-rating-option.p-rating-option-active {
   width: 18px;
   height: 18px;
   font-size: 18px;
+  line-height: 18px;
+  pointer-events: none;
 }
 
 @media (max-width: 767px) {

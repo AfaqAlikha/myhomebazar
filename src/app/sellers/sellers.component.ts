@@ -11,6 +11,7 @@ import { SellerService, SellerProfile } from '../services/seller.service';
 import { SpinnerService } from '../shared/spinner.service';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
+import { UserAvatarComponent } from '../shared/user-avatar/user-avatar.component';
 import { SeoService } from '../services/seo';
 
 @Component({
@@ -24,6 +25,7 @@ import { SeoService } from '../services/seo';
     LocationFilterComponent,
     UiCardComponent,
     StarRatingComponent,
+    UserAvatarComponent,
   ],
   templateUrl: './sellers.component.html',
   styleUrls: ['./sellers.component.css'],

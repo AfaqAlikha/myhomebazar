@@ -4,6 +4,7 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
+import { UserAvatarComponent } from '../shared/user-avatar/user-avatar.component';
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 import { AuthService } from '../auth/auth.service';
 import { ProductService } from '../services/product.service';
@@ -18,6 +19,7 @@ import { ActivatedRoute } from '@angular/router';
     ReactiveFormsModule,
     ProductCardComponent,
     StarRatingComponent,
+    UserAvatarComponent,
     UiSearchComponent,
     CommonModule,
     NgFor,

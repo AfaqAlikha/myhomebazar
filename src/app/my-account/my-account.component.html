@@ -5,11 +5,7 @@
     class="w-full max-w-xxl p-6 mb-6 bg-[var(--color-card)] rounded-2xl shadow-md transition-colors duration-300"
   >
     <div class="flex flex-col items-center mb-4">
-      <div
-        class="w-20 h-20 bg-[var(--color-accent)] rounded-full flex items-center justify-center text-white text-2xl font-bold mb-3"
-      >
-        {{ getInitial(user?.name) }}
-      </div>
+      <app-user-avatar class="mb-3" [name]="user?.name" [avatar]="user?.avatar" size="lg"></app-user-avatar>
       <h2 class="text-xl font-semibold">{{ user?.name }}</h2>
     </div>
 
