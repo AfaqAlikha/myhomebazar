@@ -1,10 +1,11 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, Inject, PLATFORM_ID } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { NgFor, NgIf, NgClass, DatePipe, DecimalPipe } from '@angular/common';
+import { NgFor, NgIf, NgClass, DatePipe, DecimalPipe, isPlatformBrowser } from '@angular/common';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { switchMap, tap, catchError, of, EMPTY } from 'rxjs';
 import { ProductService } from '../services/product.service';
 import { ProductOrderService } from '../services/product-order.service';
@@ -24,6 +25,7 @@ import {
   markLocalProductView,
 } from '../utils/visitor-id';
 import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-product-details',
@@ -44,6 +46,7 @@ import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
     DecimalPipe,
     RouterLink,
     MatIconModule,
+    MatButtonModule,
     PaymentMethodsComponent,
   ],
 })
@@ -81,8 +84,10 @@ export class ProductDetailsComponent implements OnInit {
   canOrder = true;
   isOutOfStock = false;
   likeLoading = false;
+  linkCopied = false;
 
   private destroyRef = inject(DestroyRef);
+  private readonly isBrowser: boolean;
 
   constructor(
     private fb: FormBuilder,
@@ -95,7 +100,11 @@ export class ProductDetailsComponent implements OnInit {
     private paymentGateway: PaymentGatewayService,
     private engagementService: ProductEngagementService,
     private router: Router,
-  ) {}
+    private toastr: ToastrService,
+    @Inject(PLATFORM_ID) platformId: Object,
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
     this.currentUserId = this.auth.getUser()?.id ?? '';
@@ -272,6 +281,80 @@ export class ProductDetailsComponent implements OnInit {
 
   isProductOwner(): boolean {
     return isOwnProduct(this.product, this.currentUserId);
+  }
+
+  getProductShareUrl(): string {
+    if (!this.isBrowser || !this.product?._id) return '';
+    return `${window.location.origin}/product/details/${this.product._id}`;
+  }
+
+  canNativeShare(): boolean {
+    return this.isBrowser && typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+  }
+
+  async copyProductLink(): Promise<void> {
+    const url = this.getProductShareUrl();
+    if (!url) return;
+
+    const copied = await this.copyTextToClipboard(url);
+    if (copied) {
+      this.linkCopied = true;
+      this.toastr.success('Product link copied');
+      window.setTimeout(() => {
+        this.linkCopied = false;
+      }, 2000);
+      return;
+    }
+
+    this.toastr.error('Could not copy link');
+  }
+
+  async shareProduct(): Promise<void> {
+    const url = this.getProductShareUrl();
+    if (!url) return;
+
+    if (this.canNativeShare()) {
+      try {
+        await navigator.share({
+          title: this.product?.name || 'MyHomeBazar Product',
+          text: `Check out ${this.product?.name || 'this product'} on MyHomeBazar`,
+          url,
+        });
+        return;
+      } catch (error) {
+        if ((error as Error)?.name === 'AbortError') return;
+      }
+    }
+
+    await this.copyProductLink();
+  }
+
+  private async copyTextToClipboard(text: string): Promise<boolean> {
+    if (!this.isBrowser) return false;
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch {
+      /* fallback below */
+    }
+
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      return copied;
+    } catch {
+      return false;
+    }
   }
 
   calculateTotalPrice(): void {

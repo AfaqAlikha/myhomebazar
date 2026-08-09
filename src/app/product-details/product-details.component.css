@@ -88,6 +88,35 @@ div.p-rating-option.p-rating-option-active {
   font-size: 18px;
 }
 
+.product-share-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+.product-share-btn {
+  color: var(--color-text-secondary) !important;
+  border: 1px solid var(--color-border);
+  border-radius: 999px !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  background: var(--color-card) !important;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.product-share-btn:hover {
+  color: var(--color-accent) !important;
+  border-color: var(--color-accent);
+}
+
+.product-share-btn mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+
 @media (max-width: 767px) {
   :host {
     display: block;
