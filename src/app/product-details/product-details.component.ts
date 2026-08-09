@@ -5,7 +5,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgFor, NgIf, NgClass, DatePipe, DecimalPipe, isPlatformBrowser } from '@angular/common';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { switchMap, tap, catchError, of, EMPTY } from 'rxjs';
 import { ProductService } from '../services/product.service';
 import { ProductOrderService } from '../services/product-order.service';
@@ -14,6 +13,7 @@ import { UiButtonComponent } from '../shared/ui-button/ui-button.component';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { UiInputComponent } from '../shared/ui-input/ui-input.component';
 import { ProductGalleryComponent } from '../shared/components/product-gallery/product-gallery.component';
+import { UserAvatarComponent } from '../shared/user-avatar/user-avatar.component';
 import { AuthService } from '../auth/auth.service';
 import { isOwnProduct } from '../utils/auth';
 import { ShippingService, ShippingQuote } from '../services/shipping.service';
@@ -37,6 +37,7 @@ import { ToastrService } from 'ngx-toastr';
     UiCardComponent,
     UiInputComponent,
     ProductGalleryComponent,
+    UserAvatarComponent,
     NgFor,
     NgIf,
     NgClass,
@@ -46,7 +47,6 @@ import { ToastrService } from 'ngx-toastr';
     DecimalPipe,
     RouterLink,
     MatIconModule,
-    MatButtonModule,
     PaymentMethodsComponent,
   ],
 })
@@ -74,6 +74,7 @@ export class ProductDetailsComponent implements OnInit {
   username = '';
   bio = '';
   id = '';
+  sellerAvatar = '';
 
   orderForm!: FormGroup;
 
@@ -190,6 +191,7 @@ export class ProductDetailsComponent implements OnInit {
     this.username = this.product?.user?.name || '';
     this.bio = this.product?.user?.bio || '';
     this.id = this.product?.user?._id || this.product?.user?.id || '';
+    this.sellerAvatar = this.product?.user?.avatar || '';
 
     const isOwn = isOwnProduct(this.product, this.currentUserId);
     const inStock = Number(this.product?.countInStock ?? 0) > 0;
@@ -292,7 +294,9 @@ export class ProductDetailsComponent implements OnInit {
     return this.isBrowser && typeof navigator !== 'undefined' && typeof navigator.share === 'function';
   }
 
-  async copyProductLink(): Promise<void> {
+  async copyProductLink(event?: Event): Promise<void> {
+    event?.preventDefault();
+    event?.stopPropagation();
     const url = this.getProductShareUrl();
     if (!url) return;
 
@@ -309,7 +313,9 @@ export class ProductDetailsComponent implements OnInit {
     this.toastr.error('Could not copy link');
   }
 
-  async shareProduct(): Promise<void> {
+  async shareProduct(event?: Event): Promise<void> {
+    event?.preventDefault();
+    event?.stopPropagation();
     const url = this.getProductShareUrl();
     if (!url) return;
 
