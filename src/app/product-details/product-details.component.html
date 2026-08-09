@@ -166,13 +166,35 @@
       <!-- Product Info -->
       <div class="md:col-span-6 flex flex-col gap-3">
         <app-ui-card [borderRadius]="borderRadius" class="p-4 flex flex-col gap-4 min-w-0 overflow-hidden">
-          <div class="flex items-center justify-between flex-wrap gap-2">
-            <h1 class="text-xl font-bold my-1">{{ product.name }}</h1>
-            <app-star-rating
-              [value]="product.averageRating"
-              [readonly]="true"
-              size="sm"
-            ></app-star-rating>
+          <div class="flex items-start justify-between flex-wrap gap-2">
+            <h1 class="text-xl font-bold my-1 flex-1 min-w-0">{{ product.name }}</h1>
+            <div class="product-share-actions">
+              <button
+                type="button"
+                mat-icon-button
+                class="product-share-btn"
+                (click)="copyProductLink()"
+                aria-label="Copy product link"
+                title="Copy link"
+              >
+                <mat-icon>{{ linkCopied ? 'check' : 'content_copy' }}</mat-icon>
+              </button>
+              <button
+                type="button"
+                mat-icon-button
+                class="product-share-btn"
+                (click)="shareProduct()"
+                aria-label="Share product"
+                [title]="canNativeShare() ? 'Share product' : 'Share product (copies link)'"
+              >
+                <mat-icon>share</mat-icon>
+              </button>
+              <app-star-rating
+                [value]="product.averageRating"
+                [readonly]="true"
+                size="sm"
+              ></app-star-rating>
+            </div>
           </div>
 
           <!-- Promotional deal (Amazon-style — listing badge + details) -->
