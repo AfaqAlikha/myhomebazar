@@ -5,10 +5,6 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastrService } from 'ngx-toastr';
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
-import {
-  LocationFilterComponent,
-  LocationFilters,
-} from '../shared/location-filter/location-filter.component';
 import { SellerService, SellerProfile } from '../services/seller.service';
 import { SpinnerService } from '../shared/spinner.service';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
@@ -25,7 +21,6 @@ import { SeoService } from '../services/seo';
     MatPaginatorModule,
     MatIconModule,
     UiSearchComponent,
-    LocationFilterComponent,
     UiCardComponent,
     StarRatingComponent,
     UserAvatarComponent,
@@ -37,7 +32,6 @@ export class SellersComponent implements OnInit {
   sellers: SellerProfile[] = [];
   loading = false;
   searchQuery = '';
-  locationFilters: LocationFilters = { country: '', state: '', city: '' };
   copiedSellerId: string | null = null;
 
   totalItems = 0;
@@ -67,12 +61,6 @@ export class SellersComponent implements OnInit {
     this.loadSellers();
   }
 
-  onLocationFilter(filters: LocationFilters): void {
-    this.locationFilters = filters;
-    this.currentPage = 1;
-    this.loadSellers();
-  }
-
   loadSellers(): void {
     this.loading = true;
     this.spinnerService.show();
@@ -82,9 +70,6 @@ export class SellersComponent implements OnInit {
         page: this.currentPage,
         limit: this.itemsPerPage,
         search: this.searchQuery,
-        country: this.locationFilters.country,
-        state: this.locationFilters.state,
-        city: this.locationFilters.city,
       })
       .subscribe({
         next: (res) => {

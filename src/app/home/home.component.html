@@ -29,11 +29,6 @@
       </button>
     </div>
 
-    <app-location-filter
-      [initial]="locationFilters"
-      (filterChange)="onLocationFilter($event)"
-    ></app-location-filter>
-
     <app-product-search-filter
       [initial]="productSearchFilters"
       (filterChange)="onProductSearchFilter($event)"
