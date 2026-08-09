@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatIconModule } from '@angular/material/icon';
+import { ToastrService } from 'ngx-toastr';
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 import {
   LocationFilterComponent,
@@ -21,6 +23,7 @@ import { SeoService } from '../services/seo';
     CommonModule,
     RouterLink,
     MatPaginatorModule,
+    MatIconModule,
     UiSearchComponent,
     LocationFilterComponent,
     UiCardComponent,
@@ -35,16 +38,23 @@ export class SellersComponent implements OnInit {
   loading = false;
   searchQuery = '';
   locationFilters: LocationFilters = { country: '', state: '', city: '' };
+  copiedSellerId: string | null = null;
 
   totalItems = 0;
   itemsPerPage = 12;
   currentPage = 1;
 
+  private readonly isBrowser: boolean;
+
   constructor(
     private sellerService: SellerService,
     private spinnerService: SpinnerService,
     private seo: SeoService,
-  ) {}
+    private toastr: ToastrService,
+    @Inject(PLATFORM_ID) platformId: Object,
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
     this.seo.setDefaultSeo();
@@ -97,11 +107,89 @@ export class SellersComponent implements OnInit {
     this.loadSellers();
   }
 
-  getInitial(name: string): string {
-    return name ? name.charAt(0).toUpperCase() : '?';
+  getSellerShareUrl(sellerId: string): string {
+    if (!this.isBrowser || !sellerId) return '';
+    return `${window.location.origin}/profile/${sellerId}`;
+  }
+
+  canNativeShare(): boolean {
+    return this.isBrowser && typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+  }
+
+  async copySellerLink(event: Event, seller: SellerProfile): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const url = this.getSellerShareUrl(seller._id);
+    if (!url) return;
+
+    const copied = await this.copyTextToClipboard(url);
+    if (copied) {
+      this.copiedSellerId = seller._id;
+      this.toastr.success('Seller profile link copied');
+      window.setTimeout(() => {
+        if (this.copiedSellerId === seller._id) {
+          this.copiedSellerId = null;
+        }
+      }, 2000);
+      return;
+    }
+
+    this.toastr.error('Could not copy link');
+  }
+
+  async shareSeller(event: Event, seller: SellerProfile): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const url = this.getSellerShareUrl(seller._id);
+    if (!url) return;
+
+    if (this.canNativeShare()) {
+      try {
+        await navigator.share({
+          title: `${seller.name} Store`,
+          text: `Check out ${seller.name} on MyHomeBazar`,
+          url,
+        });
+        return;
+      } catch (error) {
+        if ((error as Error)?.name === 'AbortError') return;
+      }
+    }
+
+    await this.copySellerLink(event, seller);
   }
 
   getLocation(seller: SellerProfile): string {
     return [seller.city, seller.state, seller.country].filter(Boolean).join(', ');
+  }
+
+  private async copyTextToClipboard(text: string): Promise<boolean> {
+    if (!this.isBrowser) return false;
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch {
+      /* fallback below */
+    }
+
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      return copied;
+    } catch {
+      return false;
+    }
   }
 }

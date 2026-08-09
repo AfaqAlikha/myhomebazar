@@ -26,29 +26,52 @@
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" *ngIf="sellers.length">
     <app-ui-card *ngFor="let seller of sellers" borderRadius="12px">
-      <a [routerLink]="['/profile', seller._id]" class="block text-center p-2">
-        <app-user-avatar
-          class="mx-auto mb-3"
-          [name]="seller.name"
-          [avatar]="seller.avatar"
-          size="lg"
-        ></app-user-avatar>
-        <h3 class="text-lg font-semibold text-[var(--color-text)] mb-1">{{ seller.name }}</h3>
-        <p *ngIf="getLocation(seller)" class="text-xs text-[var(--color-text-secondary)] mb-2">
-          📍 {{ getLocation(seller) }}
-        </p>
-        <p *ngIf="seller.bio" class="text-sm text-[var(--color-text-secondary)] line-clamp-2 mb-2">
-          {{ seller.bio }}
-        </p>
-        <app-star-rating [value]="seller.rating || 0" [readonly]="true" size="sm"></app-star-rating>
-        <span
-          *ngFor="let badge of seller.badges"
-          class="inline-block mt-2 mr-1 px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700"
-        >
-          {{ badge }}
-        </span>
-        <p class="mt-3 text-sm text-[var(--color-accent)] font-medium">View Store →</p>
-      </a>
+      <div class="seller-card">
+        <div class="seller-share-actions">
+          <button
+            type="button"
+            class="seller-share-btn"
+            (click)="copySellerLink($event, seller)"
+            aria-label="Copy seller profile link"
+            title="Copy link"
+          >
+            <mat-icon>{{ copiedSellerId === seller._id ? 'check' : 'content_copy' }}</mat-icon>
+          </button>
+          <button
+            type="button"
+            class="seller-share-btn"
+            (click)="shareSeller($event, seller)"
+            aria-label="Share seller profile"
+            title="Share profile"
+          >
+            <mat-icon>share</mat-icon>
+          </button>
+        </div>
+
+        <a [routerLink]="['/profile', seller._id]" class="seller-card-link">
+          <app-user-avatar
+            class="mx-auto mb-3"
+            [name]="seller.name"
+            [avatar]="seller.avatar"
+            size="lg"
+          ></app-user-avatar>
+          <h3 class="text-lg font-semibold text-[var(--color-text)] mb-1">{{ seller.name }}</h3>
+          <p *ngIf="getLocation(seller)" class="text-xs text-[var(--color-text-secondary)] mb-2">
+            📍 {{ getLocation(seller) }}
+          </p>
+          <p *ngIf="seller.bio" class="text-sm text-[var(--color-text-secondary)] line-clamp-2 mb-2">
+            {{ seller.bio }}
+          </p>
+          <app-star-rating [value]="seller.rating || 0" [readonly]="true" size="sm"></app-star-rating>
+          <span
+            *ngFor="let badge of seller.badges"
+            class="inline-block mt-2 mr-1 px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700"
+          >
+            {{ badge }}
+          </span>
+          <p class="mt-3 text-sm text-[var(--color-accent)] font-medium">View Store →</p>
+        </a>
+      </div>
     </app-ui-card>
   </div>
 
