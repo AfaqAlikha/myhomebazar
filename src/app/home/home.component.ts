@@ -6,11 +6,6 @@ import { HeroSwiperComponent } from '../shared/components/hero-swiper/hero-swipe
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { CategoryLinksComponent } from '../shared/category-links/category-links.component';
 import {
-  LocationFilterComponent,
-  LocationFilters,
-} from '../shared/location-filter/location-filter.component';
-
-import {
   ProductSearchFilterComponent,
   ProductSearchFilters,
 } from '../shared/product-search-filter/product-search-filter.component';
@@ -27,7 +22,6 @@ import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
     HeroSwiperComponent,
     CategoryLinksComponent,
     ProductCardComponent,
-    LocationFilterComponent,
     ProductSearchFilterComponent,
     GoogleAdComponent,
     NgFor,
@@ -50,7 +44,6 @@ export class HomeComponent implements OnInit {
   hasMore = true;
   heroLoading = true;
 
-  locationFilters: LocationFilters = { country: '', state: '', city: '' };
   productSearchFilters: ProductSearchFilters = {
     search: '',
     categoryId: '',
@@ -182,11 +175,6 @@ export class HomeComponent implements OnInit {
     this.loadHomeProducts(true);
   }
 
-  onLocationFilter(filters: LocationFilters): void {
-    this.locationFilters = filters;
-    this.resetProductsAndReload();
-  }
-
   onProductSearchFilter(filters: ProductSearchFilters): void {
     this.productSearchFilters = filters;
     this.resetProductsAndReload();
@@ -200,9 +188,6 @@ export class HomeComponent implements OnInit {
 
   private buildProductQuery() {
     return {
-      country: this.locationFilters.country,
-      state: this.locationFilters.state,
-      city: this.locationFilters.city,
       search: this.productSearchFilters.search,
       category: this.productSearchFilters.categoryId,
       subCategory: this.productSearchFilters.subCategoryId,

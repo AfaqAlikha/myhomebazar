@@ -8,11 +8,6 @@
     <app-ui-search label="Search seller by name" (search)="onSearch($event)"></app-ui-search>
   </div>
 
-  <app-location-filter
-    [initial]="locationFilters"
-    (filterChange)="onLocationFilter($event)"
-  ></app-location-filter>
-
   <div *ngIf="loading" class="text-center py-20 text-[var(--color-text-secondary)]">
     Loading sellers...
   </div>
