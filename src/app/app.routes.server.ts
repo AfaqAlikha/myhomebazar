@@ -108,6 +108,10 @@ export const serverRoutes: ServerRoute[] = [
     path: 'track-order',
     renderMode: RenderMode.Client,
   },
+  {
+    path: 'offline',
+    renderMode: RenderMode.Client,
+  },
 
   // ❌ 404 LAST
   {
