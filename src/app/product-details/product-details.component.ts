@@ -27,6 +27,7 @@ import {
 } from '../utils/visitor-id';
 import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
 import { ToastrService } from 'ngx-toastr';
+import { LocationFieldsComponent } from '../shared/location-fields/location-fields.component';
 
 @Component({
   selector: 'app-product-details',
@@ -49,6 +50,7 @@ import { ToastrService } from 'ngx-toastr';
     RouterLink,
     MatIconModule,
     PaymentMethodsComponent,
+    LocationFieldsComponent,
   ],
 })
 export class ProductDetailsComponent implements OnInit {
@@ -107,6 +109,10 @@ export class ProductDetailsComponent implements OnInit {
     @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
+  }
+
+  onOrderCityChange(): void {
+    this.calculateTotalPrice();
   }
 
   ngOnInit(): void {
