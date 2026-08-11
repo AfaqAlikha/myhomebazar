@@ -96,6 +96,13 @@ export const API_ENDPOINTS = {
     tracking: (orderId: string) => `${BASE}/shipping/orders/${orderId}/tracking`,
     syncTracking: (orderId: string) => `${BASE}/shipping/orders/${orderId}/tracking/sync`,
   },
+  locations: {
+    countries: `${BASE}/locations/countries`,
+    statesByCountry: (countryId: string) =>
+      `${BASE}/locations/countries/${countryId}/states`,
+    citiesByState: (stateId: string) =>
+      `${BASE}/locations/states/${stateId}/cities`,
+  },
 } as const;
 
 export const CLAIM_REASONS = [

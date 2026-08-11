@@ -1,12 +1,12 @@
-<div class="form-group w-full min-w-0">
-  <label *ngIf="label" class="block text-sm font-medium mb-1">{{ label }}</label>
+<div class="app-input form-group w-full min-w-0">
+  <label *ngIf="label" class="block text-sm font-medium mb-1 text-[var(--color-text)]">{{ label }}</label>
   <textarea
     *ngIf="rows; else singleLineInput"
     [placeholder]="placeholder"
     [formControlName]="controlName"
     [disabled]="disabled"
     [rows]="rows"
-    class="form-input w-full min-w-0 border rounded p-2.5 text-base sm:text-sm dark:text-black box-border resize-y"
+    class="form-input w-full min-w-0 border rounded p-2.5 text-base sm:text-sm box-border resize-y"
   ></textarea>
   <ng-template #singleLineInput>
     <input
@@ -14,7 +14,7 @@
       [placeholder]="placeholder"
       [formControlName]="controlName"
       [disabled]="disabled"
-      class="form-input w-full min-w-0 border rounded p-2.5 text-base sm:text-sm dark:text-black box-border"
+      class="form-input w-full min-w-0 border rounded p-2.5 text-base sm:text-sm box-border"
     />
   </ng-template>
 

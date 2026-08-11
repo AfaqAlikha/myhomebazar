@@ -18,6 +18,7 @@ import { PaymentMethodsComponent } from '../shared/payment-methods/payment-metho
 import { PaymentGatewayService } from '../services/payment-gateway.service';
 import { ShippingService, ShippingQuote } from '../services/shipping.service';
 import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
+import { LocationFieldsComponent } from '../shared/location-fields/location-fields.component';
 import {
   GuestCartItem,
   readGuestCart,
@@ -41,6 +42,7 @@ import {
     RouterLink,
     DecimalPipe,
     PaymentMethodsComponent,
+    LocationFieldsComponent,
   ],
 })
 export class CartComponent implements OnInit {
@@ -99,6 +101,10 @@ export class CartComponent implements OnInit {
     this.orderForm.get('city')?.valueChanges.subscribe(() => {
       if (this.cartItems.length) this.refreshShippingQuote();
     });
+  }
+
+  onOrderCityChange(): void {
+    if (this.cartItems.length) this.refreshShippingQuote();
   }
 
   loadCart(): void {
