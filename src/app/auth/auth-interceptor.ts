@@ -11,6 +11,7 @@ import { catchError, filter, switchMap, take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from './auth.service';
 import { getOrCreateVisitorId } from '../utils/visitor-id';
+import { OfflineService } from '../core/services/offline.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -20,6 +21,7 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(
     private auth: AuthService,
     private toastr: ToastrService,
+    private offlineService: OfflineService,
   ) {}
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
@@ -61,7 +63,9 @@ export class AuthInterceptor implements HttpInterceptor {
         } else if (error.status === 500) {
           this.toastr.error('Something went wrong, please try again');
         } else if (error.status === 0) {
-          this.toastr.error('Check your internet connection');
+          if (!this.offlineService.isOfflinePage()) {
+            this.offlineService.goOffline();
+          }
         }
 
         return throwError(() => error);
