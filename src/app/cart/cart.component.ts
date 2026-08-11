@@ -176,9 +176,21 @@ export class CartComponent implements OnInit {
     const subtotal = this.calculateSubtotal();
     const city = this.orderForm?.get('city')?.value || '';
     const weightKg = this.calculateTotalWeightKg();
-    this.shippingService.getQuote(subtotal, { city, weightKg }).subscribe((quote) => {
-      this.shippingQuote = quote;
-    });
+    const productIds = this.cartItems
+      .map((item) => item.product?._id || item.productId)
+      .filter(Boolean);
+    const quantities = this.cartItems.map((item) => item.quantity || 1);
+
+    this.shippingService
+      .getQuote(subtotal, {
+        city,
+        weightKg,
+        productIds,
+        quantities,
+      })
+      .subscribe((quote) => {
+        this.shippingQuote = quote;
+      });
   }
 
   calculateTotalWeightKg(): number {
@@ -207,12 +219,16 @@ export class CartComponent implements OnInit {
   }
 
   getFreeShippingHint(): string {
-    if (!this.shippingQuote || this.shippingQuote.isFreeShipping) {
-      return this.shippingQuote?.message || 'Free delivery applied';
+    if (!this.shippingQuote) return '';
+    if (this.shippingQuote.isFreeShipping) {
+      return this.shippingQuote.message || 'Free delivery applied';
+    }
+    if (this.shippingQuote.sellerFreeDeliveryRemaining && this.shippingQuote.sellerFreeDeliveryRemaining > 0) {
+      return this.shippingQuote.message;
     }
     const remaining = this.shippingQuote.freeShippingThreshold - this.calculateSubtotal();
-    if (remaining <= 0) return '';
-    return `Add Rs ${remaining.toLocaleString()} more for free delivery`;
+    if (remaining <= 0) return this.shippingQuote.message || '';
+    return `Add Rs ${remaining.toLocaleString()} more for platform free delivery`;
   }
 
   updateQuantity(item: any, event: Event): void {
