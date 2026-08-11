@@ -54,6 +54,28 @@ export class ProductOrderService {
     );
   }
 
+  completeGuestOrder(payload: {
+    orderId: string;
+    phone: string;
+    rating?: number;
+    comment?: string;
+  }) {
+    return this.http.post(API_ENDPOINTS.productOrder.trackGuestComplete, payload, {
+      headers: this.getHeaders(),
+    });
+  }
+
+  reviewGuestOrder(payload: {
+    orderId: string;
+    phone: string;
+    rating: number;
+    comment?: string;
+  }) {
+    return this.http.post(API_ENDPOINTS.productOrder.trackGuestReview, payload, {
+      headers: this.getHeaders(),
+    });
+  }
+
   getOrderByProduct(productId: string) {
     return this.http
       .get(API_ENDPOINTS.productOrder.byProduct(productId), { headers: this.getHeaders() })

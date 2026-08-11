@@ -51,6 +51,8 @@ export const API_ENDPOINTS = {
     create: `${BASE}/productOrder`,
     confirmPayment: `${BASE}/productOrder/confirm-payment`,
     trackGuest: `${BASE}/productOrder/track`,
+    trackGuestComplete: `${BASE}/productOrder/track/complete`,
+    trackGuestReview: `${BASE}/productOrder/track/review`,
     byProduct: (productId: string) => `${BASE}/productOrder/${productId}`,
     orders: `${BASE}/productOrder/orders`,
     update: (id: string) => `${BASE}/productOrder/${id}`,

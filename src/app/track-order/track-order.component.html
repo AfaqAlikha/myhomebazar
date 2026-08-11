@@ -1,56 +1,215 @@
-<main class="container mx-auto max-w-2xl px-4 py-8">
-  <app-ui-card class="p-4 sm:p-6">
-    <h1 class="text-xl font-bold mb-1">Track Your Order</h1>
-    <p class="text-sm text-[var(--color-text-secondary)] mb-6">
-      Enter your Order ID and phone number used during checkout.
-    </p>
-
-    <form [formGroup]="form" class="space-y-3" (ngSubmit)="track()">
-      <app-ui-input label="Order ID" controlName="orderId"></app-ui-input>
-      <app-ui-input
-        label="Phone Number"
-        controlName="phone"
-        type="tel"
-        placeholder="03001234567"
-      ></app-ui-input>
-
-      <app-ui-button
-        label="Track Order"
-        variant="accent"
-        [loading]="loading"
-        (clicked)="track()"
-      ></app-ui-button>
-    </form>
-
-    <p *ngIf="error" class="text-[var(--color-danger)] text-sm mt-4">{{ error }}</p>
-  </app-ui-card>
-
-  <app-ui-card *ngIf="order" class="p-4 sm:p-6 mt-6">
-    <div class="flex flex-col sm:flex-row gap-4">
-      <img
-        *ngIf="order.product?.images?.[0]"
-        [src]="order.product.images[0]"
-        alt="Product"
-        class="w-24 h-24 object-cover rounded-lg shrink-0"
-      />
-      <div class="min-w-0 flex-1">
-        <h2 class="font-semibold text-lg">{{ order.product?.name || 'Order' }}</h2>
-        <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-          Order ID: <span class="font-mono break-all">{{ order._id }}</span>
-        </p>
-        <p class="text-sm mt-2">
-          Status:
-          <span class="font-semibold capitalize">{{ getStatusLabel(order.status) }}</span>
-        </p>
-        <p class="text-sm mt-1">
-          Payment:
-          <span class="capitalize">{{ order.paymentStatus || order.paymentMethod }}</span>
-        </p>
-        <p class="text-sm mt-1">Total: Rs {{ order.totalPrice | number }}</p>
-        <p *ngIf="order.createdAt" class="text-xs text-[var(--color-text-secondary)] mt-2">
-          Placed on {{ order.createdAt | date: 'medium' }}
-        </p>
-      </div>
+<main class="track-page">
+  <section class="track-hero">
+    <div class="container mx-auto max-w-4xl px-4">
+      <p class="track-eyebrow">Guest order tracking</p>
+      <h1 class="track-title">Track your order</h1>
+      <p class="track-subtitle">
+        Enter your order ID and phone number to see live status, confirm delivery, and leave a review.
+      </p>
     </div>
-  </app-ui-card>
+  </section>
+
+  <div class="container mx-auto max-w-4xl px-4 pb-10">
+    <app-ui-card class="track-card p-4 sm:p-6">
+      <form [formGroup]="form" class="track-form" (ngSubmit)="track()">
+        <div class="track-form-grid">
+          <app-ui-input label="Order ID" controlName="orderId" placeholder="Paste your order ID"></app-ui-input>
+          <app-ui-input
+            label="Phone Number"
+            controlName="phone"
+            type="tel"
+            placeholder="03001234567"
+          ></app-ui-input>
+        </div>
+
+        <app-ui-button
+          label="Track Order"
+          variant="accent"
+          [loading]="loading"
+          (clicked)="track()"
+        ></app-ui-button>
+      </form>
+
+      <p *ngIf="error" class="track-error">{{ error }}</p>
+    </app-ui-card>
+
+    <div *ngIf="loading" class="track-loading">
+      <mat-spinner diameter="42"></mat-spinner>
+      <span>Finding your order...</span>
+    </div>
+
+    <section *ngIf="order && !loading" class="track-result">
+      <app-ui-card class="track-card p-4 sm:p-6">
+        <div class="track-result-header">
+          <div class="track-product">
+            <img
+              *ngIf="order.product?.images?.[0]; else noImage"
+              [src]="order.product.images[0]"
+              [alt]="order.product?.name || 'Product'"
+              class="track-product-image"
+            />
+            <ng-template #noImage>
+              <div class="track-product-image track-product-image--empty">
+                <mat-icon>inventory_2</mat-icon>
+              </div>
+            </ng-template>
+
+            <div class="track-product-copy">
+              <h2>{{ order.product?.name || 'Your order' }}</h2>
+              <p class="track-order-id">Order ID: <span>{{ order._id }}</span></p>
+              <span [class]="getStatusClass(order.status)">{{ getStatusLabel(order.status) }}</span>
+            </div>
+          </div>
+
+          <div class="track-summary">
+            <div class="track-summary-row">
+              <span>Subtotal</span>
+              <strong>Rs {{ getOrderSubtotal() | number }}</strong>
+            </div>
+            <div class="track-summary-row">
+              <span>Delivery</span>
+              <strong [class.text-green-600]="getOrderShipping() === 0">
+                {{ getOrderShipping() === 0 ? 'FREE' : ('Rs ' + (getOrderShipping() | number)) }}
+              </strong>
+            </div>
+            <div class="track-summary-row track-summary-row--total">
+              <span>Total</span>
+              <strong>Rs {{ getOrderTotal() | number }}</strong>
+            </div>
+            <p class="track-meta">Payment: {{ order.paymentMethod || order.paymentStatus }}</p>
+            <p class="track-meta" *ngIf="order.createdAt">Placed on {{ order.createdAt | date: 'medium' }}</p>
+          </div>
+        </div>
+
+        <div class="track-timeline" *ngIf="order.status !== 'cancelled'">
+          <div
+            class="track-step"
+            *ngFor="let step of getTimelineSteps(); let last = last"
+            [class.track-step--done]="step.done"
+            [class.track-step--active]="step.active"
+          >
+            <div class="track-step-marker">
+              <mat-icon>{{ step.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            </div>
+            <div class="track-step-content">
+              <strong>{{ step.label }}</strong>
+            </div>
+            <div class="track-step-line" *ngIf="!last"></div>
+          </div>
+        </div>
+
+        <div class="track-cancelled" *ngIf="order.status === 'cancelled'">
+          <mat-icon>cancel</mat-icon>
+          <div>
+            <strong>Order cancelled</strong>
+            <p *ngIf="order.cancelReason">{{ order.cancelReason }}</p>
+          </div>
+        </div>
+      </app-ui-card>
+
+      <app-ui-card *ngIf="canComplete()" class="track-card track-action-card p-4 sm:p-6">
+        <div class="track-action-head">
+          <mat-icon>task_alt</mat-icon>
+          <div>
+            <h3>Confirm you received the order</h3>
+            <p>Mark the order complete after delivery so the seller gets paid and you can leave a review.</p>
+          </div>
+        </div>
+
+        <div class="track-action-options">
+          <app-ui-button
+            label="Complete Order"
+            variant="accent"
+            [loading]="actionLoading && !showReviewOnComplete"
+            (clicked)="completeOrder(false)"
+          ></app-ui-button>
+
+          <button type="button" class="track-link-btn" (click)="showReviewOnComplete = !showReviewOnComplete">
+            {{ showReviewOnComplete ? 'Hide review form' : 'Complete with review' }}
+          </button>
+        </div>
+
+        <div class="track-review-inline" *ngIf="showReviewOnComplete" [formGroup]="completeForm">
+          <p class="track-review-label">Rate your experience</p>
+          <app-star-rating
+            formControlName="rating"
+            [readonly]="false"
+            size="md"
+            [showValue]="true"
+          ></app-star-rating>
+          <textarea
+            class="track-textarea"
+            rows="3"
+            formControlName="comment"
+            placeholder="Share a short review (optional)"
+          ></textarea>
+          <app-ui-button
+            label="Complete & Submit Review"
+            variant="accent"
+            [loading]="actionLoading"
+            (clicked)="completeOrder(true)"
+          ></app-ui-button>
+        </div>
+      </app-ui-card>
+
+      <app-ui-card *ngIf="canReview()" class="track-card track-action-card p-4 sm:p-6">
+        <div class="track-action-head">
+          <mat-icon>rate_review</mat-icon>
+          <div>
+            <h3>Write a review</h3>
+            <p>Tell others about your purchase experience.</p>
+          </div>
+        </div>
+
+        <form [formGroup]="reviewForm" class="track-review-form" (ngSubmit)="submitReview()">
+          <app-star-rating formControlName="rating" [readonly]="false" size="md" [showValue]="true"></app-star-rating>
+          <textarea
+            class="track-textarea"
+            rows="3"
+            formControlName="comment"
+            placeholder="Share your experience (optional)"
+          ></textarea>
+          <app-ui-button
+            label="Submit Review"
+            variant="accent"
+            [loading]="actionLoading"
+            (clicked)="submitReview()"
+          ></app-ui-button>
+        </form>
+      </app-ui-card>
+
+      <app-ui-card *ngIf="hasReview()" class="track-card p-4 sm:p-6">
+        <div class="track-review-display">
+          <p class="track-review-label">Your review</p>
+          <app-star-rating
+            [value]="order.review.rating"
+            [readonly]="true"
+            size="sm"
+            [showValue]="true"
+          ></app-star-rating>
+          <p *ngIf="order.review.comment" class="track-review-comment">{{ order.review.comment }}</p>
+        </div>
+      </app-ui-card>
+
+      <app-ui-card class="track-card p-4 sm:p-6">
+        <h3 class="track-section-title">Delivery details</h3>
+        <div class="track-details-grid">
+          <div>
+            <span class="track-detail-label">Name</span>
+            <p>{{ order.name || '—' }}</p>
+          </div>
+          <div>
+            <span class="track-detail-label">Phone</span>
+            <p>{{ order.phone || '—' }}</p>
+          </div>
+          <div class="track-detail-full">
+            <span class="track-detail-label">Address</span>
+            <p>{{ order.address || '—' }}</p>
+            <p *ngIf="order.nearestLandmark">Near: {{ order.nearestLandmark }}</p>
+            <p>{{ order.city }}<span *ngIf="order.state">, {{ order.state }}</span>, {{ order.country }}</p>
+          </div>
+        </div>
+      </app-ui-card>
+    </section>
+  </div>
 </main>
