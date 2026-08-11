@@ -158,7 +158,7 @@ export class MyAccountComponent implements OnInit {
       search: this.searchQuery,
     };
 
-    this.ngxSpinner.show();
+    this.spinnerService.show();
     this.productService
       .getMyProducts({
         page: this.currentPage,
@@ -175,10 +175,12 @@ export class MyAccountComponent implements OnInit {
           this.itemsPerPage = res.pagination.itemsPerPage;
           this.currentPage = res.pagination.currentPage;
           this.noProducts = this.products.length === 0;
+          this.spinnerService.hide();
         },
         error: (err) => {
           console.error(err);
           this.noProducts = true;
+          this.spinnerService.hide();
         },
       });
   }
