@@ -106,6 +106,7 @@ export class SellerProfileComponent implements OnInit {
 
   fetchProducts(sellerId: string): void {
     this.productsLoading = true;
+    this.spinnerService.show();
     this.productService
       .getProductsBySeller(sellerId, this.currentPage, this.itemsPerPage, this.productSearch)
       .subscribe({
@@ -116,10 +117,12 @@ export class SellerProfileComponent implements OnInit {
           this.currentPage = res.pagination?.currentPage || this.currentPage;
           this.noProducts = this.products.length === 0;
           this.productsLoading = false;
+          this.spinnerService.hide();
         },
         error: () => {
           this.noProducts = true;
           this.productsLoading = false;
+          this.spinnerService.hide();
         },
       });
   }

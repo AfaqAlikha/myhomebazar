@@ -11,7 +11,7 @@ import { ProductGridLayoutService } from '../shared/product-grid-layout.service'
 import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
 import { SeoService } from '../services/seo';
-import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
+import { SpinnerService } from '../shared/spinner.service';
 
 @Component({
   selector: 'app-shop',
@@ -24,7 +24,6 @@ import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
     UiSearchComponent,
     NgClass,
     NgIf,
-    NgxSpinnerModule,
     MatIconModule,
   ],
   templateUrl: './shop.component.html',
@@ -54,7 +53,7 @@ export class ShopComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
-    private spinner: NgxSpinnerService,
+    private spinner: SpinnerService,
     private seo: SeoService,
     public gridLayout: ProductGridLayoutService,
   ) {}

@@ -12,7 +12,7 @@ import { ProductGridLayoutService } from '../shared/product-grid-layout.service'
 import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
 import { SeoService } from '../services/seo';
-import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
+import { SpinnerService } from '../shared/spinner.service';
 
 @Component({
   selector: 'app-category',
@@ -25,7 +25,6 @@ import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
     UiSearchComponent,
     NgClass,
     NgIf,
-    NgxSpinnerModule,
     MatIconModule,
   ],
   templateUrl: './category.component.html',
@@ -55,7 +54,7 @@ export class CategoryComponent implements OnInit {
     private categoryService: CategoryService,
     private route: ActivatedRoute,
     private router: Router,
-    private spinner: NgxSpinnerService,
+    private spinner: SpinnerService,
     private seo: SeoService,
     public gridLayout: ProductGridLayoutService,
   ) {}

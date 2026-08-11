@@ -7,7 +7,7 @@ import {
 } from '@angular/forms';
 import { CommonModule, NgClass, NgFor, NgIf } from '@angular/common';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { UserAvatarComponent } from '../shared/user-avatar/user-avatar.component';
@@ -34,7 +34,7 @@ import { SpinnerService } from '../shared/spinner.service';
     NgFor,
     NgIf,
     MatPaginatorModule,
-    NgxSpinnerModule,
+    MatProgressSpinnerModule,
     RouterLink,
   ],
   templateUrl: './my-account.component.html',
@@ -46,7 +46,6 @@ export class MyAccountComponent implements OnInit {
   private spinnerService = inject(SpinnerService);
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
-  private ngxSpinner = inject(NgxSpinnerService);
 
   borderRadius = '8px';
   form: FormGroup = this.fb.group({
@@ -56,6 +55,7 @@ export class MyAccountComponent implements OnInit {
   });
   user: any;
   loading = false;
+  submitting = false;
 
   // Products
   products: any[] = [];
@@ -127,17 +127,14 @@ export class MyAccountComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
-    this.spinnerService.show();
+    this.submitting = true;
     this.auth.updateProfile(this.user._id, this.form.value).subscribe({
       next: (user) => {
         this.user = user;
-        this.loading = false;
-        this.spinnerService.hide();
+        this.submitting = false;
       },
       error: () => {
-        this.loading = false;
-        this.spinnerService.hide();
+        this.submitting = false;
       },
     });
   }
