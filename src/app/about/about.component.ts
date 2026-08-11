@@ -10,6 +10,7 @@ import {
   AboutStat,
   AboutTeamMember,
 } from '../services/about.service';
+import { SpinnerService } from '../shared/spinner.service';
 
 @Component({
   selector: 'app-about',
@@ -102,17 +103,21 @@ export class AboutComponent implements OnInit {
   constructor(
     private seo: SeoService,
     private aboutService: AboutService,
+    private spinnerService: SpinnerService,
   ) {}
 
   ngOnInit(): void {
     this.seo.setAboutSeo();
+    this.spinnerService.show();
     this.aboutService.getPublicAbout().subscribe({
       next: (content) => {
         if (content) this.applyContent(content);
         this.isLoading = false;
+        this.spinnerService.hide();
       },
       error: () => {
         this.isLoading = false;
+        this.spinnerService.hide();
       },
     });
   }

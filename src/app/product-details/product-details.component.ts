@@ -20,6 +20,7 @@ import { ShippingService, ShippingQuote } from '../services/shipping.service';
 import { PaymentMethodsComponent } from '../shared/payment-methods/payment-methods.component';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
 import { ProductEngagementService } from '../services/product-engagement.service';
+import { SpinnerService } from '../shared/spinner.service';
 import {
   hasLocalProductView,
   markLocalProductView,
@@ -102,6 +103,7 @@ export class ProductDetailsComponent implements OnInit {
     private engagementService: ProductEngagementService,
     private router: Router,
     private toastr: ToastrService,
+    private spinnerService: SpinnerService,
     @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -144,6 +146,8 @@ export class ProductDetailsComponent implements OnInit {
     const resolvedProduct = this.route.snapshot.data['product'];
     if (resolvedProduct) {
       this.applyProduct(resolvedProduct);
+    } else {
+      this.setPageLoading(true);
     }
 
     this.route.paramMap
@@ -152,20 +156,20 @@ export class ProductDetailsComponent implements OnInit {
           const id = params.get('id');
           if (!id) {
             this.loadError = true;
-            this.isLoading = false;
+            this.setPageLoading(false);
             return of(null);
           }
           if (this.product?._id === id) {
             return EMPTY;
           }
-          this.isLoading = true;
+          this.setPageLoading(true);
           this.loadError = false;
           this.product = null;
           this.showModal = false;
           return this.productService.getProductById(id).pipe(
             catchError(() => {
               this.loadError = true;
-              this.isLoading = false;
+              this.setPageLoading(false);
               return of(null);
             }),
           );
@@ -183,7 +187,7 @@ export class ProductDetailsComponent implements OnInit {
 
     if (!product) {
       this.loadError = true;
-      this.isLoading = false;
+      this.setPageLoading(false);
       return;
     }
 
@@ -213,7 +217,7 @@ export class ProductDetailsComponent implements OnInit {
     this.quantity = 1;
     this.calculateTotalPrice();
     this.seo.setProductSeo(this.product);
-    this.isLoading = false;
+    this.setPageLoading(false);
     this.loadError = false;
 
     if (this.product?.hasViewed) {
@@ -221,6 +225,15 @@ export class ProductDetailsComponent implements OnInit {
     }
 
     this.trackUniqueView();
+  }
+
+  private setPageLoading(loading: boolean): void {
+    this.isLoading = loading;
+    if (loading) {
+      this.spinnerService.show();
+    } else {
+      this.spinnerService.hide();
+    }
   }
 
   private trackUniqueView(): void {
