@@ -380,7 +380,14 @@ export class ProductDetailsComponent implements OnInit {
     this.subtotal = (this.product?.price || 0) * this.quantity;
     const weightKg = (Number(this.product?.weightKg) || 0.5) * this.quantity;
     const city = this.orderForm?.get('city')?.value || '';
-    this.shippingService.getQuote(this.subtotal, { city, weightKg }).subscribe((quote) => {
+    this.shippingService
+      .getQuote(this.subtotal, {
+        city,
+        weightKg,
+        productId: this.product?._id,
+        quantity: this.quantity,
+      })
+      .subscribe((quote) => {
       this.shippingQuote = quote;
       this.totalPrice = quote.grandTotal;
     });
@@ -397,10 +404,16 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   getFreeShippingHint(): string {
-    if (!this.shippingQuote || this.shippingQuote.isFreeShipping) return '';
+    if (!this.shippingQuote) return '';
+    if (this.shippingQuote.isFreeShipping) {
+      return this.shippingQuote.message || 'Free delivery applied';
+    }
+    if (this.shippingQuote.sellerFreeDeliveryRemaining && this.shippingQuote.sellerFreeDeliveryRemaining > 0) {
+      return this.shippingQuote.message;
+    }
     const remaining = this.shippingQuote.freeShippingThreshold - this.subtotal;
-    if (remaining <= 0) return '';
-    return `Add Rs ${remaining.toLocaleString()} more for free delivery`;
+    if (remaining <= 0) return this.shippingQuote.message || '';
+    return `Add Rs ${remaining.toLocaleString()} more for platform free delivery`;
   }
 
   increment(): void {
