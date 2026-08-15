@@ -24,6 +24,8 @@ import { ThemeService } from './core/services/theme.service';
 import { SiteThemeService } from './core/services/site-theme.service';
 import { SeoService } from './services/seo';
 import { PushService } from './core/services/push.service';
+import { PwaService } from './core/services/pwa.service';
+import { PwaInstallPromptComponent } from './shared/pwa-install-prompt/pwa-install-prompt.component';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -44,6 +46,7 @@ import { PushService } from './core/services/push.service';
     NgxPaginationModule,
     CustomLoaderComponent,
     MatProgressSpinnerModule,
+    PwaInstallPromptComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
@@ -66,6 +69,7 @@ export class AppComponent implements OnInit {
     private themeService: ThemeService,
     private siteThemeService: SiteThemeService,
     private pushService: PushService,
+    private pwaService: PwaService,
     private offlineService: OfflineService,
     @Inject(PLATFORM_ID) platformId: Object,
   ) {
@@ -85,6 +89,11 @@ export class AppComponent implements OnInit {
     );
     this.siteThemeService.loadAndApply();
     this.loadLogo();
+
+    if (this.isBrowser) {
+      this.pwaService.registerServiceWorker().catch(() => {});
+      this.pwaService.maybeShowInstallPrompt();
+    }
 
     if (this.isBrowser && !navigator.onLine) {
       this.offlineService.goOffline(this.router.url);
