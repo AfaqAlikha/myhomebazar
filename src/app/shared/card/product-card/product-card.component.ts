@@ -11,6 +11,7 @@ import { AuthService } from '../../../auth/auth.service';
 import { isOwnProduct as checkOwnProduct } from '../../../utils/auth';
 import { addProductToGuestCart } from '../../../services/guest-cart.service';
 import { ToastrService } from 'ngx-toastr';
+import { ScrollRevealDirective } from '../../scroll-reveal/scroll-reveal.directive';
 
 interface Product {
   _id: string;
@@ -41,6 +42,7 @@ interface Product {
     MatIconModule,
     MatProgressSpinnerModule,
     DecimalPipe,
+    ScrollRevealDirective,
   ],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css'],
@@ -49,6 +51,7 @@ export class ProductCardComponent implements OnInit {
   private router = inject(Router);
 
   @Input() product!: Product;
+  @Input() revealDelay = 0;
 
   currentUserId: string | null = null;
   wishlistLoading = false;
