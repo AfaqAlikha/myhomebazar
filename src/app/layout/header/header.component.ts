@@ -124,6 +124,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   openInstallPrompt(): void {
+    if (this.pwa.isIos() && !this.pwa.canInstall()) {
+      this.pwa.showInstallPrompt.set(true);
+      return;
+    }
     this.pwa.showInstallPrompt.set(true);
   }
 

@@ -41,7 +41,7 @@ import { PwaService } from '../../core/services/pwa.service';
           </div>
         </div>
 
-        <div *ngIf="showIosHelp()" class="pwa-install__ios">
+        <div *ngIf="shouldShowIosHelp()" class="pwa-install__ios">
           <p>On iPhone / iPad:</p>
           <ol>
             <li>Tap the <strong>Share</strong> button in Safari</li>
@@ -55,7 +55,7 @@ import { PwaService } from '../../core/services/pwa.service';
             Not now
           </button>
           <button
-            *ngIf="!showIosHelp()"
+            *ngIf="!shouldShowIosHelp()"
             type="button"
             class="pwa-install__primary"
             (click)="install()"
@@ -63,7 +63,7 @@ import { PwaService } from '../../core/services/pwa.service';
             Install App
           </button>
           <button
-            *ngIf="showIosHelp()"
+            *ngIf="shouldShowIosHelp()"
             type="button"
             class="pwa-install__primary"
             (click)="gotIt()"
@@ -217,6 +217,10 @@ export class PwaInstallPromptComponent {
     if (isPlatformBrowser(platformId) && pwa.isIos() && !pwa.canInstall()) {
       this.showIosHelp.set(true);
     }
+  }
+
+  shouldShowIosHelp(): boolean {
+    return this.showIosHelp() || (this.pwa.isIos() && !this.pwa.canInstall());
   }
 
   async install(): Promise<void> {
