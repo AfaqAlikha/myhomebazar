@@ -7,9 +7,12 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  AbstractControl,
   ControlContainer,
   FormGroupDirective,
   ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
 } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -59,6 +62,7 @@ export class LocationFieldsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadCountries();
+    this.attachValidators();
 
     this.parent.form
       .get('city')
@@ -74,20 +78,61 @@ export class LocationFieldsComponent implements OnInit, OnDestroy {
   }
 
   get showCountryError(): boolean {
-    return this.hasError('country');
+    return this.shouldShowError('country');
   }
 
   get showStateError(): boolean {
-    return this.hasError('state');
+    return this.shouldShowError('state');
   }
 
   get showCityError(): boolean {
-    return this.hasError('city');
+    return this.shouldShowError('city');
   }
 
-  private hasError(controlName: string): boolean {
+  getCountryErrorMessage(): string {
+    return this.getErrorMessage('country', 'Country');
+  }
+
+  getStateErrorMessage(): string {
+    return this.getErrorMessage('state', 'State');
+  }
+
+  getCityErrorMessage(): string {
+    return this.getErrorMessage('city', 'City');
+  }
+
+  private shouldShowError(controlName: string): boolean {
     const control = this.parent.form.get(controlName);
     return Boolean(control?.invalid && (control.dirty || control.touched));
+  }
+
+  private getErrorMessage(controlName: string, label: string): string {
+    const control = this.parent.form.get(controlName);
+    if (!control?.errors) return '';
+    if (control.errors['required']) return `${label} is required`;
+    if (control.errors['invalidLocation']) {
+      return `Select a valid ${label.toLowerCase()} from the list`;
+    }
+    return `${label} is invalid`;
+  }
+
+  private attachValidators(): void {
+    this.parent.form.get('country')?.addValidators(this.listValidator(() => this.countryNames));
+    this.parent.form.get('state')?.addValidators(this.listValidator(() => this.stateNames));
+    this.parent.form.get('city')?.addValidators(this.listValidator(() => this.cityNames));
+  }
+
+  private listValidator(optionsFn: () => string[]): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = String(control.value || '').trim();
+      if (!value) return null;
+      const options = optionsFn();
+      if (!options.length) return null;
+      const matched = options.some(
+        (option) => option.toLowerCase() === value.toLowerCase(),
+      );
+      return matched ? null : { invalidLocation: true };
+    };
   }
 
   private loadCountries(): void {
@@ -98,6 +143,7 @@ export class LocationFieldsComponent implements OnInit, OnDestroy {
         this.countryNames = this.countries.map((item) => item.name);
         this.loadingCountries = false;
         this.syncFromFormValues();
+        this.refreshValidation(['country', 'state', 'city']);
       },
       error: () => {
         this.countries = [];
@@ -120,6 +166,7 @@ export class LocationFieldsComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.states = res.states || [];
         this.stateNames = this.states.map((item) => item.name);
+        this.refreshValidation(['state', 'city']);
         if (!state) return;
 
         const matchedState = this.findByName(this.states, state);
@@ -130,6 +177,18 @@ export class LocationFieldsComponent implements OnInit, OnDestroy {
     });
   }
 
+  onCountryBlur(): void {
+    this.markTouched('country');
+  }
+
+  onStateBlur(): void {
+    this.markTouched('state');
+  }
+
+  onCityBlur(): void {
+    this.markTouched('city');
+  }
+
   onCountrySelected(name: string): void {
     const value = String(name || '').trim();
     this.parent.form.patchValue({ country: value, state: '', city: '' });
@@ -137,6 +196,7 @@ export class LocationFieldsComponent implements OnInit, OnDestroy {
     this.cities = [];
     this.stateNames = [];
     this.cityNames = [];
+    this.refreshValidation(['country', 'state', 'city']);
 
     const matched = this.findByName(this.countries, value);
     if (!matched) return;
@@ -145,6 +205,7 @@ export class LocationFieldsComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.states = res.states || [];
         this.stateNames = this.states.map((item) => item.name);
+        this.refreshValidation(['state', 'city']);
       },
     });
   }
@@ -155,6 +216,7 @@ export class LocationFieldsComponent implements OnInit, OnDestroy {
     this.parent.form.patchValue({ country, state: value, city: '' });
     this.cities = [];
     this.cityNames = [];
+    this.refreshValidation(['state', 'city']);
 
     const matched = this.findByName(this.states, value);
     if (!matched) return;
@@ -167,6 +229,7 @@ export class LocationFieldsComponent implements OnInit, OnDestroy {
     const country = String(this.parent.form.get('country')?.value || '').trim();
     const state = String(this.parent.form.get('state')?.value || '').trim();
     this.parent.form.patchValue({ country, state, city: value });
+    this.refreshValidation(['city']);
     this.citySelected.emit(value);
   }
 
@@ -183,6 +246,7 @@ export class LocationFieldsComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.cities = res.cities || [];
         this.cityNames = this.cities.map((item) => item.name);
+        this.refreshValidation(['city']);
       },
     });
   }
@@ -193,5 +257,17 @@ export class LocationFieldsComponent implements OnInit, OnDestroy {
   ): T | undefined {
     const normalized = String(name || '').trim().toLowerCase();
     return list.find((item) => item.name.toLowerCase() === normalized);
+  }
+
+  private markTouched(controlName: string): void {
+    const control = this.parent.form.get(controlName);
+    control?.markAsTouched();
+    control?.updateValueAndValidity();
+  }
+
+  private refreshValidation(controlNames: string[]): void {
+    controlNames.forEach((name) => {
+      this.parent.form.get(name)?.updateValueAndValidity({ emitEvent: false });
+    });
   }
 }

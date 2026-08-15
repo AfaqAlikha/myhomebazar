@@ -7,6 +7,7 @@
       [matAutocomplete]="countryAuto"
       placeholder="Search country"
       [disabled]="loadingCountries"
+      (blur)="onCountryBlur()"
     />
     <mat-autocomplete
       #countryAuto="matAutocomplete"
@@ -19,7 +20,7 @@
         {{ option }}
       </mat-option>
     </mat-autocomplete>
-    <mat-error *ngIf="showCountryError">Country is required</mat-error>
+    <mat-error *ngIf="showCountryError">{{ getCountryErrorMessage() }}</mat-error>
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="w-full location-field">
@@ -30,6 +31,7 @@
       [matAutocomplete]="stateAuto"
       placeholder="Search state"
       [disabled]="!parent.form.get('country')?.value"
+      (blur)="onStateBlur()"
     />
     <mat-autocomplete
       #stateAuto="matAutocomplete"
@@ -42,7 +44,7 @@
         {{ option }}
       </mat-option>
     </mat-autocomplete>
-    <mat-error *ngIf="showStateError">State is required</mat-error>
+    <mat-error *ngIf="showStateError">{{ getStateErrorMessage() }}</mat-error>
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="w-full location-field">
@@ -53,6 +55,7 @@
       [matAutocomplete]="cityAuto"
       placeholder="Search city"
       [disabled]="!parent.form.get('state')?.value"
+      (blur)="onCityBlur()"
     />
     <mat-autocomplete
       #cityAuto="matAutocomplete"
@@ -65,6 +68,6 @@
         {{ option }}
       </mat-option>
     </mat-autocomplete>
-    <mat-error *ngIf="showCityError">City is required</mat-error>
+    <mat-error *ngIf="showCityError">{{ getCityErrorMessage() }}</mat-error>
   </mat-form-field>
 </div>
