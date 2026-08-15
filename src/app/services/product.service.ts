@@ -125,10 +125,11 @@ export class ProductService {
   getProductsBySeller(
     sellerId: string,
     page = 1,
-    limit = 10,
+    limit?: number,
     search = '',
   ): Observable<any> {
-    let params = new HttpParams().set('page', page.toString()).set('limit', limit.toString());
+    let params = new HttpParams().set('page', page.toString());
+    if (limit) params = params.set('limit', limit.toString());
     if (search) params = params.set('search', search);
 
     return this.http.get<any>(API_ENDPOINTS.products.bySeller(sellerId), { params });

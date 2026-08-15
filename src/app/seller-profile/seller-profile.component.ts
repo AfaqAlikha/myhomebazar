@@ -55,7 +55,7 @@ export class SellerProfileComponent implements OnInit {
 
   products: any[] = [];
   totalItems = 0;
-  itemsPerPage = 6;
+  itemsPerPage = 0;
   currentPage = 1;
   noProducts = false;
 
@@ -108,7 +108,12 @@ export class SellerProfileComponent implements OnInit {
     this.productsLoading = true;
     this.spinnerService.show();
     this.productService
-      .getProductsBySeller(sellerId, this.currentPage, this.itemsPerPage, this.productSearch)
+      .getProductsBySeller(
+        sellerId,
+        this.currentPage,
+        this.itemsPerPage > 0 ? this.itemsPerPage : undefined,
+        this.productSearch,
+      )
       .subscribe({
         next: (res) => {
           this.products = res.products || [];
