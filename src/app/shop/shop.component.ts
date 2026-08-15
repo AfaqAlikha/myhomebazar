@@ -92,7 +92,7 @@ export class ShopComponent implements OnInit {
 
         childSubCategory: this.selectedChildSubCategories.join(','),
         page: this.currentPage,
-        limit: this.itemsPerPage > 0 ? this.itemsPerPage : 6,
+        ...(this.itemsPerPage > 0 ? { limit: this.itemsPerPage } : {}),
         sort: this.sortOrder,
         search: this.searchQuery,
       })

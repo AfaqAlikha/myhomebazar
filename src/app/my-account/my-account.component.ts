@@ -60,7 +60,7 @@ export class MyAccountComponent implements OnInit {
   // Products
   products: any[] = [];
   totalItems = 0;
-  itemsPerPage = 6;
+  itemsPerPage = 0;
   currentPage = 1;
   searchQuery = '';
   sortOrder: 'low' | 'high' | '' = '';
@@ -149,20 +149,11 @@ export class MyAccountComponent implements OnInit {
   }
 
   fetchProducts() {
-    const params = {
-      catName: this.selectedCategoryName,
-      subCatName: this.selectedSubCategory,
-      page: this.currentPage,
-      limit: this.itemsPerPage,
-      sort: this.sortOrder,
-      search: this.searchQuery,
-    };
-
     this.spinnerService.show();
     this.productService
       .getMyProducts({
         page: this.currentPage,
-        limit: this.itemsPerPage,
+        ...(this.itemsPerPage > 0 ? { limit: this.itemsPerPage } : {}),
         catName: this.selectedCategoryName,
         subCatName: this.selectedSubCategory,
         sort: this.sortOrder,
