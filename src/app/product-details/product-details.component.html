@@ -76,7 +76,9 @@
 
   <div *ngIf="!isLoading && loadError" class="text-center py-20 text-[var(--color-text-secondary)]">
     Product not found or failed to load.
-    <a routerLink="/shop" class="block mt-4 text-[var(--color-accent)] hover:underline">Back to Shop</a>
+    <a routerLink="/shop" class="block mt-4 text-[var(--color-accent)] hover:underline"
+      >Back to Shop</a
+    >
   </div>
 
   <div *ngIf="!isLoading && product">
@@ -183,7 +185,10 @@
 
       <!-- Product Info -->
       <div class="md:col-span-6 flex flex-col gap-3">
-        <app-ui-card [borderRadius]="borderRadius" class="p-4 flex flex-col gap-4 min-w-0 overflow-hidden">
+        <app-ui-card
+          [borderRadius]="borderRadius"
+          class="p-4 flex flex-col gap-4 min-w-0 overflow-hidden"
+        >
           <div class="flex items-center justify-between flex-wrap gap-2">
             <h1 class="text-xl font-bold my-1 flex-1 min-w-0">{{ product.name }}</h1>
             <app-star-rating
@@ -204,7 +209,10 @@
             <p class="text-sm text-[var(--color-text-secondary)] mt-1">
               {{ getPromotionDetailText() }}
             </p>
-            <p *ngIf="getPromotionExpiryLabel()" class="text-xs text-[var(--color-text-secondary)] mt-2">
+            <p
+              *ngIf="getPromotionExpiryLabel()"
+              class="text-xs text-[var(--color-text-secondary)] mt-2"
+            >
               Offer valid until {{ getPromotionExpiryLabel() }}
             </p>
           </div>
@@ -234,9 +242,18 @@
             </button>
           </div>
 
-          <p class="text-gray-600 text-sm my-2">
-            {{ product.description }}
-          </p>
+          <!-- Product Description -->
+          <div class="my-3">
+            <h3 class="text-base font-semibold text-[var(--color-text)] mb-2">
+              Product Description
+            </h3>
+
+            <div
+              class="product-description-text text-sm text-[var(--color-text)] whitespace-pre-line break-words leading-6"
+            >
+              {{ product.description || 'No description available.' }}
+            </div>
+          </div>
 
           <!-- Colors -->
           <div *ngIf="product.colors?.length > 0" class="product-option-row">
@@ -386,7 +403,9 @@
             <p *ngIf="getFreeShippingHint()" class="text-xs text-[var(--color-accent)] max-w-xs">
               {{ getFreeShippingHint() }}
             </p>
-            <div class="text-base font-semibold flex justify-between max-w-xs pt-1 border-t border-[var(--color-border)]">
+            <div
+              class="text-base font-semibold flex justify-between max-w-xs pt-1 border-t border-[var(--color-border)]"
+            >
               <span>Total</span>
               <span>Rs {{ totalPrice | number }}</span>
             </div>
@@ -447,7 +466,12 @@
         <form [formGroup]="orderForm" class="flex flex-col gap-2 sm:gap-3">
           <app-ui-input label="Name" controlName="name"></app-ui-input>
           <app-ui-input label="Email" controlName="email" type="email"></app-ui-input>
-          <app-ui-input label="Phone" controlName="phone" type="tel" placeholder="03001234567"></app-ui-input>
+          <app-ui-input
+            label="Phone"
+            controlName="phone"
+            type="tel"
+            placeholder="03001234567"
+          ></app-ui-input>
           <app-location-fields (citySelected)="onOrderCityChange()"></app-location-fields>
           <app-ui-input
             label="Complete Address"
@@ -474,13 +498,17 @@
               <span>Delivery</span>
               <span [class.text-green-600]="isShippingFree()">{{ getShippingLabel() }}</span>
             </div>
-            <div class="flex justify-between gap-3 font-semibold pt-2 border-t border-[var(--color-border)]">
+            <div
+              class="flex justify-between gap-3 font-semibold pt-2 border-t border-[var(--color-border)]"
+            >
               <span>Order Total</span>
               <span>Rs {{ totalPrice | number }}</span>
             </div>
           </div>
 
-          <div class="order-modal-actions flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mt-4 pb-[env(safe-area-inset-bottom)]">
+          <div
+            class="order-modal-actions flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mt-4 pb-[env(safe-area-inset-bottom)]"
+          >
             <app-ui-button
               label="Cancel"
               (clicked)="showModal = false"
