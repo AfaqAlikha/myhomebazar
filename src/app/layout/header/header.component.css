@@ -2,6 +2,40 @@
   padding-top: env(safe-area-inset-top, 0px);
 }
 
+.site-header--glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 4px 24px color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+
+.header-search-pill {
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-card) 90%, transparent);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.header-search-pill:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.header-search-pill__icon {
+  width: 1.1rem !important;
+  height: 1.1rem !important;
+  font-size: 1.1rem !important;
+  opacity: 0.75;
+}
+
 .nav-link {
   position: relative;
   padding-bottom: 4px;
