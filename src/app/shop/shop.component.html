@@ -1,142 +1,115 @@
-<div class="container mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 mt-6 min-h-screen py-4 px-4 md:px-8">
-  <!-- Sidebar -->
-  <div class="md:col-span-3 mb-4">
-    <app-ui-card [borderRadius]="borderRadius" class="page-panel mt-4 max-h-[500px] overflow-y-auto">
-      <h2 class="section-title text-lg mb-1">Categories</h2>
-      <div class="section-underline mb-3"></div>
-      <div class="flex flex-wrap gap-4">
-        <div class="flex items-center gap-2">
-          <input
-            type="checkbox"
-            class="w-4 h-4 accent-yellow-500 cursor-pointer"
-            [checked]="!selectedCategoryId"
-            (change)="showAllProducts()"
-          />
-
-          <label
-            class="cursor-pointer"
-            [ngClass]="{ 'text-[var(--color-accent)] font-semibold': !selectedCategoryId }"
-            (click)="showAllProducts()"
-          >
-            See All Products
-          </label>
-        </div>
-
-        <div *ngFor="let cat of categories" class="flex items-center gap-2">
-          <input
-            class="w-4 h-4 accent-yellow-500 cursor-pointer"
-            type="checkbox"
-            [checked]="selectedCategoryId === cat._id"
-            (change)="selectCategory(cat)"
-          />
-
-          <label class="cursor-pointer" (click)="selectCategory(cat)">
-            {{ cat.name }}
-          </label>
-        </div>
-      </div>
-
-      <div *ngIf="selectedCategoryId && subCategories.length > 0" class="mt-6">
-        <h3 class="text-md font-semibold mb-2">Sub Categories</h3>
-        <div class="flex flex-wrap gap-4">
-          <div *ngFor="let sub of subCategories" class="flex items-center gap-2 py-2">
-            <input
-              class="w-4 h-4 accent-yellow-500 cursor-pointer"
-              type="checkbox"
-              [checked]="selectedSubCategoryId === sub._id"
-              (change)="selectSubCategory(sub)"
-            />
-
-            <label class="cursor-pointer" (click)="selectSubCategory(sub)">
-              {{ sub.subCategory }}
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="selectedSubCategoryId && childSubCategories.length > 0" class="mt-6">
-        <h3 class="font-semibold mt-5 mb-2">Child Categories</h3>
-
-        <div class="flex flex-wrap gap-4">
-          <div *ngFor="let child of childSubCategories" class="flex items-center gap-2">
-            <input
-              class="w-4 h-4 accent-yellow-500 cursor-pointer"
-              type="checkbox"
-              [checked]="selectedChildSubCategories.includes(child._id)"
-              (change)="toggleChildSubCategory(child._id)"
-            />
-
-            <label>{{ child.childSubCategory }}</label>
-          </div>
-        </div>
-      </div>
-    </app-ui-card>
+<div class="container mx-auto shop-page-shell px-3 md:px-6">
+  <div class="mb-4">
+    <h1 class="section-title section-title-accent">Shop All Products</h1>
+    <div class="section-underline"></div>
+    <p class="text-sm text-[var(--color-text-secondary)] mt-2">Home › Shop</p>
   </div>
 
-  <!-- Products Section -->
-  <div class="md:col-span-9 flex flex-col page-panel">
-    <h2 class="section-title section-title-accent px-1">Shop Products</h2>
-    <div class="section-underline mx-1"></div>
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 px-3 mt-3">
-      <div class="w-full md:w-auto">
-        <app-ui-search (search)="onSearch($event)"></app-ui-search>
+  <div class="shop-chip-bar">
+    <app-category-chips
+      [categories]="categoryChips"
+      [selectedId]="selectedCategoryId"
+      (selectedChange)="onCategoryChipSelect($event)"
+    ></app-category-chips>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+    <!-- Desktop filters -->
+    <aside class="hidden md:block md:col-span-3">
+      <div class="shop-filter-panel">
+        <h2 class="section-title text-base mb-1">Filters</h2>
+        <div class="section-underline mb-3"></div>
+
+        <h3 class="text-sm font-semibold mb-2">Categories</h3>
+        <div class="space-y-2">
+          <button type="button" class="shop-sort-pill w-full text-left" [class.shop-sort-pill--active]="!selectedCategoryId" (click)="showAllProducts()">
+            All Products
+          </button>
+          <button
+            *ngFor="let cat of categories"
+            type="button"
+            class="shop-sort-pill w-full text-left"
+            [class.shop-sort-pill--active]="selectedCategoryId === cat._id"
+            (click)="selectCategory(cat)"
+          >
+            {{ cat.name }}
+          </button>
+        </div>
+
+        <div *ngIf="selectedCategoryId && subCategories.length" class="mt-5">
+          <h3 class="text-sm font-semibold mb-2">Sub Categories</h3>
+          <div class="space-y-2">
+            <button
+              *ngFor="let sub of subCategories"
+              type="button"
+              class="shop-sort-pill w-full text-left"
+              [class.shop-sort-pill--active]="selectedSubCategoryId === sub._id"
+              (click)="selectSubCategory(sub)"
+            >
+              {{ sub.subCategory }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Products -->
+    <section class="md:col-span-9 page-panel">
+      <div class="shop-toolbar">
+        <button type="button" class="shop-mobile-filter-btn" (click)="showMobileFilters = true">
+          <mat-icon>filter_list</mat-icon>
+          Filters
+        </button>
+
+        <div class="w-full md:max-w-sm">
+          <app-ui-search (search)="onSearch($event)"></app-ui-search>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-sm text-[var(--color-text-secondary)]">{{ totalItems }} products</span>
+          <button type="button" class="shop-sort-pill" [class.shop-sort-pill--active]="sortOrder === 'low'" (click)="setSort('low')">Low to High</button>
+          <button type="button" class="shop-sort-pill" [class.shop-sort-pill--active]="sortOrder === 'high'" (click)="setSort('high')">High to Low</button>
+          <button type="button" class="grid-layout-toggle" (click)="cycleGridLayout()" [title]="gridLayout.gridLayoutLabel">
+            <mat-icon>{{ gridLayout.gridLayoutIcon }}</mat-icon>
+          </button>
+        </div>
       </div>
 
-      <div class="flex flex-wrap items-center justify-start md:justify-end gap-3">
-        <button
-          class="px-4 py-2 border rounded-md"
-          [ngClass]="{ 'bg-[var(--color-accent)]': sortOrder === 'low' }"
-          (click)="setSort('low')"
-        >
-          Low to High
-        </button>
-
-        <button
-          class="px-4 py-2 border rounded-md"
-          [ngClass]="{ 'bg-[var(--color-accent)]': sortOrder === 'high' }"
-          (click)="setSort('high')"
-        >
-          High to Low
-        </button>
-
-        <button
-          type="button"
-          class="grid-layout-toggle"
-          (click)="cycleGridLayout()"
-          [attr.aria-label]="gridLayout.gridLayoutLabel"
-          [title]="gridLayout.gridLayoutLabel"
-        >
-          <mat-icon>{{ gridLayout.gridLayoutIcon }}</mat-icon>
-        </button>
+      <div class="grid gap-3 md:gap-4 product-grid flex-grow" [ngClass]="gridLayout.productGridClass">
+        <div *ngIf="!noProducts && products.length === 0" class="col-span-full text-center text-[var(--color-text-secondary)] py-10">
+          Loading products...
+        </div>
+        <div *ngIf="noProducts" class="col-span-full text-center text-[var(--color-text-secondary)] py-10">
+          No products found
+        </div>
+        <div *ngFor="let product of products" class="product-grid-item">
+          <app-product-card [product]="product" variant="mockup"></app-product-card>
+        </div>
       </div>
+
+      <div class="flex justify-center md:justify-end mt-6">
+        <mat-paginator
+          [length]="totalItems"
+          [pageSize]="itemsPerPage"
+          [pageSizeOptions]="[itemsPerPage]"
+          [pageIndex]="currentPage - 1"
+          (page)="pageChanged($event)"
+        ></mat-paginator>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Mobile filter drawer -->
+<div *ngIf="showMobileFilters" class="app-modal-backdrop fixed inset-0 bg-black/50 z-[200] md:hidden" (click)="showMobileFilters = false">
+  <div class="absolute bottom-0 left-0 right-0 rounded-t-2xl bg-[var(--color-card)] p-4 max-h-[75dvh] overflow-y-auto app-modal-panel" (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-semibold">Filters</h3>
+      <button type="button" mat-icon-button (click)="showMobileFilters = false"><mat-icon>close</mat-icon></button>
     </div>
-
-    <div class="grid gap-4 flex-grow product-grid" [ngClass]="gridLayout.productGridClass">
-      <div
-        *ngIf="!noProducts && products.length === 0"
-        class="col-span-full text-center text-gray-500 font-medium py-10"
-      >
-        Loading products...
-      </div>
-
-      <div *ngIf="noProducts" class="col-span-full text-center text-gray-500 font-medium py-10">
-        No products found
-      </div>
-
-      <div *ngFor="let product of products" class="product-grid-item">
-        <app-product-card [product]="product"></app-product-card>
-      </div>
-    </div>
-
-    <div class="flex justify-center md:justify-end mt-6">
-      <mat-paginator
-        [length]="totalItems"
-        [pageSize]="itemsPerPage"
-        [pageSizeOptions]="[itemsPerPage]"
-        [pageIndex]="currentPage - 1"
-        (page)="pageChanged($event)"
-      >
-      </mat-paginator>
+    <div class="space-y-2">
+      <button type="button" class="shop-sort-pill w-full text-left" (click)="showAllProducts(); showMobileFilters = false">All Products</button>
+      <button *ngFor="let cat of categories" type="button" class="shop-sort-pill w-full text-left" (click)="selectCategory(cat); showMobileFilters = false">{{ cat.name }}</button>
     </div>
   </div>
 </div>

@@ -16,7 +16,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { CustomLoaderComponent } from './shared/custom-loader/custom-loader.component';
 import { OfflineService } from './core/services/offline.service';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { getGuestCartCount } from './services/guest-cart.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProductService } from './services/product.service';
 import { ThemeService } from './core/services/theme.service';
@@ -58,6 +60,7 @@ export class AppComponent implements OnInit {
 
   user: any = null;
   token: string | null = null;
+  cartCount = 0;
 
   private subs: Subscription[] = [];
   private readonly isBrowser: boolean;
@@ -93,6 +96,12 @@ export class AppComponent implements OnInit {
     if (this.isBrowser) {
       this.pwaService.registerServiceWorker().catch(() => {});
       this.pwaService.maybeShowInstallPrompt();
+      this.refreshCartCount();
+      this.subs.push(
+        this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe(() => {
+          this.refreshCartCount();
+        }),
+      );
     }
 
     if (this.isBrowser && !navigator.onLine) {
@@ -104,6 +113,11 @@ export class AppComponent implements OnInit {
     } else {
       this.auth.clearStaleSession();
     }
+  }
+
+  refreshCartCount(): void {
+    if (!this.isBrowser) return;
+    this.cartCount = getGuestCartCount();
   }
 
   loadLogo(): void {

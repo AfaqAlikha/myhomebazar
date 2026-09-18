@@ -32,6 +32,23 @@ export interface HomeCategoryChip {
   color?: string;
 }
 
+export interface HomeProductPreview {
+  _id: string;
+  name: string;
+  description?: string;
+  images: string[];
+  price: number;
+  catName?: string;
+  averageRating?: number;
+  reviewCount?: number;
+  isPromoted?: boolean;
+  promotionExpiresAt?: string | Date | null;
+  promotionLabel?: string;
+  likeCount?: number;
+  viewCount?: number;
+  user?: string | { _id?: string; id?: string };
+}
+
 export interface HomePageData {
   hero: HomePromoTile & { slides: HomeHeroSlide[] };
   flashDeals: HomePromoTile;
@@ -39,10 +56,15 @@ export interface HomePageData {
   mobileHero: HomePromoTile & { slides: HomeHeroSlide[] };
   sections: {
     popularTitle: string;
+    dealsTitle: string;
     desktopProductsTitle: string;
     categoriesTitle: string;
+    trendingTitle: string;
   };
   categories: HomeCategoryChip[];
+  flashDealProducts: HomeProductPreview[];
+  popularProducts: HomeProductPreview[];
+  trendingProducts: HomeProductPreview[];
 }
 
 @Injectable({ providedIn: 'root' })

@@ -118,7 +118,7 @@
 
     <app-star-rating
       class="mt-1 block"
-      [value]="product.averageRating"
+      [value]="product.averageRating ?? 0"
       [readonly]="true"
       size="sm"
     ></app-star-rating>
