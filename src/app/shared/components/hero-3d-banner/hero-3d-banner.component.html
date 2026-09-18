@@ -8,74 +8,76 @@
     <span class="hero-3d__orb hero-3d__orb--3"></span>
   </div>
 
-  <div *ngIf="loading" class="hero-3d__skeleton animate-pulse" aria-busy="true"></div>
-
-  <div *ngIf="!loading" class="hero-3d__layout">
+  <div class="hero-3d__layout">
     <div class="hero-3d__copy">
       <ng-content select="[hero3d-copy]"></ng-content>
     </div>
 
     <div class="hero-3d__stage" (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()">
-      <div class="hero-3d__float-icons" aria-hidden="true">
-        <span
-          *ngFor="let item of floatIcons"
-          class="hero-3d__float-icon"
-          [style.animationDelay]="item.delay"
-        >
-          <mat-icon>{{ item.icon }}</mat-icon>
-        </span>
-      </div>
+      <div *ngIf="loading" class="hero-3d__skeleton animate-pulse" aria-busy="true"></div>
 
-      <div class="hero-3d__frame-wrap">
-        <div class="hero-3d__frame-glow" aria-hidden="true"></div>
-        <div class="hero-3d__frame" [style.transform]="frameTransform()">
-          <ng-container *ngFor="let slide of normalizedSlides; let i = index">
-            <div
-              class="hero-3d__slide"
-              [class.hero-3d__slide--active]="i === activeIndex"
-              [class.hero-3d__slide--prev]="
-                i === ((activeIndex - 1 + normalizedSlides.length) % normalizedSlides.length)
-              "
-              [class.hero-3d__slide--next]="
-                i === ((activeIndex + 1) % normalizedSlides.length)
-              "
-            >
-              <a
-                *ngIf="slideLink(slide) as link; else staticSlide"
-                [routerLink]="link"
-                class="hero-3d__slide-link"
-              >
-                <ng-container *ngTemplateOutlet="slideVisual; context: { $implicit: slide }"></ng-container>
-              </a>
-              <ng-template #staticSlide>
-                <div class="hero-3d__slide-link">
-                  <ng-container *ngTemplateOutlet="slideVisual; context: { $implicit: slide }"></ng-container>
-                </div>
-              </ng-template>
-            </div>
-          </ng-container>
+      <ng-container *ngIf="!loading">
+        <div class="hero-3d__float-icons" aria-hidden="true">
+          <span
+            *ngFor="let item of floatIcons"
+            class="hero-3d__float-icon"
+            [style.animationDelay]="item.delay"
+          >
+            <mat-icon>{{ item.icon }}</mat-icon>
+          </span>
         </div>
-      </div>
 
-      <div *ngIf="normalizedSlides.length > 1" class="hero-3d__nav">
-        <button type="button" class="hero-3d__nav-btn" (click)="prev()" aria-label="Previous slide">
-          <mat-icon>chevron_left</mat-icon>
-        </button>
-        <button type="button" class="hero-3d__nav-btn" (click)="next()" aria-label="Next slide">
-          <mat-icon>chevron_right</mat-icon>
-        </button>
-      </div>
+        <div class="hero-3d__frame-wrap">
+          <div class="hero-3d__frame-glow" aria-hidden="true"></div>
+          <div class="hero-3d__frame" [style.transform]="frameTransform()">
+            <ng-container *ngFor="let slide of normalizedSlides; let i = index">
+              <div
+                class="hero-3d__slide"
+                [class.hero-3d__slide--active]="i === activeIndex"
+                [class.hero-3d__slide--prev]="
+                  i === ((activeIndex - 1 + normalizedSlides.length) % normalizedSlides.length)
+                "
+                [class.hero-3d__slide--next]="
+                  i === ((activeIndex + 1) % normalizedSlides.length)
+                "
+              >
+                <a
+                  *ngIf="slideLink(slide) as link; else staticSlide"
+                  [routerLink]="link"
+                  class="hero-3d__slide-link"
+                >
+                  <ng-container *ngTemplateOutlet="slideVisual; context: { $implicit: slide }"></ng-container>
+                </a>
+                <ng-template #staticSlide>
+                  <div class="hero-3d__slide-link">
+                    <ng-container *ngTemplateOutlet="slideVisual; context: { $implicit: slide }"></ng-container>
+                  </div>
+                </ng-template>
+              </div>
+            </ng-container>
+          </div>
+        </div>
 
-      <div *ngIf="normalizedSlides.length > 1" class="hero-3d__dots">
-        <button
-          type="button"
-          *ngFor="let slide of normalizedSlides; let i = index"
-          class="hero-3d__dot"
-          [class.hero-3d__dot--active]="i === activeIndex"
-          (click)="goTo(i)"
-          [attr.aria-label]="'Go to slide ' + (i + 1)"
-        ></button>
-      </div>
+        <div *ngIf="normalizedSlides.length > 1" class="hero-3d__nav">
+          <button type="button" class="hero-3d__nav-btn" (click)="prev()" aria-label="Previous slide">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <button type="button" class="hero-3d__nav-btn" (click)="next()" aria-label="Next slide">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+
+        <div *ngIf="normalizedSlides.length > 1" class="hero-3d__dots">
+          <button
+            type="button"
+            *ngFor="let slide of normalizedSlides; let i = index"
+            class="hero-3d__dot"
+            [class.hero-3d__dot--active]="i === activeIndex"
+            (click)="goTo(i)"
+            [attr.aria-label]="'Go to slide ' + (i + 1)"
+          ></button>
+        </div>
+      </ng-container>
     </div>
   </div>
 </div>

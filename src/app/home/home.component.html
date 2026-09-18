@@ -2,13 +2,13 @@
 <section class="home-bento container mx-auto px-2 hidden md:block">
   <div class="home-bento__grid">
     <div class="home-bento__hero">
-      <app-hero-3d-banner [slides]="heroSlides" [loading]="heroLoading">
-        <div hero3d-copy *ngIf="homeData?.hero?.title" class="home-bento__hero-copy">
-          <span class="home-bento__promo-badge">{{ homeData?.hero?.badge }}</span>
-          <h1 class="home-bento__hero-title">{{ homeData?.hero?.title }}</h1>
-          <p class="home-bento__hero-sub">{{ homeData?.hero?.subtitle }}</p>
-          <a [routerLink]="homeData?.hero?.ctaLink || '/shop'" class="home-bento__promo-cta">
-            {{ homeData?.hero?.ctaLabel || 'Shop Now' }} →
+      <app-hero-3d-banner [slides]="heroSlides" [loading]="heroSlidesLoading">
+        <div hero3d-copy class="home-bento__hero-copy">
+          <span class="home-bento__promo-badge">{{ heroDesktopCopy.badge }}</span>
+          <h1 class="home-bento__hero-title">{{ heroDesktopCopy.title }}</h1>
+          <p class="home-bento__hero-sub">{{ heroDesktopCopy.subtitle }}</p>
+          <a [routerLink]="heroDesktopCopy.ctaLink" class="home-bento__promo-cta">
+            {{ heroDesktopCopy.ctaLabel }} →
           </a>
         </div>
       </app-hero-3d-banner>
@@ -47,13 +47,13 @@
 
 <!-- Hero: mobile -->
 <section class="mobile-hero-card md:hidden">
-  <app-hero-3d-banner [slides]="heroSlides" [loading]="heroLoading">
+  <app-hero-3d-banner [slides]="heroSlides" [loading]="heroSlidesLoading">
     <div hero3d-copy class="mobile-hero-card__content">
-      <span class="home-bento__promo-badge">{{ homeData?.mobileHero?.badge }}</span>
-      <h1 class="mobile-hero-card__title">{{ homeData?.mobileHero?.title }}</h1>
-      <p class="mobile-hero-card__sub">{{ homeData?.mobileHero?.subtitle }}</p>
-      <a [routerLink]="homeData?.mobileHero?.ctaLink || '/shop'" class="mobile-hero-card__cta">
-        {{ homeData?.mobileHero?.ctaLabel || 'Shop Now' }} →
+      <span class="home-bento__promo-badge">{{ heroMobileCopy.badge }}</span>
+      <h1 class="mobile-hero-card__title">{{ heroMobileCopy.title }}</h1>
+      <p class="mobile-hero-card__sub">{{ heroMobileCopy.subtitle }}</p>
+      <a [routerLink]="heroMobileCopy.ctaLink" class="mobile-hero-card__cta">
+        {{ heroMobileCopy.ctaLabel }} →
       </a>
     </div>
   </app-hero-3d-banner>

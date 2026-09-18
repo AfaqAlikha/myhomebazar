@@ -141,6 +141,13 @@
   transform-style: preserve-3d;
 }
 
+.hero-3d__stage .hero-3d__skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 22px;
+}
+
 @media (min-width: 768px) {
   .hero-3d__stage {
     min-height: 340px;

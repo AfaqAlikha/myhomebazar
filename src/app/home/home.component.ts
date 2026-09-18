@@ -58,7 +58,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isLoading = true;
   loadingMore = false;
   hasMore = true;
-  heroLoading = true;
+  heroSlidesLoading = true;
   flashCountdown: { hours: string; minutes: string; seconds: string } | null = null;
 
   productSearchFilters: ProductSearchFilters = {
@@ -129,6 +129,34 @@ export class HomeComponent implements OnInit, OnDestroy {
     const currentIndex = options.indexOf(this.effectiveGridColumns);
     const next = options[(currentIndex + 1) % options.length];
     return `Current ${this.effectiveGridColumns} cards per row. Switch to ${next}.`;
+  }
+
+  get heroDesktopCopy() {
+    const hero = this.homeData?.hero;
+    return {
+      badge: this.heroText(hero?.badge, 'New Season'),
+      title: this.heroText(hero?.title, 'Summer Collection'),
+      subtitle: this.heroText(
+        hero?.subtitle,
+        'Discover curated home & living picks for every space.',
+      ),
+      ctaLabel: this.heroText(hero?.ctaLabel, 'Shop Now'),
+      ctaLink: this.heroText(hero?.ctaLink, '/shop'),
+    };
+  }
+
+  get heroMobileCopy() {
+    const hero = this.homeData?.mobileHero;
+    return {
+      badge: this.heroText(hero?.badge, 'New Year, New Home'),
+      title: this.heroText(hero?.title, 'New Year, New Home'),
+      subtitle: this.heroText(
+        hero?.subtitle,
+        'Furniture & decor for every beautiful space.',
+      ),
+      ctaLabel: this.heroText(hero?.ctaLabel, 'Shop Now'),
+      ctaLink: this.heroText(hero?.ctaLink, '/shop'),
+    };
   }
 
   get productGridClass(): string {
@@ -227,12 +255,20 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
   }
 
+  private heroText(value: string | undefined | null, fallback: string): string {
+    const trimmed = value?.trim();
+    return trimmed ? trimmed : fallback;
+  }
+
   private loadHomeConfig(): void {
     this.homeConfigLoading = true;
     this.homePageService.getPublicHome().subscribe({
       next: (res) => {
         this.homeData = res.data;
         this.syncHeroSlides();
+        if (this.heroSlides.length) {
+          this.heroSlidesLoading = false;
+        }
         this.flashDealProducts = res.data?.flashDealProducts || [];
         this.popularProducts = res.data?.popularProducts || [];
         this.trendingProducts = res.data?.trendingProducts || [];
@@ -327,7 +363,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   loadFeaturedProducts(): void {
-    this.heroLoading = true;
+    if (!this.heroSlides.length) {
+      this.heroSlidesLoading = true;
+    }
     this.productService.getFeaturedProducts().subscribe({
       next: (res: any) => {
         const banners = res.banners || [];
@@ -348,10 +386,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
         this.featured = [...productBanners, ...imageBanners];
         this.syncHeroSlides();
-        this.heroLoading = false;
+        this.heroSlidesLoading = false;
       },
       error: () => {
-        this.heroLoading = false;
+        this.heroSlidesLoading = false;
       },
     });
   }
