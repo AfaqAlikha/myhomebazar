@@ -12,4 +12,6 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class MobileBottomNavComponent {
   @Input() cartCount = 0;
+  @Input() messageUnread = 0;
+  @Input() isLoggedIn = false;
 }
