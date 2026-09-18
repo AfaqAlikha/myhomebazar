@@ -3,18 +3,18 @@
   [revealDelay]="revealDelay"
   class="product-card group relative flex w-full flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-md transition-all duration-300"
   [class.product-card--navigating]="navigating"
+  [attr.aria-busy]="navigating"
+  [attr.aria-label]="'View ' + product.name"
+  role="button"
+  tabindex="0"
+  (click)="openDetails($event)"
+  (keydown.enter)="openDetails($event)"
+  (keydown.space)="openDetails($event)"
   (mouseenter)="prefetchDetails()"
 >
   <div *ngIf="navigating" class="product-card-nav-loader" aria-live="polite" aria-busy="true">
-    <mat-spinner diameter="36"></mat-spinner>
+    <mat-spinner diameter="36" color="accent"></mat-spinner>
   </div>
-
-  <button
-    type="button"
-    class="product-card__overlay"
-    [attr.aria-label]="'View ' + product.name"
-    (click)="openDetails($event)"
-  ></button>
 
   <div class="product-card__image relative w-full overflow-hidden">
     <img

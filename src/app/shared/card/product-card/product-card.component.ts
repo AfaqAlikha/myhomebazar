@@ -1,4 +1,12 @@
-import { Component, Input, inject, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  inject,
+  Inject,
+  PLATFORM_ID,
+  OnInit,
+} from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule, NgIf, isPlatformBrowser, DecimalPipe } from '@angular/common';
 import { StarRatingComponent } from '../../star-rating/star-rating.component';
@@ -49,8 +57,11 @@ interface Product {
   styleUrls: ['./product-card.component.css'],
 })
 export class ProductCardComponent implements OnInit {
+  private static readonly NAV_LOADER_MIN_MS = 250;
+
   private router = inject(Router);
   private productService = inject(ProductService);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input() product!: Product;
   @Input() revealDelay = 0;
@@ -108,9 +119,20 @@ export class ProductCardComponent implements OnInit {
     event?.stopPropagation();
     if (this.navigating) return;
 
+    const startedAt = Date.now();
     this.navigating = true;
+    this.cdr.detectChanges();
+
     this.router.navigate(['/product/details', this.product._id]).finally(() => {
-      this.navigating = false;
+      const remaining = Math.max(
+        0,
+        ProductCardComponent.NAV_LOADER_MIN_MS - (Date.now() - startedAt),
+      );
+
+      setTimeout(() => {
+        this.navigating = false;
+        this.cdr.markForCheck();
+      }, remaining);
     });
   }
 
