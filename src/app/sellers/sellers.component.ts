@@ -1,15 +1,16 @@
 import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastrService } from 'ngx-toastr';
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 import { SellerService, SellerProfile } from '../services/seller.service';
-import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { UserAvatarComponent } from '../shared/user-avatar/user-avatar.component';
 import { SeoService } from '../services/seo';
+import { AuthService } from '../auth/auth.service';
+import { ChatService } from '../services/chat.service';
 
 @Component({
   selector: 'app-sellers',
@@ -20,7 +21,6 @@ import { SeoService } from '../services/seo';
     MatPaginatorModule,
     MatIconModule,
     UiSearchComponent,
-    UiCardComponent,
     StarRatingComponent,
     UserAvatarComponent,
   ],
@@ -41,6 +41,9 @@ export class SellersComponent implements OnInit {
 
   constructor(
     private sellerService: SellerService,
+    private auth: AuthService,
+    private chat: ChatService,
+    private router: Router,
     private seo: SeoService,
     private toastr: ToastrService,
     @Inject(PLATFORM_ID) platformId: Object,
@@ -143,6 +146,27 @@ export class SellersComponent implements OnInit {
 
   getLocation(seller: SellerProfile): string {
     return [seller.city, seller.state, seller.country].filter(Boolean).join(', ');
+  }
+
+  messageSeller(event: Event, seller: SellerProfile): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!this.auth.isLoggedIn()) {
+      this.router.navigate(['/signin'], {
+        queryParams: { returnUrl: `/profile/${seller._id}` },
+      });
+      return;
+    }
+
+    this.chat.startWithSeller(seller._id).subscribe({
+      next: (conversation) => {
+        this.router.navigate(['/messages', conversation._id]);
+      },
+      error: (err) => {
+        this.toastr.error(err?.error?.message || 'Could not start chat');
+      },
+    });
   }
 
   private async copyTextToClipboard(text: string): Promise<boolean> {

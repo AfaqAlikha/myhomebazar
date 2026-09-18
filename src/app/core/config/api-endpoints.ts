@@ -93,6 +93,11 @@ export const API_ENDPOINTS = {
   about: {
     public: `${BASE}/about/public`,
   },
+  chat: {
+    conversations: `${BASE}/chat/conversations`,
+    messages: (conversationId: string) => `${BASE}/chat/conversations/${conversationId}/messages`,
+    read: (conversationId: string) => `${BASE}/chat/conversations/${conversationId}/read`,
+  },
   shipping: {
     quote: `${BASE}/shipping/quote`,
     publicSettings: `${BASE}/shipping/settings/public`,

@@ -128,6 +128,16 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'messages',
+    loadComponent: () => import('./messages/messages.component').then((m) => m.MessagesComponent),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'messages/:conversationId',
+    loadComponent: () => import('./messages/messages.component').then((m) => m.MessagesComponent),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'my-claims',
     loadComponent: () => import('./buyer/my-claims/my-claims').then((m) => m.MyClaimsComponent),
     canActivate: [AuthGuard],

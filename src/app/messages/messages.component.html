@@ -1,0 +1,92 @@
+<div class="messages-page container mx-auto px-4 py-5">
+  <div class="messages-page__head">
+    <div>
+      <h1 class="messages-page__title">Messages</h1>
+      <p class="messages-page__subtitle">Chat with sellers in real time.</p>
+    </div>
+    <a routerLink="/sellers" class="messages-page__link">Browse sellers</a>
+  </div>
+
+  <div class="messages-shell">
+    <aside class="messages-inbox" [class.messages-inbox--hidden-mobile]="activeConversation">
+      <div *ngIf="loadingConversations" class="messages-empty">Loading conversations…</div>
+      <div *ngIf="!loadingConversations && !conversations.length" class="messages-empty">
+        No conversations yet. Open a seller profile and tap <strong>Message Seller</strong>.
+      </div>
+
+      <button
+        type="button"
+        *ngFor="let conversation of conversations"
+        class="messages-inbox__item"
+        [class.messages-inbox__item--active]="activeConversation?._id === conversation._id"
+        (click)="selectConversation(conversation)"
+      >
+        <app-user-avatar
+          [name]="conversation.peer.name"
+          [avatar]="conversation.peer.avatar"
+          size="md"
+        ></app-user-avatar>
+        <div class="messages-inbox__content">
+          <div class="messages-inbox__row">
+            <strong>{{ conversation.peer.name }}</strong>
+            <span *ngIf="conversation.unreadCount" class="messages-inbox__badge">
+              {{ conversation.unreadCount }}
+            </span>
+          </div>
+          <p class="messages-inbox__preview">{{ conversation.lastMessage || 'Start chatting…' }}</p>
+        </div>
+      </button>
+    </aside>
+
+    <section class="messages-thread" *ngIf="activeConversation; else emptyThread">
+      <div class="messages-thread__head">
+        <button type="button" class="messages-thread__back md:hidden" (click)="router.navigate(['/messages'])">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <app-user-avatar
+          [name]="activeConversation.peer.name"
+          [avatar]="activeConversation.peer.avatar"
+          size="sm"
+        ></app-user-avatar>
+        <div>
+          <h2>{{ activeConversation.peer.name }}</h2>
+          <p>Seller chat</p>
+        </div>
+      </div>
+
+      <div class="messages-thread__body">
+        <div *ngIf="loadingMessages" class="messages-empty">Loading messages…</div>
+        <div
+          *ngFor="let message of messages"
+          class="messages-bubble"
+          [ngClass]="isMine(message) ? 'messages-bubble--mine' : 'messages-bubble--theirs'"
+        >
+          <p>{{ message.text }}</p>
+          <span>{{ message.createdAt | date: 'shortTime' }}</span>
+        </div>
+        <div id="chat-thread-bottom"></div>
+      </div>
+
+      <form class="messages-thread__composer" [formGroup]="messageForm" (ngSubmit)="sendMessage()">
+        <input
+          type="text"
+          formControlName="text"
+          placeholder="Type your message…"
+          maxlength="2000"
+          autocomplete="off"
+        />
+        <button type="submit" [disabled]="messageForm.invalid || sending">
+          <mat-icon>{{ sending ? 'hourglass_top' : 'send' }}</mat-icon>
+        </button>
+      </form>
+    </section>
+
+    <ng-template #emptyThread>
+      <section class="messages-thread messages-thread--placeholder hidden md:flex">
+        <mat-icon>forum</mat-icon>
+        <h2>Select a conversation</h2>
+        <p>Your chats with sellers will appear here.</p>
+      </section>
+    </ng-template>
+  </div>
+</div>
