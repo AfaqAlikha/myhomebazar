@@ -1,41 +1,21 @@
-<section class="home-bento container mx-auto px-2">
-  <div class="home-bento__grid">
-    <div class="home-bento__hero">
-      <app-hero-swiper [slides]="featured" [loading]="heroLoading"></app-hero-swiper>
-    </div>
-
-    <div class="home-bento__promo">
-      <div>
-        <span class="home-bento__promo-badge">Flash deals</span>
-        <p class="home-bento__promo-title">Limited-time offers</p>
-        <p class="home-bento__promo-text">Curated drops with accent countdown badges.</p>
-      </div>
-      <a routerLink="/shop" class="home-bento__promo-cta">Browse deals</a>
-    </div>
-
-    <div class="home-bento__promo">
-      <div>
-        <span class="home-bento__promo-badge">Free delivery</span>
-        <p class="home-bento__promo-title">Platform shipping perks</p>
-        <p class="home-bento__promo-text">Unlock free delivery on eligible orders.</p>
-      </div>
-      <a routerLink="/shop" class="home-bento__promo-cta">Start shopping</a>
-    </div>
-  </div>
-</section>
+<app-hero-swiper [slides]="featured" [loading]="heroLoading"></app-hero-swiper>
 
 <div class="container mx-auto px-2 my-4">
-  <section class="my-5 page-panel">
-    <h2 class="section-title section-title-accent">Shop by Categories</h2>
-    <div class="section-underline"></div>
+  <section class="my-4">
+    <h2 class="text-3xl font-bold mb-2 text-[var(--color-accent)] dark:text-[var(--color-accent)]">
+      Shop by Categories
+    </h2>
+    <div class="w-16 h-1 rounded my-2" style="background-color: var(--color-accent)"></div>
     <app-category-links></app-category-links>
   </section>
 
-  <section class="my-5">
+  <section class="my-4">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
       <div>
-        <h2 class="section-title section-title-accent">Popular Products</h2>
-        <div class="section-underline"></div>
+        <h2 class="text-3xl font-bold mb-2 text-[var(--color-accent)] dark:text-[var(--color-accent)]">
+          Popular Products
+        </h2>
+        <div class="w-16 h-1 rounded my-2" style="background-color: var(--color-accent)"></div>
       </div>
 
       <button
@@ -63,15 +43,15 @@
 
     <div class="my-3 grid gap-4 home-product-grid" [ngClass]="productGridClass">
       <ng-container *ngIf="!isLoading">
-        <div *ngFor="let product of products; let i = index" class="home-product-grid-item">
-          <app-product-card [product]="product" [revealDelay]="(i % 8) * 60"></app-product-card>
+        <div *ngFor="let product of products" class="home-product-grid-item">
+          <app-product-card [product]="product"></app-product-card>
         </div>
       </ng-container>
 
       <ng-container *ngIf="isLoading">
         <div
           *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]"
-          class="home-product-grid-item rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] animate-pulse h-80 w-full"
+          class="home-product-grid-item p-4 bg-gray-200 rounded animate-pulse h-80 w-full"
         ></div>
       </ng-container>
     </div>
@@ -81,7 +61,12 @@
     </div>
 
     <div *ngIf="!isLoading && hasMore && products.length" class="flex justify-center py-4">
-      <button type="button" class="load-more-btn" (click)="loadMoreProducts()" [disabled]="loadingMore">
+      <button
+        type="button"
+        class="load-more-btn"
+        (click)="loadMoreProducts()"
+        [disabled]="loadingMore"
+      >
         {{ loadingMore ? 'Loading…' : 'Load More' }}
       </button>
     </div>
