@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Inject, Injectable, PLATFORM_ID, TransferState, makeStateKey } from '@angular/core';
+import { isPlatformServer } from '@angular/common';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, map, of, tap } from 'rxjs';
 import { API_ENDPOINTS } from '../config/api-endpoints';
 
 export interface HomeHeroSlide {
@@ -68,9 +69,15 @@ export interface HomePageData {
   trendingProducts: HomeProductPreview[];
 }
 
+const HOME_PUBLIC_STATE_KEY = makeStateKey<HomePageData>('home-public-data');
+
 @Injectable({ providedIn: 'root' })
 export class HomePageService {
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly transferState: TransferState,
+    @Inject(PLATFORM_ID) private readonly platformId: Object,
+  ) {}
 
   /** SSR returns `{ data }`; browser interceptor may unwrap to `HomePageData` directly. */
   private normalizeHomePayload(
@@ -83,8 +90,26 @@ export class HomePageService {
   }
 
   getPublicHome(): Observable<HomePageData> {
+    const transferred = this.transferState.get(HOME_PUBLIC_STATE_KEY, null);
+    if (transferred) {
+      this.transferState.remove(HOME_PUBLIC_STATE_KEY);
+      return of(transferred);
+    }
+
     return this.http
-      .get<HomePageData | { success: boolean; data: HomePageData }>(API_ENDPOINTS.home.public)
-      .pipe(map((res) => this.normalizeHomePayload(res)));
+      .get<HomePageData | { success: boolean; data: HomePageData }>(API_ENDPOINTS.home.public, {
+        headers: new HttpHeaders({
+          'Cache-Control': 'no-cache',
+          Pragma: 'no-cache',
+        }),
+      })
+      .pipe(
+        map((res) => this.normalizeHomePayload(res)),
+        tap((data) => {
+          if (isPlatformServer(this.platformId)) {
+            this.transferState.set(HOME_PUBLIC_STATE_KEY, data);
+          }
+        }),
+      );
   }
 }
