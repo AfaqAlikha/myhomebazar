@@ -1,6 +1,14 @@
-import { Component, Input, inject, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  inject,
+  Inject,
+  PLATFORM_ID,
+  OnInit,
+} from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
-import { CommonModule, NgIf, NgForOf, isPlatformBrowser, DecimalPipe } from '@angular/common';
+import { CommonModule, NgIf, isPlatformBrowser, DecimalPipe } from '@angular/common';
 import { StarRatingComponent } from '../../star-rating/star-rating.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { WishlistService } from '../../../services/wishlist.service';
 import { CartService } from '../../../services/cart.service';
 import { AuthService } from '../../../auth/auth.service';
+import { ProductService } from '../../../services/product.service';
 import { isOwnProduct as checkOwnProduct } from '../../../utils/auth';
 import { addProductToGuestCart } from '../../../services/guest-cart.service';
 import { ToastrService } from 'ngx-toastr';
@@ -48,7 +57,11 @@ interface Product {
   styleUrls: ['./product-card.component.css'],
 })
 export class ProductCardComponent implements OnInit {
+  private static readonly NAV_LOADER_MIN_MS = 250;
+
   private router = inject(Router);
+  private productService = inject(ProductService);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input() product!: Product;
   @Input() revealDelay = 0;
@@ -56,6 +69,7 @@ export class ProductCardComponent implements OnInit {
   currentUserId: string | null = null;
   wishlistLoading = false;
   cartLoading = false;
+  navigating = false;
 
   private isBrowser: boolean;
 
@@ -94,6 +108,32 @@ export class ProductCardComponent implements OnInit {
     const count = Number(value) || 0;
     if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
     return String(count);
+  }
+
+  prefetchDetails(): void {
+    this.productService.prefetchProductById(this.product._id);
+  }
+
+  openDetails(event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    if (this.navigating) return;
+
+    const startedAt = Date.now();
+    this.navigating = true;
+    this.cdr.detectChanges();
+
+    this.router.navigate(['/product/details', this.product._id]).finally(() => {
+      const remaining = Math.max(
+        0,
+        ProductCardComponent.NAV_LOADER_MIN_MS - (Date.now() - startedAt),
+      );
+
+      setTimeout(() => {
+        this.navigating = false;
+        this.cdr.markForCheck();
+      }, remaining);
+    });
   }
 
   onWishlistClick(event: Event, productId: string): void {

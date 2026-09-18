@@ -17,7 +17,6 @@ import { UserAvatarComponent } from '../../shared/user-avatar/user-avatar.compon
 import { AuthService } from '../../auth/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { Subscription } from 'rxjs';
-import { SpinnerService } from '../../shared/spinner.service';
 import { isPlatformBrowser, NgIf } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { ProductService } from '../../services/product.service';
@@ -58,7 +57,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(
     private auth: AuthService,
     private themeService: ThemeService,
-    private spinnerService: SpinnerService,
     private router: Router,
     private productService: ProductService,
     public pwa: PwaService,
@@ -108,15 +106,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    this.spinnerService.show();
-
-    if (this.isBrowser) {
-      setTimeout(() => {
-        this.auth.logout();
-        this.spinnerService.hide();
-        this.router.navigate(['']);
-      }, 1000);
-    }
+    this.auth.logout();
+    this.router.navigate(['']);
   }
 
   toggleTheme(): void {

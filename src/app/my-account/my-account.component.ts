@@ -18,14 +18,12 @@ import { AuthService } from '../auth/auth.service';
 import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
 import { RouterLink } from '@angular/router';
-import { SpinnerService } from '../shared/spinner.service';
 
 @Component({
   selector: 'app-my-account',
   standalone: true,
   imports: [
     ReactiveFormsModule,
-
     ProductCardComponent,
     StarRatingComponent,
     UserAvatarComponent,
@@ -43,7 +41,6 @@ import { SpinnerService } from '../shared/spinner.service';
 export class MyAccountComponent implements OnInit {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
-  private spinnerService = inject(SpinnerService);
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
 
@@ -56,8 +53,8 @@ export class MyAccountComponent implements OnInit {
   user: any;
   loading = false;
   submitting = false;
+  productsLoading = false;
 
-  // Products
   products: any[] = [];
   totalItems = 0;
   itemsPerPage = 0;
@@ -74,30 +71,25 @@ export class MyAccountComponent implements OnInit {
 
   ngOnInit() {
     this.loading = true;
-    this.spinnerService.show();
 
     this.auth.getMyProfile().subscribe({
       next: (res) => {
-        // res IS the user object, not res.user
         if (!res) {
           console.error('User data is missing', res);
           this.loading = false;
-          this.spinnerService.hide();
           return;
         }
 
         this.user = res;
 
-        // Patch form safely
         this.form.patchValue({
           name: this.user.name || '',
           email: this.user.email || '',
           bio: this.user.bio || '',
         });
 
-        // Show products section for seller/admin/superadmin
         this.showProductsSection = ['seller', 'admin', 'superadmin'].includes(
-          this.user.role
+          this.user.role,
         );
 
         if (this.showProductsSection) {
@@ -106,12 +98,10 @@ export class MyAccountComponent implements OnInit {
         }
 
         this.loading = false;
-        this.spinnerService.hide();
       },
       error: (err) => {
         console.error('Error fetching profile', err);
         this.loading = false;
-        this.spinnerService.hide();
       },
     });
   }
@@ -120,7 +110,6 @@ export class MyAccountComponent implements OnInit {
     return name ? name.charAt(0).toUpperCase() : '';
   }
 
-  /** Profile Update */
   submit() {
     if (!this.form.valid) {
       this.form.markAllAsTouched();
@@ -139,8 +128,6 @@ export class MyAccountComponent implements OnInit {
     });
   }
 
-  /** PRODUCTS SECTION METHODS */
-
   loadCategories() {
     this.categoryService.getCategories().subscribe({
       next: (cats) => (this.categories = cats),
@@ -149,7 +136,7 @@ export class MyAccountComponent implements OnInit {
   }
 
   fetchProducts() {
-    this.spinnerService.show();
+    this.productsLoading = true;
     this.productService
       .getMyProducts({
         page: this.currentPage,
@@ -166,12 +153,12 @@ export class MyAccountComponent implements OnInit {
           this.itemsPerPage = res.pagination.itemsPerPage;
           this.currentPage = res.pagination.currentPage;
           this.noProducts = this.products.length === 0;
-          this.spinnerService.hide();
+          this.productsLoading = false;
         },
         error: (err) => {
           console.error(err);
           this.noProducts = true;
-          this.spinnerService.hide();
+          this.productsLoading = false;
         },
       });
   }

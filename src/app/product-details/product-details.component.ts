@@ -20,7 +20,6 @@ import { ShippingService, ShippingQuote } from '../services/shipping.service';
 import { PaymentMethodsComponent } from '../shared/payment-methods/payment-methods.component';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
 import { ProductEngagementService } from '../services/product-engagement.service';
-import { SpinnerService } from '../shared/spinner.service';
 import {
   hasLocalProductView,
   markLocalProductView,
@@ -105,7 +104,6 @@ export class ProductDetailsComponent implements OnInit {
     private engagementService: ProductEngagementService,
     private router: Router,
     private toastr: ToastrService,
-    private spinnerService: SpinnerService,
     @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -235,11 +233,6 @@ export class ProductDetailsComponent implements OnInit {
 
   private setPageLoading(loading: boolean): void {
     this.isLoading = loading;
-    if (loading) {
-      this.spinnerService.show();
-    } else {
-      this.spinnerService.hide();
-    }
   }
 
   private trackUniqueView(): void {

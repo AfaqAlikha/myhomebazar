@@ -9,7 +9,6 @@ import { UserAvatarComponent } from '../shared/user-avatar/user-avatar.component
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 import { AuthService } from '../auth/auth.service';
 import { ProductService } from '../services/product.service';
-import { SpinnerService } from '../shared/spinner.service';
 import { SeoService } from '../services/seo';
 import { ActivatedRoute } from '@angular/router';
 import { ProductGridLayoutService } from '../shared/product-grid-layout.service';
@@ -37,7 +36,6 @@ export class SellerProfileComponent implements OnInit {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private productService = inject(ProductService);
-  private spinnerService = inject(SpinnerService);
   private route = inject(ActivatedRoute);
   private seo = inject(SeoService);
   public gridLayout = inject(ProductGridLayoutService);
@@ -67,7 +65,6 @@ export class SellerProfileComponent implements OnInit {
       return;
     }
 
-    this.spinnerService.show();
     this.auth.getPublicProfile(sellerId).subscribe({
       next: (user) => {
         this.user = user;
@@ -79,11 +76,9 @@ export class SellerProfileComponent implements OnInit {
         this.seo.setSellerSeo(this.user.name, sellerId);
         this.fetchProducts(sellerId);
         this.loading = false;
-        this.spinnerService.hide();
       },
       error: () => {
         this.loading = false;
-        this.spinnerService.hide();
       },
     });
   }
@@ -106,7 +101,6 @@ export class SellerProfileComponent implements OnInit {
 
   fetchProducts(sellerId: string): void {
     this.productsLoading = true;
-    this.spinnerService.show();
     this.productService
       .getProductsBySeller(
         sellerId,
@@ -122,12 +116,10 @@ export class SellerProfileComponent implements OnInit {
           this.currentPage = res.pagination?.currentPage || this.currentPage;
           this.noProducts = this.products.length === 0;
           this.productsLoading = false;
-          this.spinnerService.hide();
         },
         error: () => {
           this.noProducts = true;
           this.productsLoading = false;
-          this.spinnerService.hide();
         },
       });
   }

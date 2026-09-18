@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductOrderService } from '../services/product-order.service';
 import { AuthService } from '../auth/auth.service';
 import { Subscription } from 'rxjs';
-import { SpinnerService } from '../shared/spinner.service';
 import { NgClass, NgIf } from '@angular/common';
 
 @Component({
@@ -25,19 +24,15 @@ export class PaymentSuccessComponent implements OnInit, OnDestroy {
     private router: Router,
     private productOrderService: ProductOrderService,
     private authService: AuthService,
-    private spinnerService: SpinnerService
   ) {}
 
   ngOnInit(): void {
     const sessionId = this.route.snapshot.queryParamMap.get('session_id');
     if (!sessionId) return;
 
-    this.spinnerService.show();
-
     const sub = this.productOrderService.confirmPayment(sessionId).subscribe({
       next: (res: any) => {
         this.success = true;
-        this.spinnerService.hide();
 
         const order = res?.order || res?.data?.order;
         const orders = res?.orders || res?.data?.orders;
@@ -53,7 +48,6 @@ export class PaymentSuccessComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.error = err?.error?.message || 'Payment verification failed.';
         this.success = false;
-        this.spinnerService.hide();
       },
     });
 

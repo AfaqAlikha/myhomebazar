@@ -6,7 +6,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { ToastrService } from 'ngx-toastr';
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 import { SellerService, SellerProfile } from '../services/seller.service';
-import { SpinnerService } from '../shared/spinner.service';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { UserAvatarComponent } from '../shared/user-avatar/user-avatar.component';
@@ -42,7 +41,6 @@ export class SellersComponent implements OnInit {
 
   constructor(
     private sellerService: SellerService,
-    private spinnerService: SpinnerService,
     private seo: SeoService,
     private toastr: ToastrService,
     @Inject(PLATFORM_ID) platformId: Object,
@@ -63,7 +61,6 @@ export class SellersComponent implements OnInit {
 
   loadSellers(): void {
     this.loading = true;
-    this.spinnerService.show();
 
     this.sellerService
       .getSellers({
@@ -78,11 +75,9 @@ export class SellersComponent implements OnInit {
           this.itemsPerPage = res.pagination.pageSize || this.itemsPerPage;
           this.currentPage = res.pagination.currentPage || this.currentPage;
           this.loading = false;
-          this.spinnerService.hide();
         },
         error: () => {
           this.loading = false;
-          this.spinnerService.hide();
         },
       });
   }

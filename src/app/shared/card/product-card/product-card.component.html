@@ -2,12 +2,19 @@
   appScrollReveal
   [revealDelay]="revealDelay"
   class="product-card group relative flex w-full flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-md transition-all duration-300"
+  [class.product-card--navigating]="navigating"
+  [attr.aria-busy]="navigating"
+  [attr.aria-label]="'View ' + product.name"
+  role="button"
+  tabindex="0"
+  (click)="openDetails($event)"
+  (keydown.enter)="openDetails($event)"
+  (keydown.space)="openDetails($event)"
+  (mouseenter)="prefetchDetails()"
 >
-  <a
-    [routerLink]="['/product/details', product._id]"
-    class="product-card__overlay"
-    [attr.aria-label]="'View ' + product.name"
-  ></a>
+  <div *ngIf="navigating" class="product-card-nav-loader" aria-live="polite" aria-busy="true">
+    <mat-spinner diameter="36" color="accent"></mat-spinner>
+  </div>
 
   <div class="product-card__image relative w-full overflow-hidden">
     <img
@@ -41,7 +48,8 @@
       (click)="onWishlistClick($event, product._id)"
       aria-label="Add to wishlist"
     >
-      <mat-icon>favorite</mat-icon>
+      <mat-spinner *ngIf="wishlistLoading" diameter="16"></mat-spinner>
+      <mat-icon *ngIf="!wishlistLoading">favorite</mat-icon>
     </button>
 
     <button
@@ -53,7 +61,8 @@
       (click)="onCartClick($event, product)"
       aria-label="Add to cart"
     >
-      <mat-icon>{{ cartLoading ? 'hourglass_top' : 'shopping_cart' }}</mat-icon>
+      <mat-spinner *ngIf="cartLoading" diameter="16"></mat-spinner>
+      <mat-icon *ngIf="!cartLoading">shopping_cart</mat-icon>
     </button>
   </div>
 

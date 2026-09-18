@@ -21,4 +21,9 @@ export class SpinnerService {
       this.visibleSubject.next(false);
     }
   }
+
+  forceHide(): void {
+    this.loadingCount = 0;
+    this.visibleSubject.next(false);
+  }
 }

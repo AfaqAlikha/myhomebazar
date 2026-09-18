@@ -12,7 +12,6 @@ import { ProductGridLayoutService } from '../shared/product-grid-layout.service'
 import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
 import { SeoService } from '../services/seo';
-import { SpinnerService } from '../shared/spinner.service';
 
 @Component({
   selector: 'app-category',
@@ -54,7 +53,6 @@ export class CategoryComponent implements OnInit {
     private categoryService: CategoryService,
     private route: ActivatedRoute,
     private router: Router,
-    private spinner: SpinnerService,
     private seo: SeoService,
     public gridLayout: ProductGridLayoutService,
   ) {}
@@ -108,7 +106,6 @@ export class CategoryComponent implements OnInit {
   fetchProducts() {
     this.isLoading = true;
     this.noProducts = false;
-    this.spinner.show();
 
     this.productService
       .getProducts({
@@ -130,13 +127,11 @@ export class CategoryComponent implements OnInit {
 
           this.noProducts = this.products.length === 0;
           this.isLoading = false;
-          this.spinner.hide();
         },
         error: (err) => {
           console.error('Error fetching products', err);
           this.isLoading = false;
           this.noProducts = true;
-          this.spinner.hide();
         },
       });
   }

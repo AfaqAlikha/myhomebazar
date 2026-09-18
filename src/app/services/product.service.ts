@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../core/config/api-endpoints';
 import { AuthService } from '../auth/auth.service';
 import { getEngagementHeaders } from '../utils/visitor-id';
@@ -11,6 +11,12 @@ import { AppBrandingService } from '../core/services/app-branding.service';
   providedIn: 'root',
 })
 export class ProductService {
+  private readonly productCacheTtlMs = 5 * 60 * 1000;
+  private productByIdCache = new Map<
+    string,
+    { expiresAt: number; request: Observable<any> }
+  >();
+
   constructor(
     private http: HttpClient,
     private authService: AuthService,
@@ -115,11 +121,40 @@ export class ProductService {
     return this.http.get<any>(API_ENDPOINTS.products.publicList, { params });
   }
 
-  getProductById(id: string): Observable<any> {
+  getProductById(id: string, options?: { force?: boolean }): Observable<any> {
+    const now = Date.now();
+    const cached = this.productByIdCache.get(id);
+
+    if (!options?.force && cached && cached.expiresAt > now) {
+      return cached.request;
+    }
+
     const token = this.authService.getToken();
-    return this.http.get<any>(API_ENDPOINTS.products.byId(id), {
-      headers: getEngagementHeaders(token),
+    const request = this.http
+      .get<any>(API_ENDPOINTS.products.byId(id), {
+        headers: getEngagementHeaders(token),
+      })
+      .pipe(shareReplay(1));
+
+    this.productByIdCache.set(id, {
+      expiresAt: now + this.productCacheTtlMs,
+      request,
     });
+
+    return request;
+  }
+
+  prefetchProductById(id: string): void {
+    if (!id) return;
+    this.getProductById(id).subscribe({ error: () => undefined });
+  }
+
+  clearProductCache(id?: string): void {
+    if (id) {
+      this.productByIdCache.delete(id);
+      return;
+    }
+    this.productByIdCache.clear();
   }
 
   getProductsBySeller(
