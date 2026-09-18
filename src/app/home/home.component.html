@@ -1,57 +1,126 @@
-<app-hero-swiper [slides]="featured" [loading]="heroLoading"></app-hero-swiper>
-
-<div class="container mx-auto px-2 my-4">
-  <section class="my-4">
-    <h2 class="text-3xl font-bold mb-2 text-[var(--color-accent)] dark:text-[var(--color-accent)]">
-      Shop by Categories
-    </h2>
-    <div class="w-16 h-1 rounded my-2" style="background-color: var(--color-accent)"></div>
-    <app-category-links></app-category-links>
-  </section>
-
-  <section class="my-4">
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
-      <div>
-        <h2 class="text-3xl font-bold mb-2 text-[var(--color-accent)] dark:text-[var(--color-accent)]">
-          Popular Products
-        </h2>
-        <div class="w-16 h-1 rounded my-2" style="background-color: var(--color-accent)"></div>
+<!-- Desktop / tablet mockup layout -->
+<div class="home-mockup home-mockup--desktop hidden md:block">
+  <section class="home-bento container mx-auto px-2">
+    <div class="home-bento__grid">
+      <div class="home-bento__hero">
+        <app-hero-swiper [slides]="featured" [loading]="heroLoading"></app-hero-swiper>
+        <div *ngIf="homeData?.hero?.title" class="home-bento__hero-overlay">
+          <span class="home-bento__promo-badge">{{ homeData?.hero?.badge }}</span>
+          <h1 class="home-bento__hero-title">{{ homeData?.hero?.title }}</h1>
+          <p class="home-bento__hero-sub">{{ homeData?.hero?.subtitle }}</p>
+          <a [routerLink]="homeData?.hero?.ctaLink || '/shop'" class="home-bento__promo-cta">
+            {{ homeData?.hero?.ctaLabel || 'Shop Now' }} →
+          </a>
+        </div>
       </div>
 
-      <button
-        type="button"
-        class="grid-layout-toggle"
-        (click)="cycleGridLayout()"
-        [attr.aria-label]="gridLayoutLabel"
-        [title]="gridLayoutLabel"
-      >
-        <mat-icon>{{ gridLayoutIcon }}</mat-icon>
-      </button>
+      <div class="home-bento__promo home-bento__promo--flash">
+        <div>
+          <span class="home-bento__promo-badge">{{ homeData?.flashDeals?.badge || 'Flash Deals' }}</span>
+          <p class="home-bento__promo-title">{{ homeData?.flashDeals?.title }}</p>
+          <p class="home-bento__promo-text">{{ homeData?.flashDeals?.subtitle }}</p>
+          <div *ngIf="flashCountdown" class="flash-countdown" aria-live="polite">
+            <div class="flash-countdown__unit">
+              <strong>{{ flashCountdown.hours }}</strong>
+              <span>HRS</span>
+            </div>
+            <div class="flash-countdown__unit">
+              <strong>{{ flashCountdown.minutes }}</strong>
+              <span>MINS</span>
+            </div>
+            <div class="flash-countdown__unit">
+              <strong>{{ flashCountdown.seconds }}</strong>
+              <span>SECS</span>
+            </div>
+          </div>
+        </div>
+        <a [routerLink]="homeData?.flashDeals?.ctaLink || '/shop'" class="home-bento__promo-link">
+          {{ homeData?.flashDeals?.ctaLabel || 'Browse deals' }} →
+        </a>
+      </div>
+
+      <div class="home-bento__promo home-bento__promo--delivery">
+        <div>
+          <span class="home-bento__promo-badge home-bento__promo-badge--blue">Free Delivery</span>
+          <p class="home-bento__promo-title">{{ homeData?.freeDelivery?.title }}</p>
+          <p class="home-bento__promo-text">
+            {{ homeData?.freeDelivery?.message || homeData?.freeDelivery?.subtitle }}
+          </p>
+        </div>
+        <a [routerLink]="homeData?.freeDelivery?.ctaLink || '/shop'" class="home-bento__promo-link home-bento__promo-link--blue">
+          {{ homeData?.freeDelivery?.ctaLabel || 'Learn more' }} →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="container mx-auto px-2 my-4">
+    <section class="my-5 page-panel">
+      <h2 class="section-title section-title-accent">{{ homeData?.sections?.categoriesTitle }}</h2>
+      <div class="section-underline"></div>
+      <app-category-chips
+        [categories]="homeData?.categories || []"
+        [selectedId]="productSearchFilters.categoryId"
+        (selectedChange)="onCategoryChipSelect($event)"
+      ></app-category-chips>
+    </section>
+
+    <section class="my-5">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
+        <div>
+          <h2 class="section-title section-title-accent">{{ homeData?.sections?.desktopProductsTitle }}</h2>
+          <div class="section-underline"></div>
+        </div>
+        <button
+          type="button"
+          class="grid-layout-toggle"
+          (click)="cycleGridLayout()"
+          [attr.aria-label]="gridLayoutLabel"
+          [title]="gridLayoutLabel"
+        >
+          <mat-icon>{{ gridLayoutIcon }}</mat-icon>
+        </button>
+      </div>
+
+      <app-product-search-filter
+        [initial]="productSearchFilters"
+        (filterChange)="onProductSearchFilter($event)"
+      ></app-product-search-filter>
+
+      <ng-container *ngTemplateOutlet="productGrid"></ng-container>
+    </section>
+  </div>
+</div>
+
+<!-- Mobile mockup layout -->
+<div class="home-mockup home-mockup--mobile md:hidden">
+  <section class="mobile-hero-card">
+    <app-hero-swiper [slides]="featured" [loading]="heroLoading"></app-hero-swiper>
+    <div class="mobile-hero-card__content">
+      <h1 class="mobile-hero-card__title">{{ homeData?.mobileHero?.title }}</h1>
+      <p class="mobile-hero-card__sub">{{ homeData?.mobileHero?.subtitle }}</p>
+      <a [routerLink]="homeData?.mobileHero?.ctaLink || '/shop'" class="mobile-hero-card__cta">
+        {{ homeData?.mobileHero?.ctaLabel || 'Shop Now' }} →
+      </a>
+    </div>
+  </section>
+
+  <section class="container mx-auto px-3 pb-24 pt-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="section-title !text-lg">{{ homeData?.sections?.popularTitle || 'Popular Picks' }}</h2>
+      <a routerLink="/shop" class="text-sm font-semibold text-[var(--color-text-secondary)]">View all ›</a>
     </div>
 
-    <app-product-search-filter
-      [initial]="productSearchFilters"
-      (filterChange)="onProductSearchFilter($event)"
-    ></app-product-search-filter>
-
-    <p
-      *ngIf="!isLoading && !products.length"
-      class="text-center text-sm text-[var(--color-text-secondary)] py-8"
-    >
-      No products found. Try changing your search or filters.
-    </p>
-
-    <div class="my-3 grid gap-4 home-product-grid" [ngClass]="productGridClass">
+    <div class="grid grid-cols-2 gap-3">
       <ng-container *ngIf="!isLoading">
-        <div *ngFor="let product of products" class="home-product-grid-item">
-          <app-product-card [product]="product"></app-product-card>
+        <div *ngFor="let product of products; let i = index" class="home-product-grid-item">
+          <app-product-card [product]="product" [revealDelay]="(i % 8) * 60" variant="mockup"></app-product-card>
         </div>
       </ng-container>
-
       <ng-container *ngIf="isLoading">
         <div
-          *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]"
-          class="home-product-grid-item p-4 bg-gray-200 rounded animate-pulse h-80 w-full"
+          *ngFor="let i of [1, 2, 3, 4]"
+          class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] animate-pulse h-72"
         ></div>
       </ng-container>
     </div>
@@ -59,25 +128,44 @@
     <div *ngIf="loadingMore" class="flex justify-center py-4">
       <div class="h-10 w-10 rounded-full border-4 border-[var(--color-accent)] border-t-transparent animate-spin"></div>
     </div>
-
-    <div *ngIf="!isLoading && hasMore && products.length" class="flex justify-center py-4">
-      <button
-        type="button"
-        class="load-more-btn"
-        (click)="loadMoreProducts()"
-        [disabled]="loadingMore"
-      >
-        {{ loadingMore ? 'Loading…' : 'Load More' }}
-      </button>
-    </div>
-
-    <p
-      *ngIf="!isLoading && !loadingMore && products.length && !hasMore"
-      class="text-center text-sm text-[var(--color-text-secondary)] py-3"
-    >
-      You have reached the end of the list.
-    </p>
-
-    <app-google-ad variant="horizontal" layoutClass="container mx-auto px-4 mt-4 mb-2"></app-google-ad>
   </section>
 </div>
+
+<ng-template #productGrid>
+  <p
+    *ngIf="!isLoading && !products.length"
+    class="text-center text-sm text-[var(--color-text-secondary)] py-8"
+  >
+    No products found. Try changing your search or filters.
+  </p>
+
+  <div class="my-3 grid gap-4 home-product-grid" [ngClass]="productGridClass">
+    <ng-container *ngIf="!isLoading">
+      <div *ngFor="let product of products; let i = index" class="home-product-grid-item">
+        <app-product-card [product]="product" [revealDelay]="(i % 8) * 60" variant="mockup"></app-product-card>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="isLoading">
+      <div
+        *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]"
+        class="home-product-grid-item rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] animate-pulse h-80 w-full"
+      ></div>
+    </ng-container>
+  </div>
+
+  <div *ngIf="!isLoading && hasMore && products.length" class="flex justify-center py-4">
+    <button type="button" class="load-more-btn" (click)="loadMoreProducts()" [disabled]="loadingMore">
+      {{ loadingMore ? 'Loading…' : 'Load More' }}
+    </button>
+  </div>
+
+  <p
+    *ngIf="!isLoading && !loadingMore && products.length && !hasMore"
+    class="text-center text-sm text-[var(--color-text-secondary)] py-3"
+  >
+    You have reached the end of the list.
+  </p>
+
+  <app-google-ad variant="horizontal" layoutClass="container mx-auto px-4 mt-4 mb-2"></app-google-ad>
+</ng-template>

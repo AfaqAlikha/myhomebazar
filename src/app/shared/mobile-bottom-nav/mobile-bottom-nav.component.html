@@ -1,0 +1,21 @@
+<nav class="mobile-bottom-nav md:hidden" aria-label="Primary">
+  <a routerLink="/" routerLinkActive="mobile-bottom-nav__link--active" [routerLinkActiveOptions]="{ exact: true }" class="mobile-bottom-nav__link">
+    <mat-icon>home</mat-icon>
+    <span>Home</span>
+  </a>
+  <a routerLink="/shop" routerLinkActive="mobile-bottom-nav__link--active" class="mobile-bottom-nav__link">
+    <mat-icon>grid_view</mat-icon>
+    <span>Shop</span>
+  </a>
+  <a routerLink="/cart" routerLinkActive="mobile-bottom-nav__link--active" class="mobile-bottom-nav__link">
+    <span class="mobile-bottom-nav__badge-wrap">
+      <mat-icon>shopping_cart</mat-icon>
+      <span *ngIf="cartCount > 0" class="mobile-bottom-nav__badge">{{ cartCount > 9 ? '9+' : cartCount }}</span>
+    </span>
+    <span>Cart</span>
+  </a>
+  <a routerLink="/my-acount" routerLinkActive="mobile-bottom-nav__link--active" class="mobile-bottom-nav__link">
+    <mat-icon>person</mat-icon>
+    <span>Profile</span>
+  </a>
+</nav>

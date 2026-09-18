@@ -1,0 +1,33 @@
+.category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.chip-pill__icon {
+  width: 1rem !important;
+  height: 1rem !important;
+  font-size: 1rem !important;
+  margin-right: 0.25rem;
+}
+
+.category-chips__view-all {
+  margin-left: auto;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.category-chips__view-all:hover {
+  color: var(--color-accent);
+}
+
+@media (max-width: 767.98px) {
+  .category-chips__view-all {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.25rem;
+  }
+}

@@ -1,0 +1,24 @@
+<div class="category-chips">
+  <button
+    type="button"
+    class="chip-pill"
+    [class.chip-pill--active]="!selectedId"
+    (click)="select('')"
+  >
+    <mat-icon class="chip-pill__icon">apps</mat-icon>
+    All Categories
+  </button>
+
+  <button
+    *ngFor="let category of categories"
+    type="button"
+    class="chip-pill"
+    [class.chip-pill--active]="selectedId === category._id"
+    (click)="select(category._id)"
+  >
+    <mat-icon class="chip-pill__icon">category</mat-icon>
+    {{ category.name }}
+  </button>
+
+  <a routerLink="/shop" class="category-chips__view-all">View all categories →</a>
+</div>

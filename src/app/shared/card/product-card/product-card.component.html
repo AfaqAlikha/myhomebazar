@@ -1,7 +1,9 @@
 <article
   appScrollReveal
+  appTilt3d
   [revealDelay]="revealDelay"
-  class="product-card group relative flex w-full flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-md transition-all duration-300"
+  class="product-card group relative flex w-full flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] transition-all duration-300"
+  [class.product-card--mockup]="variant === 'mockup'"
   [class.product-card--navigating]="navigating"
   [attr.aria-busy]="navigating"
   [attr.aria-label]="'View ' + product.name"
@@ -16,7 +18,7 @@
     <mat-spinner diameter="36" color="accent"></mat-spinner>
   </div>
 
-  <div class="product-card__image relative w-full overflow-hidden">
+  <div class="product-card__image relative w-full overflow-hidden bg-[color-mix(in_srgb,var(--color-border)_35%,var(--color-card))]">
     <img
       [src]="product.images[0]"
       [alt]="product.name"
@@ -27,7 +29,14 @@
       *ngIf="isPromotionActive()"
       class="product-card__badge absolute left-2 top-2 z-[1] max-w-[85%] truncate rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-md"
     >
-      {{ getPromotionBadge() }}
+      {{ variant === 'mockup' ? 'DEAL' : getPromotionBadge() }}
+    </span>
+
+    <span
+      *ngIf="variant === 'mockup' && isPromotionActive() && getDiscountPercent()"
+      class="product-card__discount-pill absolute left-2 top-8 z-[1] rounded px-1.5 py-0.5 text-[10px] font-bold text-[var(--color-accent)] bg-[color-mix(in_srgb,var(--color-accent)_12%,var(--color-card))]"
+    >
+      -{{ getDiscountPercent() }}%
     </span>
 
     <span
@@ -36,6 +45,19 @@
     >
       Your Product
     </span>
+
+    <button
+      *ngIf="variant === 'mockup' && !isOwnProduct()"
+      type="button"
+      mat-icon-button
+      class="product-card__cart-float"
+      [disabled]="cartLoading"
+      (click)="onCartClick($event, product)"
+      aria-label="Add to cart"
+    >
+      <mat-spinner *ngIf="cartLoading" diameter="16"></mat-spinner>
+      <mat-icon *ngIf="!cartLoading">shopping_cart</mat-icon>
+    </button>
   </div>
 
   <div class="product-card__actions absolute right-2 top-2 z-10 flex flex-col gap-1.5">
@@ -44,6 +66,7 @@
       type="button"
       mat-icon-button
       class="product-card__action-btn"
+      [class.product-card__action-btn--ghost]="variant === 'mockup'"
       [disabled]="wishlistLoading"
       (click)="onWishlistClick($event, product._id)"
       aria-label="Add to wishlist"
@@ -53,7 +76,7 @@
     </button>
 
     <button
-      *ngIf="!isOwnProduct()"
+      *ngIf="variant !== 'mockup' && !isOwnProduct()"
       type="button"
       mat-icon-button
       class="product-card__action-btn"
@@ -71,9 +94,27 @@
       {{ product.name }}
     </p>
 
-    <p class="mt-1 text-base font-bold text-[var(--color-text)]">
-      Rs {{ product.price | number: '1.0-0' }}
+    <p *ngIf="variant === 'mockup' && getCategoryLabel()" class="mt-0.5 text-xs text-[var(--color-text-secondary)]">
+      {{ getCategoryLabel() }}
     </p>
+
+    <div class="mt-1 flex flex-wrap items-center gap-2">
+      <p class="text-base font-bold text-[var(--color-accent)]">
+        Rs {{ product.price | number: '1.0-0' }}
+      </p>
+      <p
+        *ngIf="variant === 'mockup' && isPromotionActive() && getDisplayOriginalPrice()"
+        class="text-xs text-[var(--color-text-secondary)] line-through"
+      >
+        Rs {{ getDisplayOriginalPrice() | number: '1.0-0' }}
+      </p>
+      <span
+        *ngIf="variant === 'mockup' && isPromotionActive() && getDiscountPercent()"
+        class="rounded px-1.5 py-0.5 text-[10px] font-bold text-[var(--color-accent)] bg-[color-mix(in_srgb,var(--color-accent)_12%,var(--color-card))]"
+      >
+        {{ getDiscountPercent() }}% OFF
+      </span>
+    </div>
 
     <app-star-rating
       class="mt-1 block"
@@ -82,7 +123,11 @@
       size="sm"
     ></app-star-rating>
 
-    <div class="mt-1.5 flex items-center gap-3 text-[11px] text-[var(--color-text-secondary)]">
+    <p *ngIf="variant === 'mockup'" class="mt-0.5 text-[11px] text-[var(--color-text-secondary)]">
+      {{ product.averageRating || 0 | number: '1.1-1' }} ({{ getReviewCount() }})
+    </p>
+
+    <div *ngIf="variant !== 'mockup'" class="mt-1.5 flex items-center gap-3 text-[11px] text-[var(--color-text-secondary)]">
       <span *ngIf="isOwnProduct()" class="inline-flex items-center gap-1">
         <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">visibility</mat-icon>
         {{ formatEngagementCount(product.viewCount) }}

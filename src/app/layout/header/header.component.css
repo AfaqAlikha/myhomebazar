@@ -2,37 +2,128 @@
   padding-top: env(safe-area-inset-top, 0px);
 }
 
-.nav-link {
-  position: relative;
-  padding-bottom: 4px;
-  font-weight: 600;
-  color: var(--color-text);
-  font-size: 16px;
+.site-header--glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 4px 24px color-mix(in srgb, var(--color-text) 6%, transparent);
 }
 
-.nav-menu-trigger {
+.header-brand__logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.header-brand__name {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1.1;
+}
+
+.header-brand__tag {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.1rem;
+}
+
+.header-search-pill {
+  align-items: center;
+  justify-content: space-between;
+  height: 2.75rem;
+  padding: 0 0.35rem 0 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: border-color 0.2s ease;
+}
+
+.header-search-pill:hover {
+  border-color: var(--color-accent);
+}
+
+.header-search-pill__placeholder {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.header-search-pill__btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.125rem;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.header-search-pill__btn mat-icon {
+  width: 1.1rem !important;
+  height: 1.1rem !important;
+  font-size: 1.1rem !important;
+}
+
+.header-quick-nav__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  min-width: 3rem;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 0.6875rem;
+  font-weight: 600;
   border: none;
   background: transparent;
   cursor: pointer;
 }
 
-.nav-menu-caret {
-  width: 1.25rem !important;
-  height: 1.25rem !important;
-  font-size: 1.25rem !important;
-  line-height: 1.25rem !important;
+.header-quick-nav__link mat-icon {
+  width: 1.35rem !important;
+  height: 1.35rem !important;
+  font-size: 1.35rem !important;
 }
 
-.nav-link:hover {
-  color: var(--color-accent-hover);
-}
-
-.active-link {
+.header-quick-nav__link--active,
+.header-quick-nav__link:hover {
   color: var(--color-accent);
-  border-bottom: 2px solid var(--color-accent);
 }
 
-/* Badge ko notification icon pe adjust karna */
+.header-quick-nav__icon-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.header-quick-nav__badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .header-brand__logo {
+    width: 52px;
+    height: 52px;
+  }
+}

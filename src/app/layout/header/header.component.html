@@ -1,200 +1,96 @@
 <app-ui-card class="w-full border-0 rounded-0">
-  <header
-    class="site-header sticky top-0 left-0 right-0 z-50 bg-[var(--color-card)] dark:bg-[var(--color-card)] shadow-sm"
-  >
-    <div>
-      <div class="container mx-auto flex items-center justify-between py-3 px-3">
-        <!-- Left: Mobile Button + Logo -->
-        <div class="flex items-center gap-4">
-          <!-- Logo -->
-          <a
-            routerLink="/"
-            class="text-2xl font-bold text-[var(--color-text)] dark:text-[var(--color-text)]"
+  <header class="site-header site-header--glass sticky top-0 left-0 right-0 z-50">
+    <div class="container mx-auto px-3 py-2.5 md:py-3">
+      <div class="header-mockup-row flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <button
+            type="button"
+            mat-icon-button
+            class="md:hidden !flex-shrink-0"
+            (click)="openDrawer()"
+            aria-label="Open menu"
           >
+            <mat-icon>menu</mat-icon>
+          </button>
+
+          <a routerLink="/" class="header-brand flex items-center gap-2.5 min-w-0">
             <img
               *ngIf="logo?.image"
               [src]="logo.image"
-              [alt]="logo.name || 'Logo'"
-              class="w-[40px] h-[40px] md:w-[70px] md:h-[70px] rounded-full object-cover"
+              [alt]="logo.name || 'MyHouseBazar'"
+              class="header-brand__logo"
             />
-
             <img
               *ngIf="!logo?.image"
               src="logo.png"
-              alt="Logo"
-              class="w-[40px] h-[40px] md:w-[70px] md:h-[70px] rounded-full object-cover"
+              alt="MyHouseBazar"
+              class="header-brand__logo"
             />
+            <span class="hidden sm:block min-w-0">
+              <span class="header-brand__name">MyHouseBazar</span>
+              <span class="header-brand__tag">Pakistan 🇵🇰</span>
+            </span>
           </a>
         </div>
 
-        <!-- Navigation (Desktop Only) -->
-        <nav>
-          <ul class="hidden md:flex items-center gap-5">
-            <li>
-              <a
-                routerLink="/"
-                routerLinkActive="active-link"
-                [routerLinkActiveOptions]="{ exact: true }"
-                class="nav-link"
-                >Home</a
-              >
-            </li>
-            <li>
-              <a
-                routerLink="/sellers"
-                routerLinkActive="active-link"
-                [routerLinkActiveOptions]="{ exact: true }"
-                class="nav-link"
-                >Sellers</a
-              >
-            </li>
-            <li>
-              <a
-                routerLink="/shop"
-                routerLinkActive="active-link"
-                [routerLinkActiveOptions]="{ exact: true }"
-                class="nav-link"
-                >Shop</a
-              >
-            </li>
-            <li>
-              <a routerLink="/about" routerLinkActive="active-link" class="nav-link">About</a>
-            </li>
-            <li>
-              <a routerLink="/contact" routerLinkActive="active-link" class="nav-link">Contact</a>
-            </li>
-            <li>
-              <a routerLink="/track-order" routerLinkActive="active-link" class="nav-link">Track Order</a>
-            </li>
+        <a
+          routerLink="/shop"
+          class="header-search-pill hidden lg:flex flex-1 max-w-xl mx-2"
+          aria-label="Search products in shop"
+        >
+          <span class="header-search-pill__placeholder">Search for products, brands or sellers…</span>
+          <span class="header-search-pill__btn" aria-hidden="true">
+            <mat-icon>search</mat-icon>
+          </span>
+        </a>
 
+        <nav class="header-quick-nav hidden md:flex items-center gap-4">
+          <a routerLink="/shop" routerLinkActive="header-quick-nav__link--active" class="header-quick-nav__link">
+            <mat-icon>storefront</mat-icon>
+            <span>Shop</span>
+          </a>
+          <a routerLink="/sellers" routerLinkActive="header-quick-nav__link--active" class="header-quick-nav__link">
+            <mat-icon>groups</mat-icon>
+            <span>Sellers</span>
+          </a>
+          <a routerLink="/cart" routerLinkActive="header-quick-nav__link--active" class="header-quick-nav__link">
+            <span class="header-quick-nav__icon-wrap">
+              <mat-icon>shopping_cart</mat-icon>
+              <span *ngIf="cartCount > 0" class="header-quick-nav__badge">{{ cartCount > 9 ? '9+' : cartCount }}</span>
+            </span>
+            <span>Cart</span>
+          </a>
+          <button
+            type="button"
+            class="header-quick-nav__link header-quick-nav__link--btn"
+            [matMenuTriggerFor]="accountMenu"
+          >
+            <mat-icon>account_circle</mat-icon>
+            <span>Account</span>
+          </button>
+          <mat-menu #accountMenu="matMenu" xPosition="before">
             @if (token) {
-              <li>
-                <button
-                  type="button"
-                  class="nav-link nav-menu-trigger"
-                  [matMenuTriggerFor]="accountMenu"
-                >
-                  My Account
-                  <mat-icon class="nav-menu-caret">arrow_drop_down</mat-icon>
-                </button>
-                <mat-menu #accountMenu="matMenu" xPosition="before">
-                  <a mat-menu-item routerLink="/cart" routerLinkActive="active-link">Cart</a>
-                  <a mat-menu-item routerLink="/wishlist" routerLinkActive="active-link">Wishlist</a>
-                  <a mat-menu-item routerLink="/order-history" routerLinkActive="active-link"
-                    >Order History</a
-                  >
-                  <a mat-menu-item routerLink="/my-claims" routerLinkActive="active-link"
-                    >My Claims</a
-                  >
-                </mat-menu>
-              </li>
+              <a mat-menu-item routerLink="/my-acount">Profile</a>
+              <a mat-menu-item routerLink="/wishlist">Wishlist</a>
+              <a mat-menu-item routerLink="/order-history">Orders</a>
+              <button mat-menu-item (click)="logout()">Logout</button>
+            } @else {
+              <a mat-menu-item routerLink="/signin">Sign In</a>
+              <a mat-menu-item routerLink="/signup">Sign Up</a>
             }
-          </ul>
+          </mat-menu>
         </nav>
 
-        <!-- Right Side -->
-        <div class="flex items-center gap-1">
-          <a routerLink="/cart" routerLinkActive="active-link">
-            <button mat-icon-button class="flex items-center justify-center">
-              <mat-icon>shopping_cart</mat-icon>
-            </button>
-          </a>
-
-          @if (token) {
-            <a routerLink="/wishlist" routerLinkActive="active-link">
-              <button mat-icon-button class="flex items-center justify-center">
-                <mat-icon>favorite</mat-icon>
-              </button>
-            </a>
-          } @else {
-            <a routerLink="/track-order" routerLinkActive="active-link" class="hidden md:inline-flex">
-              <button mat-icon-button class="flex items-center justify-center" title="Track Order">
-                <mat-icon>local_shipping</mat-icon>
-              </button>
-            </a>
-          }
-
-          <button
-            *ngIf="!pwa.isStandalone() && (pwa.canInstall() || pwa.isIos())"
-            mat-icon-button
-            type="button"
-            (click)="openInstallPrompt()"
-            class="flex items-center justify-center"
-            title="Install MyHomeBazar App"
-            aria-label="Install MyHomeBazar App"
-          >
-            <mat-icon>install_mobile</mat-icon>
+        <div class="flex items-center gap-1 md:hidden">
+          <button mat-icon-button type="button" aria-label="Notifications">
+            <mat-icon>notifications</mat-icon>
           </button>
-
-          <button mat-icon-button (click)="toggleTheme()" class="flex items-center justify-center">
-            <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
-          </button>
-          <!-- Mobile Menu Button -->
-          <div class="md:hidden">
-            <button mat-icon-button (click)="openDrawer()">
-              <mat-icon>menu</mat-icon>
-            </button>
-          </div>
-          <!-- Auth Links (Desktop Only) -->
-          @if (token) {
-            <div class="hidden md:flex items-center gap-3">
-              <!-- Profile Circle -->
-              <div class="flex items-center cursor-pointer" [matMenuTriggerFor]="profileMenu">
-                <app-user-avatar
-                  [name]="user?.name"
-                  [avatar]="userAvatar"
-                  size="xs"
-                ></app-user-avatar>
-
-                <!-- Dropdown Arrow Icon -->
-                <mat-icon class="text-gray-600 dark:text-gray-300">arrow_drop_down</mat-icon>
-              </div>
-
-              <!-- Dropdown Menu -->
-              <mat-menu #profileMenu="matMenu">
-                <button mat-menu-item [routerLink]="['/my-acount']">
-                  <span class="material-icons text-base mr-2">person</span>
-                  Profile
-                </button>
-                <button mat-menu-item [routerLink]="['/change-password']">
-                  <span class="material-icons text-base mr-2">lock</span>
-                  Change Password
-                </button>
-                <button mat-menu-item [routerLink]="['/order-history']">
-                  <span class="material-icons text-base mr-2">shopping_bag</span>
-                  Order History
-                </button>
-                <button mat-menu-item [routerLink]="['/my-claims']">
-                  <span class="material-icons text-base mr-2">report_problem</span>
-                  My Claims
-                </button>
-                <button mat-menu-item (click)="logout()">
-                  <span class="material-icons text-base mr-2">logout</span>
-                  Logout
-                </button>
-              </mat-menu>
-            </div>
-          } @else {
-            <div class="hidden md:flex items-center gap-3">
-              <a
-                routerLink="/signin"
-                routerLinkActive="active-link"
-                mat-flat-button
-                class="!text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] dark:bg-[var(--color-accent)] dark:hover:bg-[var(--color-accent-hover)]"
-                >Sign In</a
-              >
-
-              <a
-                routerLink="/signup"
-                routerLinkActive="active-link"
-                mat-flat-button
-                class="!text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] dark:bg-[var(--color-accent)] dark:hover:bg-[var(--color-accent-hover)]"
-                >Sign Up</a
-              >
-            </div>
-          }
         </div>
       </div>
+
+      <p class="header-mobile-tag md:hidden text-center text-[10px] tracking-wide uppercase text-[var(--color-text-secondary)] mt-1">
+        Pakistan's Home & Living Marketplace
+      </p>
     </div>
   </header>
 </app-ui-card>

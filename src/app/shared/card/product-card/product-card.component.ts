@@ -23,6 +23,7 @@ import { isOwnProduct as checkOwnProduct } from '../../../utils/auth';
 import { addProductToGuestCart } from '../../../services/guest-cart.service';
 import { ToastrService } from 'ngx-toastr';
 import { ScrollRevealDirective } from '../../scroll-reveal/scroll-reveal.directive';
+import { Tilt3dDirective } from '../../tilt-3d/tilt-3d.directive';
 
 interface Product {
   _id: string;
@@ -32,6 +33,10 @@ interface Product {
   images: string[];
   price: number;
   averageRating: number;
+  catName?: string;
+  category?: { name?: string };
+  reviews?: unknown[];
+  reviewCount?: number;
   isPromoted?: boolean;
   promotionExpiresAt?: string | Date | null;
   promotionLabel?: string;
@@ -54,6 +59,7 @@ interface Product {
     MatProgressSpinnerModule,
     DecimalPipe,
     ScrollRevealDirective,
+    Tilt3dDirective,
   ],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css'],
@@ -67,6 +73,7 @@ export class ProductCardComponent implements OnInit, OnDestroy {
 
   @Input() product!: Product;
   @Input() revealDelay = 0;
+  @Input() variant: 'default' | 'mockup' = 'default';
 
   currentUserId: string | null = null;
   wishlistLoading = false;
@@ -106,6 +113,31 @@ export class ProductCardComponent implements OnInit, OnDestroy {
   getPromotionBadge(): string {
     if (!this.isPromotionActive()) return '';
     return this.product.promotionLabel?.trim() || 'Deal';
+  }
+
+  getCategoryLabel(): string {
+    return (
+      (this.product as any).catName ||
+      this.product.category?.name ||
+      ''
+    );
+  }
+
+  getReviewCount(): number {
+    return Array.isArray((this.product as any).reviews)
+      ? (this.product as any).reviews.length
+      : Number((this.product as any).reviewCount) || 0;
+  }
+
+  getDisplayOriginalPrice(): number | null {
+    if (!this.isPromotionActive()) return null;
+    return Math.ceil(this.product.price / 0.65);
+  }
+
+  getDiscountPercent(): number | null {
+    const original = this.getDisplayOriginalPrice();
+    if (!original || original <= this.product.price) return null;
+    return Math.round((1 - this.product.price / original) * 100);
   }
 
   formatEngagementCount(value?: number): string {
