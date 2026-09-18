@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
 
 import { Hero3dBannerComponent, Hero3dSlide } from '../shared/components/hero-3d-banner/hero-3d-banner.component';
+import { Promo3dCardComponent } from '../shared/components/promo-3d-card/promo-3d-card.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { CategoryChipsComponent } from '../shared/category-chips/category-chips.component';
 import {
@@ -28,6 +29,7 @@ import {
   standalone: true,
   imports: [
     Hero3dBannerComponent,
+    Promo3dCardComponent,
     CategoryChipsComponent,
     ProductCardComponent,
     ProductSearchFilterComponent,
