@@ -19,7 +19,12 @@
                 </p>
               </div>
               <div class="seller-hero__actions">
-                <button type="button" class="seller-btn seller-btn--primary" (click)="messageSeller()">
+                <button
+                  *ngIf="!isOwnProfile()"
+                  type="button"
+                  class="seller-btn seller-btn--primary"
+                  (click)="messageSeller()"
+                >
                   <mat-icon>chat</mat-icon>
                   Message Seller
                 </button>

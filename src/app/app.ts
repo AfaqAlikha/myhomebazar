@@ -61,6 +61,7 @@ export class AppComponent implements OnInit {
   user: any = null;
   token: string | null = null;
   cartCount = 0;
+  isDarkMode = false;
 
   private subs: Subscription[] = [];
   private readonly isBrowser: boolean;
@@ -89,7 +90,11 @@ export class AppComponent implements OnInit {
         }
       }),
       this.auth.token$.subscribe((t) => (this.token = t)),
+      this.themeService.theme$.subscribe((theme) => {
+        this.isDarkMode = theme === 'dark';
+      }),
     );
+    this.isDarkMode = this.themeService.isDark();
     this.siteThemeService.loadAndApply();
     this.loadLogo();
 
@@ -127,6 +132,10 @@ export class AppComponent implements OnInit {
         this.seo.setOrganizationBranding(res.logo);
       },
     });
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
   logout() {
