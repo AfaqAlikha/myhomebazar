@@ -555,6 +555,22 @@ html {
 .home-product-row__item {
   scroll-snap-align: start;
   min-width: 0;
+  display: flex;
+  height: 100%;
+}
+
+.home-product-grid-item,
+.product-grid-item {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+}
+
+.home-product-grid-item app-product-card,
+.home-product-row__item app-product-card,
+.product-grid-item app-product-card {
+  flex: 1;
+  width: 100%;
 }
 
 .shop-page-shell {

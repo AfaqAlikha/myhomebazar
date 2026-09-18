@@ -2,7 +2,7 @@
   appScrollReveal
   appTilt3d
   [revealDelay]="revealDelay"
-  class="product-card group relative flex w-full flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] transition-all duration-300"
+  class="product-card group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] transition-all duration-300"
   [class.product-card--mockup]="variant === 'mockup'"
   [class.product-card--navigating]="navigating"
   [attr.aria-busy]="navigating"
@@ -18,11 +18,12 @@
     <mat-spinner diameter="36" color="accent"></mat-spinner>
   </div>
 
-  <div class="product-card__image relative w-full overflow-hidden bg-[color-mix(in_srgb,var(--color-border)_35%,var(--color-card))]">
+  <div class="product-card__image relative w-full shrink-0 overflow-hidden bg-[color-mix(in_srgb,var(--color-border)_35%,var(--color-card))]">
     <img
       [src]="product.images[0]"
       [alt]="product.name"
-      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+      class="product-card__img transition-transform duration-500 group-hover:scale-[1.03]"
+      loading="lazy"
     />
 
     <span
@@ -89,8 +90,8 @@
     </button>
   </div>
 
-  <div class="product-card__body relative z-[1] w-full px-3 pb-3 pt-2.5">
-    <p class="line-clamp-2 text-sm font-semibold leading-snug text-[var(--color-text)]">
+  <div class="product-card__body relative z-[1] flex w-full flex-1 flex-col px-3 pb-3 pt-2.5">
+    <p class="product-card__title line-clamp-2 text-sm font-semibold leading-snug text-[var(--color-text)]">
       {{ product.name }}
     </p>
 

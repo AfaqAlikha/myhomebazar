@@ -75,7 +75,7 @@
         </div>
       </div>
 
-      <div class="grid gap-3 md:gap-4 product-grid flex-grow" [ngClass]="gridLayout.productGridClass">
+      <div class="grid gap-3 md:gap-4 product-grid flex-grow items-stretch" [ngClass]="gridLayout.productGridClass">
         <div *ngIf="!noProducts && products.length === 0" class="col-span-full text-center text-[var(--color-text-secondary)] py-10">
           Loading products...
         </div>
