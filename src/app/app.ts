@@ -28,6 +28,7 @@ import { PushService } from './core/services/push.service';
 import { PwaService } from './core/services/pwa.service';
 import { PwaInstallPromptComponent } from './shared/pwa-install-prompt/pwa-install-prompt.component';
 import { MobileBottomNavComponent } from './shared/mobile-bottom-nav/mobile-bottom-nav.component';
+import { ChatService } from './services/chat.service';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -61,6 +62,7 @@ export class AppComponent implements OnInit {
   user: any = null;
   token: string | null = null;
   cartCount = 0;
+  messageUnread = 0;
   isDarkMode = false;
 
   private subs: Subscription[] = [];
@@ -74,6 +76,7 @@ export class AppComponent implements OnInit {
     private siteThemeService: SiteThemeService,
     private pushService: PushService,
     private pwaService: PwaService,
+    private chatService: ChatService,
     private offlineService: OfflineService,
     @Inject(PLATFORM_ID) platformId: Object,
   ) {
@@ -92,6 +95,9 @@ export class AppComponent implements OnInit {
       this.auth.token$.subscribe((t) => (this.token = t)),
       this.themeService.theme$.subscribe((theme) => {
         this.isDarkMode = theme === 'dark';
+      }),
+      this.chatService.conversations$.subscribe(() => {
+        this.messageUnread = this.chatService.unreadTotal;
       }),
     );
     this.isDarkMode = this.themeService.isDark();

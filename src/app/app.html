@@ -213,7 +213,11 @@
     </main>
 
     <app-footer class="hidden md:block"></app-footer>
-    <app-mobile-bottom-nav [cartCount]="cartCount"></app-mobile-bottom-nav>
+    <app-mobile-bottom-nav
+      [cartCount]="cartCount"
+      [messageUnread]="messageUnread"
+      [isLoggedIn]="!!token"
+    ></app-mobile-bottom-nav>
   </mat-sidenav-content>
 </mat-sidenav-container>
 

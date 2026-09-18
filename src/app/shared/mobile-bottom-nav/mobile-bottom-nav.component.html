@@ -7,6 +7,19 @@
     <mat-icon>grid_view</mat-icon>
     <span>Shop</span>
   </a>
+  <a
+    routerLink="/messages"
+    routerLinkActive="mobile-bottom-nav__link--active"
+    class="mobile-bottom-nav__link"
+  >
+    <span class="mobile-bottom-nav__badge-wrap">
+      <mat-icon>forum</mat-icon>
+      <span *ngIf="messageUnread > 0" class="mobile-bottom-nav__badge">
+        {{ messageUnread > 9 ? '9+' : messageUnread }}
+      </span>
+    </span>
+    <span>Messages</span>
+  </a>
   <a routerLink="/cart" routerLinkActive="mobile-bottom-nav__link--active" class="mobile-bottom-nav__link">
     <span class="mobile-bottom-nav__badge-wrap">
       <mat-icon>shopping_cart</mat-icon>
