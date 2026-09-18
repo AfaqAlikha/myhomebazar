@@ -16,8 +16,8 @@ import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
 import { AuthService } from '../../auth/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { Subscription } from 'rxjs';
-import { SpinnerService } from '../../shared/spinner.service';
 import { isPlatformBrowser, NgIf } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PLATFORM_ID } from '@angular/core';
 import { ProductService } from '../../services/product.service';
 
@@ -34,6 +34,7 @@ import { ProductService } from '../../services/product.service';
     MatDividerModule,
     UiCardComponent,
     NgIf,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
@@ -44,6 +45,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   user: any = null;
   token: string | null = null;
   unreadCount = 5;
+  logoutLoading = false;
 
   private subs: Subscription[] = [];
   private isBrowser: boolean;
@@ -53,7 +55,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(
     private auth: AuthService,
     private themeService: ThemeService,
-    private spinnerService: SpinnerService,
     private router: Router,
     private productService: ProductService,
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -84,15 +85,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    this.spinnerService.show();
-
-    if (this.isBrowser) {
-      setTimeout(() => {
-        this.auth.logout();
-        this.spinnerService.hide();
-        this.router.navigate(['']);
-      }, 1000);
-    }
+    if (this.logoutLoading) return;
+    this.logoutLoading = true;
+    this.auth.logout();
+    this.router.navigate(['']).finally(() => {
+      this.logoutLoading = false;
+    });
   }
 
   toggleTheme(): void {

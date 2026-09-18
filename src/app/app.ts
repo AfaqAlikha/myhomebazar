@@ -14,7 +14,6 @@ import { AuthService } from './auth/auth.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { NgxSpinnerModule } from 'ngx-spinner';
-import { SpinnerService } from './shared/spinner.service';
 import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProductService } from './services/product.service';
@@ -56,7 +55,6 @@ export class AppComponent implements OnInit {
 
   constructor(
     private auth: AuthService,
-    private spinnerService: SpinnerService,
     private productService: ProductService,
     private seo: SeoService,
     private themeService: ThemeService,
@@ -89,14 +87,8 @@ export class AppComponent implements OnInit {
   }
 
   logout() {
-    this.spinnerService.show();
-
-    // wait 1 second before actually logging out
-    setTimeout(() => {
-      this.auth.logout();
-      this.spinnerService.hide();
-      this.router.navigate(['']);
-    }, 1000); // 1000ms = 1 second
+    this.auth.logout();
+    this.router.navigate(['']);
   }
 
   ngOnDestroy(): void {

@@ -4,7 +4,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
-import { SpinnerService } from '../shared/spinner.service';
+
 @Component({
   selector: 'app-wishlist',
   templateUrl: './wishlist.component.html',
@@ -16,21 +16,19 @@ import { SpinnerService } from '../shared/spinner.service';
     ProductCardComponent,
     UiSearchComponent,
     NgIf,
-    NgClass
+    NgClass,
   ],
 })
 export class WishlistComponent implements OnInit {
   products: any[] = [];
-  totalItems: number = 0;
-  itemsPerPage: number = 0; // backend से आएगा
-  currentPage: number = 1; // backend 1-based page index
+  totalItems = 0;
+  itemsPerPage = 0;
+  currentPage = 1;
   sortOrder: 'low' | 'high' | '' = '';
-  searchQuery: string = '';
+  searchQuery = '';
   isLoading = false;
-  constructor(
-    private wishlistService: WishlistService,
-    private spinner: SpinnerService
-  ) {}
+
+  constructor(private wishlistService: WishlistService) {}
 
   ngOnInit(): void {
     this.loadWishlist();
@@ -38,7 +36,6 @@ export class WishlistComponent implements OnInit {
 
   loadWishlist() {
     this.isLoading = true;
-    this.spinner.show();
 
     this.wishlistService
       .getWishlist({
@@ -52,32 +49,27 @@ export class WishlistComponent implements OnInit {
           this.totalItems = res.pagination.totalItems;
           this.itemsPerPage = res.pagination.itemsPerPage;
           this.currentPage = res.pagination.currentPage;
-
           this.isLoading = false;
-          this.spinner.hide();
         },
         error: (err) => {
           console.error('Error loading wishlist:', err);
           this.isLoading = false;
-          this.spinner.hide();
         },
       });
   }
 
   pageChanged(event: PageEvent) {
-    this.currentPage = event.pageIndex + 1; // paginator 0-based होता है
+    this.currentPage = event.pageIndex + 1;
     this.loadWishlist();
   }
 
-  // ✅ Search handler
   onSearch(query: string) {
     this.searchQuery = query;
     this.currentPage = 1;
     this.loadWishlist();
   }
 
-  // ✅ Sorting handler
-  setSort(order: 'low' | 'high') {
+  setSort(order: 'low' | 'high' | '') {
     this.sortOrder = order;
     this.currentPage = 1;
     this.loadWishlist();

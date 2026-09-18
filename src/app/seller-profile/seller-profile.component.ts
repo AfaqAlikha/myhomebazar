@@ -7,7 +7,6 @@ import { StarRatingComponent } from '../shared/star-rating/star-rating.component
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 import { AuthService } from '../auth/auth.service';
 import { ProductService } from '../services/product.service';
-import { SpinnerService } from '../shared/spinner.service';
 import { SeoService } from '../services/seo';
 import { ActivatedRoute } from '@angular/router';
 
@@ -31,7 +30,6 @@ export class SellerProfileComponent implements OnInit {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private productService = inject(ProductService);
-  private spinnerService = inject(SpinnerService);
   private route = inject(ActivatedRoute);
   private seo = inject(SeoService);
 
@@ -59,7 +57,6 @@ export class SellerProfileComponent implements OnInit {
       return;
     }
 
-    this.spinnerService.show();
     this.auth.getPublicProfile(sellerId).subscribe({
       next: (user) => {
         this.user = user;
@@ -71,11 +68,9 @@ export class SellerProfileComponent implements OnInit {
         this.seo.setSellerSeo(this.user.name, sellerId);
         this.fetchProducts(sellerId);
         this.loading = false;
-        this.spinnerService.hide();
       },
       error: () => {
         this.loading = false;
-        this.spinnerService.hide();
       },
     });
   }

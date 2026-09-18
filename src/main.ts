@@ -9,6 +9,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from '../src/app/auth/auth-interceptor';
 import { ApiResponseInterceptor } from '../src/app/core/interceptors/api-response.interceptor';
+import { GetLoaderInterceptor } from '../src/app/core/interceptors/get-loader.interceptor';
 import { SharedModule } from './app/shared/shared.module';
 
 bootstrapApplication(AppComponent, {
@@ -21,6 +22,11 @@ bootstrapApplication(AppComponent, {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ApiResponseInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: GetLoaderInterceptor,
       multi: true,
     },
     {

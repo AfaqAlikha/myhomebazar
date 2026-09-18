@@ -7,7 +7,7 @@ import {
 } from '@angular/forms';
 import { CommonModule, NgClass, NgFor, NgIf } from '@angular/common';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
@@ -17,7 +17,6 @@ import { AuthService } from '../auth/auth.service';
 import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
 import { RouterLink } from '@angular/router';
-import { SpinnerService } from '../shared/spinner.service';
 
 @Component({
   selector: 'app-my-account',
@@ -32,7 +31,7 @@ import { SpinnerService } from '../shared/spinner.service';
     NgFor,
     NgIf,
     MatPaginatorModule,
-    NgxSpinnerModule,
+    MatProgressSpinnerModule,
     RouterLink,
   ],
   templateUrl: './my-account.component.html',
@@ -41,10 +40,8 @@ import { SpinnerService } from '../shared/spinner.service';
 export class MyAccountComponent implements OnInit {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
-  private spinnerService = inject(SpinnerService);
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
-  private ngxSpinner = inject(NgxSpinnerService);
 
   borderRadius = '8px';
   form: FormGroup = this.fb.group({
@@ -54,6 +51,8 @@ export class MyAccountComponent implements OnInit {
   });
   user: any;
   loading = false;
+  profileSubmitting = false;
+  productsLoading = false;
 
   // Products
   products: any[] = [];
@@ -72,15 +71,12 @@ export class MyAccountComponent implements OnInit {
 
   ngOnInit() {
     this.loading = true;
-    this.spinnerService.show();
 
     this.auth.getMyProfile().subscribe({
       next: (res) => {
-        // res IS the user object, not res.user
         if (!res) {
           console.error('User data is missing', res);
           this.loading = false;
-          this.spinnerService.hide();
           return;
         }
 
@@ -104,12 +100,10 @@ export class MyAccountComponent implements OnInit {
         }
 
         this.loading = false;
-        this.spinnerService.hide();
       },
       error: (err) => {
         console.error('Error fetching profile', err);
         this.loading = false;
-        this.spinnerService.hide();
       },
     });
   }
@@ -125,17 +119,14 @@ export class MyAccountComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
-    this.spinnerService.show();
+    this.profileSubmitting = true;
     this.auth.updateProfile(this.user._id, this.form.value).subscribe({
       next: (user) => {
         this.user = user;
-        this.loading = false;
-        this.spinnerService.hide();
+        this.profileSubmitting = false;
       },
       error: () => {
-        this.loading = false;
-        this.spinnerService.hide();
+        this.profileSubmitting = false;
       },
     });
   }
@@ -159,7 +150,7 @@ export class MyAccountComponent implements OnInit {
       search: this.searchQuery,
     };
 
-    this.ngxSpinner.show();
+    this.productsLoading = true;
     this.productService
       .getMyProducts({
         page: this.currentPage,
@@ -176,10 +167,12 @@ export class MyAccountComponent implements OnInit {
           this.itemsPerPage = res.pagination.itemsPerPage;
           this.currentPage = res.pagination.currentPage;
           this.noProducts = this.products.length === 0;
+          this.productsLoading = false;
         },
         error: (err) => {
           console.error(err);
           this.noProducts = true;
+          this.productsLoading = false;
         },
       });
   }

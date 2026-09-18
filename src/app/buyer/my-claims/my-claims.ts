@@ -3,7 +3,6 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { ClaimsService } from '../../services/claims.service';
-import { SpinnerService } from '../../shared/spinner.service';
 import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../shared/ui-button/ui-button.component';
 import { Claim, ClaimStatus } from '../../core/models/claim.model';
@@ -44,10 +43,7 @@ export class MyClaimsComponent implements OnInit {
     { value: 'resolved', label: 'Resolved' },
   ];
 
-  constructor(
-    private claimsService: ClaimsService,
-    private spinnerService: SpinnerService,
-  ) {}
+  constructor(private claimsService: ClaimsService) {}
 
   ngOnInit(): void {
     this.loadClaims();
@@ -55,7 +51,6 @@ export class MyClaimsComponent implements OnInit {
 
   loadClaims(): void {
     this.loading = true;
-    this.spinnerService.show();
 
     this.claimsService
       .getClaims({
@@ -69,11 +64,9 @@ export class MyClaimsComponent implements OnInit {
           this.itemsPerPage = res.pagination.pageSize;
           this.currentPage = res.pagination.currentPage;
           this.loading = false;
-          this.spinnerService.hide();
         },
         error: () => {
           this.loading = false;
-          this.spinnerService.hide();
         },
       });
   }

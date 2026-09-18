@@ -11,7 +11,6 @@ import {
 } from '../shared/location-filter/location-filter.component';
 
 import { ProductService } from '../services/product.service';
-import { SpinnerService } from '../shared/spinner.service';
 import { SeoService } from '../services/seo';
 import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
 
@@ -69,7 +68,6 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
-    private spinnerService: SpinnerService,
     private seo: SeoService,
     @Inject(PLATFORM_ID) platformId: Object,
   ) {
@@ -183,7 +181,6 @@ export class HomeComponent implements OnInit {
       this.loadingMore = true;
     } else {
       this.isLoading = true;
-      this.spinnerService.show();
     }
 
     this.productService.getHomeProducts(this.page, this.locationFilters).subscribe({
@@ -196,13 +193,11 @@ export class HomeComponent implements OnInit {
         this.hasMore = this.page < res.pagination.totalPages;
         this.isLoading = false;
         this.loadingMore = false;
-        this.spinnerService.hide();
       },
       error: () => {
         if (append && this.page > 1) this.page -= 1;
         this.isLoading = false;
         this.loadingMore = false;
-        this.spinnerService.hide();
       },
     });
   }

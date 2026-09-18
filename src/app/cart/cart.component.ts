@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../services/cart.service';
-import { SpinnerService } from '../shared/spinner.service';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../auth/auth.service';
 import { UiButtonComponent } from '../shared/ui-button/ui-button.component';
@@ -42,6 +41,7 @@ export class CartComponent implements OnInit {
   shippingQuote: ShippingQuote | null = null;
   showModal = false;
   orderSubmitting = false;
+  deletingItemId: string | null = null;
   orderForm!: FormGroup;
 
   constructor(
@@ -49,7 +49,6 @@ export class CartComponent implements OnInit {
     private shippingService: ShippingService,
     private paymentGateway: PaymentGatewayService,
     private authService: AuthService,
-    private spinner: SpinnerService,
     private toastr: ToastrService,
     private fb: FormBuilder,
   ) {}
@@ -92,7 +91,6 @@ export class CartComponent implements OnInit {
   }
 
   loadCart(): void {
-    this.spinner.show();
     this.cartService.getCart().subscribe({
       next: (res) => {
         if (res.cart?.items) {
@@ -126,9 +124,7 @@ export class CartComponent implements OnInit {
         if (this.cartItems.length && !this.shippingQuote) {
           this.refreshShippingQuote();
         }
-        this.spinner.hide();
       },
-      error: () => this.spinner.hide(),
     });
   }
 
@@ -199,14 +195,16 @@ export class CartComponent implements OnInit {
   }
 
   deleteItem(item: any): void {
-    this.spinner.show();
+    this.deletingItemId = item._id;
     this.cartService.removeFromCart(item._id).subscribe({
       next: () => {
         this.cartItems = this.cartItems.filter((i) => i._id !== item._id);
         this.refreshShippingQuote();
-        this.spinner.hide();
+        this.deletingItemId = null;
       },
-      error: () => this.spinner.hide(),
+      error: () => {
+        this.deletingItemId = null;
+      },
     });
   }
 

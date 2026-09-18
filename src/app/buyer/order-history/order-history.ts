@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { SpinnerService } from '../../shared/spinner.service';
 import { UiButtonComponent } from '../../shared/ui-button/ui-button.component';
 import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
 import { StarRatingComponent } from '../../shared/star-rating/star-rating.component';
@@ -90,7 +89,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     private claimsService: ClaimsService,
     private shippingService: ShippingService,
     private fb: FormBuilder,
-    private spinnerService: SpinnerService,
     private route: ActivatedRoute,
     private authService: AuthService,
     private socketService: SocketService,
@@ -366,17 +364,14 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   loadOrders(openReviewForOrderId?: string): void {
     this.loading = true;
-    this.spinnerService.show();
 
     this.orderService.getMyOrders(this.currentPage, this.itemsPerPage).subscribe({
       next: (res: any) => {
         this.applyOrdersResponse(res, { openReviewForOrderId });
         this.loading = false;
-        this.spinnerService.hide();
       },
       error: (err) => {
         this.loading = false;
-        this.spinnerService.hide();
         this.toastr.error(err?.error?.message || 'Failed to load your orders');
       },
     });

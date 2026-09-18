@@ -1,6 +1,6 @@
 import { Component, Input, inject, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
-import { CommonModule, NgIf, NgForOf, isPlatformBrowser, DecimalPipe } from '@angular/common';
+import { CommonModule, NgIf, isPlatformBrowser, DecimalPipe } from '@angular/common';
 import { StarRatingComponent } from '../../star-rating/star-rating.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { WishlistService } from '../../../services/wishlist.service';
 import { CartService } from '../../../services/cart.service';
 import { AuthService } from '../../../auth/auth.service';
+import { ProductService } from '../../../services/product.service';
 import { isOwnProduct as checkOwnProduct } from '../../../utils/auth';
 
 interface Product {
@@ -45,12 +46,14 @@ interface Product {
 })
 export class ProductCardComponent implements OnInit {
   private router = inject(Router);
+  private productService = inject(ProductService);
 
   @Input() product!: Product;
 
   currentUserId: string | null = null;
   wishlistLoading = false;
   cartLoading = false;
+  navigating = false;
 
   private isBrowser: boolean;
 
@@ -90,7 +93,23 @@ export class ProductCardComponent implements OnInit {
     return String(count);
   }
 
-  addToWishlist(productId: string): void {
+  prefetchDetails(): void {
+    this.productService.prefetchProductById(this.product._id);
+  }
+
+  openDetails(event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    if (this.navigating) return;
+
+    this.navigating = true;
+    this.router.navigate(['/product/details', this.product._id]).finally(() => {
+      this.navigating = false;
+    });
+  }
+
+  addToWishlist(event: Event, productId: string): void {
+    event.stopPropagation();
     if (this.isOwnProduct()) return;
     this.wishlistLoading = true;
     this.wishlistService.addToWishlist(productId).subscribe({
@@ -104,7 +123,8 @@ export class ProductCardComponent implements OnInit {
     });
   }
 
-  addToCart(product: Product): void {
+  addToCart(event: Event, product: Product): void {
+    event.stopPropagation();
     if (this.isOwnProduct()) return;
     this.cartLoading = true;
     this.cartService.addToCart(product._id).subscribe({

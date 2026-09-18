@@ -1,3 +1,19 @@
+.product-card--navigating {
+  pointer-events: none;
+}
+
+.product-card-nav-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(1px);
+}
+
 /* Card hover shadow */
 .group:hover {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);

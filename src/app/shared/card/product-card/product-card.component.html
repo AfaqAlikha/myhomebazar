@@ -1,6 +1,13 @@
 <div
-  class="relative flex flex-col items-center justify-center group w-full h-[350px] bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg shadow-md p-3 transition-colors duration-300"
+  class="product-card relative flex flex-col items-center justify-center group w-full h-[350px] bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg shadow-md p-3 transition-colors duration-300 cursor-pointer"
+  (click)="openDetails($event)"
+  (mouseenter)="prefetchDetails()"
+  [class.product-card--navigating]="navigating"
 >
+  <div *ngIf="navigating" class="product-card-nav-loader" aria-live="polite" aria-busy="true">
+    <mat-spinner diameter="36"></mat-spinner>
+  </div>
+
   <!-- Product Image -->
   <div class="relative overflow-hidden rounded-lg w-full h-52">
     <img
@@ -18,34 +25,40 @@
     </span>
 
     <!-- Favorite & View Icons -->
-    <div class="absolute top-2 right-2 flex flex-col gap-1">
+    <div class="absolute top-2 right-2 flex flex-col gap-1 z-20" data-card-action>
       <button
         *ngIf="!isOwnProduct()"
         mat-icon-button
         class="!bg-[var(--color-accent)] !text-[var(--color-accent)] rounded-full p-1 shadow-md small-icon-btn"
-        (click)="addToWishlist(product._id)"
+        [disabled]="wishlistLoading"
+        (click)="addToWishlist($event, product._id)"
       >
-        <mat-icon class="text-[16px]">favorite</mat-icon>
+        <mat-spinner *ngIf="wishlistLoading" diameter="16"></mat-spinner>
+        <mat-icon *ngIf="!wishlistLoading" class="text-[16px]">favorite</mat-icon>
       </button>
 
-      <a
-        [routerLink]="['/product/details', product._id]"
+      <button
+        type="button"
         mat-icon-button
         class="!bg-[var(--color-accent)] !text-[var(--color-accent)] rounded-full p-1 shadow-md small-icon-btn"
+        [disabled]="navigating"
+        (click)="openDetails($event)"
+        aria-label="View product details"
       >
         <mat-icon class="text-[16px]">visibility</mat-icon>
-      </a>
+      </button>
     </div>
 
     <!-- Add to Cart Button -->
     <button
       *ngIf="!isOwnProduct()"
-      class="absolute bottom-0 left-0 w-full bg-[var(--color-accent)] text-white py-2 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-70"
+      data-card-action
+      class="absolute bottom-0 left-0 z-20 w-full bg-[var(--color-accent)] text-white py-2 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-70 inline-flex items-center justify-center gap-2"
       [disabled]="cartLoading"
-      (click)="addToCart(product)"
+      (click)="addToCart($event, product)"
     >
-      <span *ngIf="!cartLoading">Add To Cart</span>
-      <span *ngIf="cartLoading">Adding...</span>
+      <mat-spinner *ngIf="cartLoading" diameter="16"></mat-spinner>
+      <span>{{ cartLoading ? 'Adding...' : 'Add To Cart' }}</span>
     </button>
 
     <!-- Own product badge -->
@@ -62,19 +75,16 @@
     <div class="flex items-center justify-between">
       <p class="font-medium text-sm text-[var(--color-text)] dark:text-[var(--color-text)]">
         {{
-          product.name.split(" ").slice(0, 10).join(" ") +
-            (product.name.split(" ").length > 10 ? "..." : "")
+          product.name.split(' ').slice(0, 10).join(' ') +
+            (product.name.split(' ').length > 10 ? '...' : '')
         }}
       </p>
-
     </div>
 
-    <!-- Product Description -->
     <p class="text-[var(--color-text-secondary)] dark:text-[var(--color-text-secondary)] text-xs mt-1 line-clamp-2">
       {{ product.description }}
     </p>
 
-    <!-- Price + deal label -->
     <p
       *ngIf="isPromotionActive()"
       class="text-[10px] font-semibold text-[var(--color-danger)] mt-1 uppercase truncate"
@@ -82,7 +92,7 @@
       {{ getPromotionBadge() }}
     </p>
     <p class="text-[var(--color-text-secondary)] dark:text-[var(--color-text-secondary)] text-sm mt-1">
-      Rs {{ product.price | number:'1.0-0' }}
+      Rs {{ product.price | number: '1.0-0' }}
     </p>
 
     <div class="flex items-center gap-3 text-[11px] text-[var(--color-text-secondary)] mt-1">
@@ -96,7 +106,6 @@
       </span>
     </div>
 
-    <!-- Rating -->
     <app-star-rating
       [value]="product.averageRating"
       [readonly]="true"

@@ -8,7 +8,6 @@ import {
   LocationFilters,
 } from '../shared/location-filter/location-filter.component';
 import { SellerService, SellerProfile } from '../services/seller.service';
-import { SpinnerService } from '../shared/spinner.service';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { SeoService } from '../services/seo';
@@ -40,7 +39,6 @@ export class SellersComponent implements OnInit {
 
   constructor(
     private sellerService: SellerService,
-    private spinnerService: SpinnerService,
     private seo: SeoService,
   ) {}
 
@@ -63,7 +61,6 @@ export class SellersComponent implements OnInit {
 
   loadSellers(): void {
     this.loading = true;
-    this.spinnerService.show();
 
     this.sellerService
       .getSellers({
@@ -81,11 +78,9 @@ export class SellersComponent implements OnInit {
           this.itemsPerPage = res.pagination.pageSize || this.itemsPerPage;
           this.currentPage = res.pagination.currentPage || this.currentPage;
           this.loading = false;
-          this.spinnerService.hide();
         },
         error: () => {
           this.loading = false;
-          this.spinnerService.hide();
         },
       });
   }
