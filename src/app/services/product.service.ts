@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders, HttpParams } from '@angular/common/http';
+import { SKIP_GLOBAL_LOADER } from '../core/interceptors/loader.context';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../core/config/api-endpoints';
@@ -11,6 +12,7 @@ import { AppBrandingService } from '../core/services/app-branding.service';
   providedIn: 'root',
 })
 export class ProductService {
+  private readonly skipLoaderContext = new HttpContext().set(SKIP_GLOBAL_LOADER, true);
   private readonly productCacheTtlMs = 5 * 60 * 1000;
   private productByIdCache = new Map<
     string,
@@ -35,7 +37,11 @@ export class ProductService {
       });
     }
 
-    return this.http.get(API_ENDPOINTS.products.publicList, { params: queryParams });
+    const page = Number(params?.['page'] ?? 1);
+    return this.http.get(API_ENDPOINTS.products.publicList, {
+      params: queryParams,
+      ...(page > 1 ? { context: this.skipLoaderContext } : {}),
+    });
   }
 
   getMyProducts(params?: Record<string, unknown>): Observable<any> {
@@ -49,9 +55,11 @@ export class ProductService {
         }
       });
     }
+    const page = Number(params?.['page'] ?? 1);
     return this.http.get(API_ENDPOINTS.products.myProducts, {
       params: queryParams,
       headers,
+      ...(page > 1 ? { context: this.skipLoaderContext } : {}),
     });
   }
 
@@ -77,7 +85,10 @@ export class ProductService {
     if (filters?.subCategory) params = params.set('subCategory', filters.subCategory);
     if (filters?.sort) params = params.set('sort', filters.sort);
 
-    return this.http.get(API_ENDPOINTS.products.publicList, { params });
+    return this.http.get(API_ENDPOINTS.products.publicList, {
+      params,
+      ...(page > 1 ? { context: this.skipLoaderContext } : {}),
+    });
   }
 
   getProductLocations(): Observable<{
@@ -118,7 +129,11 @@ export class ProductService {
     if (filters.sort) params = params.set('sort', filters.sort);
     if (filters.search) params = params.set('search', filters.search);
 
-    return this.http.get<any>(API_ENDPOINTS.products.publicList, { params });
+    const page = Number(filters.page ?? 1);
+    return this.http.get<any>(API_ENDPOINTS.products.publicList, {
+      params,
+      ...(page > 1 ? { context: this.skipLoaderContext } : {}),
+    });
   }
 
   getProductById(id: string, options?: { force?: boolean }): Observable<any> {
@@ -133,6 +148,7 @@ export class ProductService {
     const request = this.http
       .get<any>(API_ENDPOINTS.products.byId(id), {
         headers: getEngagementHeaders(token),
+        context: this.skipLoaderContext,
       })
       .pipe(shareReplay(1));
 
@@ -167,7 +183,10 @@ export class ProductService {
     if (limit) params = params.set('limit', limit.toString());
     if (search) params = params.set('search', search);
 
-    return this.http.get<any>(API_ENDPOINTS.products.bySeller(sellerId), { params });
+    return this.http.get<any>(API_ENDPOINTS.products.bySeller(sellerId), {
+      params,
+      ...(page > 1 ? { context: this.skipLoaderContext } : {}),
+    });
   }
 
   private getHeaders(): HttpHeaders {

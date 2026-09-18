@@ -1,11 +1,13 @@
 import {
   ChangeDetectorRef,
   Component,
+  HostListener,
   Input,
   inject,
   Inject,
   PLATFORM_ID,
   OnInit,
+  OnDestroy,
 } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule, NgIf, isPlatformBrowser, DecimalPipe } from '@angular/common';
@@ -56,7 +58,7 @@ interface Product {
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css'],
 })
-export class ProductCardComponent implements OnInit {
+export class ProductCardComponent implements OnInit, OnDestroy {
   private static readonly NAV_LOADER_MIN_MS = 250;
 
   private router = inject(Router);
@@ -72,6 +74,8 @@ export class ProductCardComponent implements OnInit {
   navigating = false;
 
   private isBrowser: boolean;
+  private isScrolling = false;
+  private scrollResetTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
@@ -110,7 +114,23 @@ export class ProductCardComponent implements OnInit {
     return String(count);
   }
 
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    if (!this.isBrowser) return;
+    this.isScrolling = true;
+    if (this.scrollResetTimer) clearTimeout(this.scrollResetTimer);
+    this.scrollResetTimer = setTimeout(() => {
+      this.isScrolling = false;
+      this.scrollResetTimer = null;
+    }, 180);
+  }
+
+  ngOnDestroy(): void {
+    if (this.scrollResetTimer) clearTimeout(this.scrollResetTimer);
+  }
+
   prefetchDetails(): void {
+    if (this.isScrolling) return;
     this.productService.prefetchProductById(this.product._id);
   }
 
