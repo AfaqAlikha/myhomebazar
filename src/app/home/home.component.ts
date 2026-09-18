@@ -1,7 +1,6 @@
 import { Component, HostListener, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, NgFor, NgIf, NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
 
 import { HeroSwiperComponent } from '../shared/components/hero-swiper/hero-swiper.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
@@ -28,7 +27,6 @@ import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
     NgIf,
     NgClass,
     MatIconModule,
-    RouterLink,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',

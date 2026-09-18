@@ -1,7 +1,9 @@
 <app-ui-card class="w-full border-0 rounded-0">
-  <header class="site-header site-header--glass sticky top-0 left-0 right-0 z-50">
+  <header
+    class="site-header sticky top-0 left-0 right-0 z-50 bg-[var(--color-card)] dark:bg-[var(--color-card)] shadow-sm"
+  >
     <div>
-      <div class="container mx-auto flex items-center justify-between gap-3 py-2.5 px-3 md:py-3">
+      <div class="container mx-auto flex items-center justify-between py-3 px-3">
         <!-- Left: Mobile Button + Logo -->
         <div class="flex items-center gap-4">
           <!-- Logo -->
@@ -24,15 +26,6 @@
             />
           </a>
         </div>
-
-        <a
-          routerLink="/shop"
-          class="header-search-pill hidden lg:flex flex-1 max-w-md mx-4"
-          aria-label="Search products in shop"
-        >
-          <mat-icon class="header-search-pill__icon">search</mat-icon>
-          <span>Search products, categories…</span>
-        </a>
 
         <!-- Navigation (Desktop Only) -->
         <nav>

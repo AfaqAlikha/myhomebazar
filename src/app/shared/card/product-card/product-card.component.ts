@@ -23,7 +23,6 @@ import { isOwnProduct as checkOwnProduct } from '../../../utils/auth';
 import { addProductToGuestCart } from '../../../services/guest-cart.service';
 import { ToastrService } from 'ngx-toastr';
 import { ScrollRevealDirective } from '../../scroll-reveal/scroll-reveal.directive';
-import { Tilt3dDirective } from '../../tilt-3d/tilt-3d.directive';
 
 interface Product {
   _id: string;
@@ -55,7 +54,6 @@ interface Product {
     MatProgressSpinnerModule,
     DecimalPipe,
     ScrollRevealDirective,
-    Tilt3dDirective,
   ],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css'],

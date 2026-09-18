@@ -1,8 +1,7 @@
 <article
   appScrollReveal
-  appTilt3d
   [revealDelay]="revealDelay"
-  class="product-card group relative flex w-full flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] transition-all duration-300"
+  class="product-card group relative flex w-full flex-col overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-md transition-all duration-300"
   [class.product-card--navigating]="navigating"
   [attr.aria-busy]="navigating"
   [attr.aria-label]="'View ' + product.name"

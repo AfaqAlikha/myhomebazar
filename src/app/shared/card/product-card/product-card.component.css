@@ -1,6 +1,5 @@
 .product-card {
   cursor: pointer;
-  border-radius: 1rem;
 }
 
 .product-card--navigating {
