@@ -87,6 +87,9 @@ export const API_ENDPOINTS = {
   theme: {
     public: `${BASE}/theme/public`,
   },
+  home: {
+    public: `${BASE}/home/public`,
+  },
   about: {
     public: `${BASE}/about/public`,
   },

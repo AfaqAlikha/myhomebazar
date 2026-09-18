@@ -25,6 +25,7 @@ import { SeoService } from './services/seo';
 import { PushService } from './core/services/push.service';
 import { PwaService } from './core/services/pwa.service';
 import { PwaInstallPromptComponent } from './shared/pwa-install-prompt/pwa-install-prompt.component';
+import { MobileBottomNavComponent } from './shared/mobile-bottom-nav/mobile-bottom-nav.component';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -46,6 +47,7 @@ import { PwaInstallPromptComponent } from './shared/pwa-install-prompt/pwa-insta
     CustomLoaderComponent,
     MatProgressSpinnerModule,
     PwaInstallPromptComponent,
+    MobileBottomNavComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],

@@ -1,10 +1,12 @@
-import { Component, HostListener, Inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser, NgFor, NgIf, NgClass } from '@angular/common';
+import { Component, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser, NgClass, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
+import { interval, Subscription } from 'rxjs';
 
 import { HeroSwiperComponent } from '../shared/components/hero-swiper/hero-swiper.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
-import { CategoryLinksComponent } from '../shared/category-links/category-links.component';
+import { CategoryChipsComponent } from '../shared/category-chips/category-chips.component';
 import {
   ProductSearchFilterComponent,
   ProductSearchFilters,
@@ -13,28 +15,32 @@ import {
 import { ProductService } from '../services/product.service';
 import { SeoService } from '../services/seo';
 import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
+import { HomePageData, HomePageService } from '../core/services/home-page.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     HeroSwiperComponent,
-    CategoryLinksComponent,
+    CategoryChipsComponent,
     ProductCardComponent,
     ProductSearchFilterComponent,
     GoogleAdComponent,
     NgFor,
     NgIf,
     NgClass,
+    NgTemplateOutlet,
     MatIconModule,
+    RouterLink,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   featured: any[] = [];
   products: any[] = [];
   page = 1;
+  homeData: HomePageData | null = null;
 
   totalItems = 0;
   itemsPerPage = 0;
@@ -42,6 +48,7 @@ export class HomeComponent implements OnInit {
   loadingMore = false;
   hasMore = true;
   heroLoading = true;
+  flashCountdown: { hours: string; minutes: string; seconds: string } | null = null;
 
   productSearchFilters: ProductSearchFilters = {
     search: '',
@@ -70,9 +77,12 @@ export class HomeComponent implements OnInit {
   };
 
   private readonly isBrowser: boolean;
+  private countdownSub?: Subscription;
+  private flashEndAt: Date | null = null;
 
   constructor(
     private productService: ProductService,
+    private homePageService: HomePageService,
     private seo: SeoService,
     @Inject(PLATFORM_ID) platformId: Object,
   ) {
@@ -83,8 +93,13 @@ export class HomeComponent implements OnInit {
     this.seo.setDefaultSeo();
     this.syncViewport();
     this.loadGridPreference();
+    this.loadHomeConfig();
     this.loadHomeProducts();
     this.loadFeaturedProducts();
+  }
+
+  ngOnDestroy(): void {
+    this.countdownSub?.unsubscribe();
   }
 
   get effectiveGridColumns(): number {
@@ -123,6 +138,14 @@ export class HomeComponent implements OnInit {
       [this.viewportTier]: next,
     };
     this.saveGridPreferences();
+  }
+
+  onCategoryChipSelect(categoryId: string): void {
+    this.onProductSearchFilter({
+      ...this.productSearchFilters,
+      categoryId,
+      subCategoryId: '',
+    });
   }
 
   private saveGridPreferences(): void {
@@ -167,6 +190,17 @@ export class HomeComponent implements OnInit {
     this.syncViewport();
   }
 
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    if (!this.isBrowser || this.isLoading || this.loadingMore || !this.hasMore) return;
+    const threshold = 320;
+    const scrollPosition = window.innerHeight + window.scrollY;
+    const bottom = document.documentElement.scrollHeight - threshold;
+    if (scrollPosition >= bottom) {
+      this.loadMoreProducts();
+    }
+  }
+
   loadMoreProducts(): void {
     if (!this.isBrowser || this.isLoading || this.loadingMore || !this.hasMore) return;
     this.page += 1;
@@ -190,6 +224,43 @@ export class HomeComponent implements OnInit {
       category: this.productSearchFilters.categoryId,
       subCategory: this.productSearchFilters.subCategoryId,
       sort: this.productSearchFilters.sort,
+    };
+  }
+
+  private loadHomeConfig(): void {
+    this.homePageService.getPublicHome().subscribe({
+      next: (res) => {
+        this.homeData = res.data;
+        if (res.data?.flashDeals?.endAt) {
+          this.flashEndAt = new Date(res.data.flashDeals.endAt);
+          this.startCountdown();
+        }
+      },
+    });
+  }
+
+  private startCountdown(): void {
+    this.countdownSub?.unsubscribe();
+    if (!this.flashEndAt) return;
+
+    this.updateCountdown();
+    this.countdownSub = interval(1000).subscribe(() => this.updateCountdown());
+  }
+
+  private updateCountdown(): void {
+    if (!this.flashEndAt) return;
+    const diff = this.flashEndAt.getTime() - Date.now();
+    if (diff <= 0) {
+      this.flashCountdown = { hours: '00', minutes: '00', seconds: '00' };
+      return;
+    }
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    this.flashCountdown = {
+      hours: String(hours).padStart(2, '0'),
+      minutes: String(minutes).padStart(2, '0'),
+      seconds: String(seconds).padStart(2, '0'),
     };
   }
 
@@ -226,7 +297,6 @@ export class HomeComponent implements OnInit {
     this.productService.getFeaturedProducts().subscribe({
       next: (res: any) => {
         const banners = res.banners || [];
-
         const productBanners: any[] = [];
         const imageBanners: any[] = [];
 

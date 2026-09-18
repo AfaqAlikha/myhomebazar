@@ -13,7 +13,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
-import { UserAvatarComponent } from '../../shared/user-avatar/user-avatar.component';
 import { AuthService } from '../../auth/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { Subscription } from 'rxjs';
@@ -35,7 +34,6 @@ import { PwaService } from '../../core/services/pwa.service';
     MatDividerModule,
     UiCardComponent,
     NgIf,
-    UserAvatarComponent,
   ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
@@ -47,6 +45,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   userAvatar: string | null = null;
   token: string | null = null;
   unreadCount = 5;
+  cartCount = 0;
 
   private subs: Subscription[] = [];
   private isBrowser: boolean;
