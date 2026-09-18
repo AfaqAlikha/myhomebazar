@@ -85,6 +85,15 @@ export const routes: Routes = [
     loadComponent: () => import('./shop/shop.component').then((m) => m.ShopComponent),
   },
   {
+    path: 'deals',
+    loadComponent: () => import('./deals/deals.component').then((m) => m.DealsComponent),
+  },
+  {
+    path: 'free-delivery',
+    loadComponent: () =>
+      import('./free-delivery/free-delivery.component').then((m) => m.FreeDeliveryComponent),
+  },
+  {
     path: 'sellers',
     loadComponent: () => import('./sellers/sellers.component').then((m) => m.SellersComponent),
   },

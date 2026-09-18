@@ -51,6 +51,7 @@ export class ChatService implements OnDestroy {
   private socketSub?: Subscription;
   private authSub?: Subscription;
   private buyerNotifSub?: Subscription;
+  private activeConversationId: string | null = null;
 
   constructor(
     private readonly http: HttpClient,
@@ -88,6 +89,10 @@ export class ChatService implements OnDestroy {
       (sum, item) => sum + (item.unreadCount || 0),
       0,
     );
+  }
+
+  setActiveConversation(conversationId: string | null): void {
+    this.activeConversationId = conversationId;
   }
 
   refreshConversations(): Observable<ChatConversation[]> {
@@ -181,22 +186,46 @@ export class ChatService implements OnDestroy {
   }
 
   private applyIncomingSocketMessage(payload: ChatSocketPayload): void {
-    if (payload.conversation) {
-      this.upsertConversation(payload.conversation as ChatConversation);
+    if (!payload.conversation) return;
+
+    const conversation = payload.conversation as ChatConversation;
+    const isActive =
+      !!this.activeConversationId
+      && String(conversation._id) === String(this.activeConversationId);
+
+    if (isActive) {
+      this.upsertConversation({ ...conversation, unreadCount: 0 });
+      this.markRead(this.activeConversationId!).subscribe();
+      return;
     }
+
+    this.upsertConversation(conversation);
   }
 
   private handleBuyerNotification(notification: any): void {
     if (notification?.type !== 'chat_message_received') return;
 
+    const conversationId = notification?.data?.conversationId;
+    const onActiveChat =
+      !!conversationId
+      && !!this.activeConversationId
+      && String(this.activeConversationId) === String(conversationId);
+
+    if (onActiveChat) {
+      this.markRead(conversationId).subscribe();
+      return;
+    }
+
     this.refreshConversations().subscribe();
 
-    const conversationId = notification?.data?.conversationId;
     const onMessagesPage =
       this.router.url.startsWith('/messages') &&
       (!conversationId || this.router.url.includes(String(conversationId)));
 
-    if (onMessagesPage) return;
+    if (onMessagesPage) {
+      if (conversationId) this.markRead(conversationId).subscribe();
+      return;
+    }
 
     this.toastr.info(notification.message || 'New message received', 'Messages', {
       timeOut: 5000,

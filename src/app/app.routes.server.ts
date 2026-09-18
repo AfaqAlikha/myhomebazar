@@ -15,6 +15,14 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server,
   },
   {
+    path: 'deals',
+    renderMode: RenderMode.Server,
+  },
+  {
+    path: 'free-delivery',
+    renderMode: RenderMode.Server,
+  },
+  {
     path: 'sellers',
     renderMode: RenderMode.Server,
   },
