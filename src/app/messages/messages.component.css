@@ -248,3 +248,12 @@
   color: var(--color-text-secondary);
   font-size: 0.875rem;
 }
+
+.messages-load-more {
+  align-self: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-card) 88%, transparent);
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+}
