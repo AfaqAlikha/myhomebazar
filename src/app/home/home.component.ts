@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
 
-import { HeroSwiperComponent } from '../shared/components/hero-swiper/hero-swiper.component';
+import { Hero3dBannerComponent, Hero3dSlide } from '../shared/components/hero-3d-banner/hero-3d-banner.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { CategoryChipsComponent } from '../shared/category-chips/category-chips.component';
 import {
@@ -27,7 +27,7 @@ import {
   selector: 'app-home',
   standalone: true,
   imports: [
-    HeroSwiperComponent,
+    Hero3dBannerComponent,
     CategoryChipsComponent,
     ProductCardComponent,
     ProductSearchFilterComponent,
@@ -42,7 +42,8 @@ import {
   styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  featured: any[] = [];
+  featured: Hero3dSlide[] = [];
+  heroSlides: Hero3dSlide[] = [];
   products: any[] = [];
   page = 1;
   homeData: HomePageData | null = null;
@@ -231,6 +232,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.homePageService.getPublicHome().subscribe({
       next: (res) => {
         this.homeData = res.data;
+        this.syncHeroSlides();
         this.flashDealProducts = res.data?.flashDealProducts || [];
         this.popularProducts = res.data?.popularProducts || [];
         this.trendingProducts = res.data?.trendingProducts || [];
@@ -312,6 +314,18 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  private syncHeroSlides(): void {
+    const apiSlides: Hero3dSlide[] = (this.homeData?.hero?.slides || []).map((slide) => ({
+      bannerImage: slide.image,
+      bannerType: slide.type,
+      name: slide.title,
+      link: slide.link,
+      _id: slide.productId,
+    }));
+
+    this.heroSlides = apiSlides.length ? apiSlides : this.featured;
+  }
+
   loadFeaturedProducts(): void {
     this.heroLoading = true;
     this.productService.getFeaturedProducts().subscribe({
@@ -333,6 +347,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           }
         });
         this.featured = [...productBanners, ...imageBanners];
+        this.syncHeroSlides();
         this.heroLoading = false;
       },
       error: () => {

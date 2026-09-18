@@ -386,6 +386,7 @@ html {
   overflow: hidden;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-soft);
+  min-height: 420px;
 }
 
 .home-bento__promo {
