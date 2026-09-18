@@ -1,0 +1,37 @@
+.page-back-bar {
+  position: sticky;
+  top: calc(var(--app-header-offset, 72px) - 1px);
+  z-index: 40;
+  background: color-mix(in srgb, var(--color-background) 92%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent);
+}
+
+.page-back-bar__inner {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.page-back-bar__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.35rem 0.15rem;
+  cursor: pointer;
+}
+
+.page-back-bar__btn mat-icon {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  font-size: 1.25rem !important;
+}
+
+.page-back-bar__btn:hover {
+  color: var(--color-accent);
+}

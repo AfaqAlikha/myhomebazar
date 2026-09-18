@@ -28,6 +28,7 @@ import { PushService } from './core/services/push.service';
 import { PwaService } from './core/services/pwa.service';
 import { PwaInstallPromptComponent } from './shared/pwa-install-prompt/pwa-install-prompt.component';
 import { MobileBottomNavComponent } from './shared/mobile-bottom-nav/mobile-bottom-nav.component';
+import { PageBackBarComponent } from './shared/page-back-bar/page-back-bar.component';
 import { ChatService } from './services/chat.service';
 @Component({
   selector: 'app-root',
@@ -51,6 +52,7 @@ import { ChatService } from './services/chat.service';
     MatProgressSpinnerModule,
     PwaInstallPromptComponent,
     MobileBottomNavComponent,
+    PageBackBarComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],

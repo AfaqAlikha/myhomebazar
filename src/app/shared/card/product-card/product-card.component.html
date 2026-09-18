@@ -50,27 +50,14 @@
     <button
       *ngIf="variant === 'mockup' && !isOwnProduct()"
       type="button"
-      class="product-card__add-to-cart-bar md:hidden"
+      class="product-card__add-to-cart-bar"
       [disabled]="cartLoading"
       (click)="onCartClick($event, product)"
       aria-label="Add to cart"
     >
       <mat-spinner *ngIf="cartLoading" diameter="16"></mat-spinner>
-      <mat-icon *ngIf="!cartLoading" class="!text-[16px] !w-4 !h-4">shopping_cart</mat-icon>
+      <mat-icon *ngIf="!cartLoading" class="product-card__add-to-cart-bar-icon">shopping_cart</mat-icon>
       <span *ngIf="!cartLoading">Add to Cart</span>
-    </button>
-
-    <button
-      *ngIf="variant === 'mockup' && !isOwnProduct()"
-      type="button"
-      mat-icon-button
-      class="product-card__cart-float hidden md:inline-flex"
-      [disabled]="cartLoading"
-      (click)="onCartClick($event, product)"
-      aria-label="Add to cart"
-    >
-      <mat-spinner *ngIf="cartLoading" diameter="16"></mat-spinner>
-      <mat-icon *ngIf="!cartLoading">shopping_cart</mat-icon>
     </button>
   </div>
 
