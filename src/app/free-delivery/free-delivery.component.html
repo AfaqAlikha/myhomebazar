@@ -1,0 +1,35 @@
+<div class="container mx-auto px-3 md:px-6 py-4 page-panel">
+  <div class="mb-4">
+    <h1 class="section-title section-title-accent">Free Delivery</h1>
+    <div class="section-underline"></div>
+    <p class="text-sm text-[var(--color-text-secondary)] mt-2">{{ bannerMessage }}</p>
+  </div>
+
+  <p *ngIf="!isLoading && noProducts" class="text-center text-sm text-[var(--color-text-secondary)] py-10">
+    No free-delivery products are available right now.
+  </p>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 items-stretch">
+    <ng-container *ngIf="!isLoading">
+      <div *ngFor="let product of products; let i = index" class="home-product-grid-item">
+        <app-product-card [product]="product" [revealDelay]="i * 50" variant="mockup"></app-product-card>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="isLoading">
+      <div
+        *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]"
+        class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] animate-pulse h-72 md:h-80"
+      ></div>
+    </ng-container>
+  </div>
+
+  <mat-paginator
+    *ngIf="totalItems > itemsPerPage"
+    class="mt-4"
+    [length]="totalItems"
+    [pageSize]="itemsPerPage"
+    [pageIndex]="currentPage - 1"
+    [pageSizeOptions]="[12, 24, 36]"
+    (page)="onPageChange($event)"
+  ></mat-paginator>
+</div>

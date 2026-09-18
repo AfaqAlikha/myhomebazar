@@ -88,6 +88,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
           this.openConversation(conversationId);
         } else {
           this.activeConversation = null;
+          this.chat.setActiveConversation(null);
           this.messages = [];
           this.messagesPage = 1;
           this.hasMoreMessages = false;
@@ -104,11 +105,13 @@ export class MessagesComponent implements OnInit, OnDestroy {
         }
 
         this.appendMessage(payload.message);
+        this.chat.markRead(this.activeConversation._id).subscribe();
       }),
     );
   }
 
   ngOnDestroy(): void {
+    this.chat.setActiveConversation(null);
     this.subs.forEach((sub) => sub.unsubscribe());
   }
 
@@ -123,6 +126,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
       };
     }
 
+    this.chat.setActiveConversation(conversationId);
     this.messagesPage = 1;
     this.hasMoreMessages = false;
     this.loadMessages(conversationId, 1, true);

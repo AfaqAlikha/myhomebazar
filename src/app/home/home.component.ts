@@ -168,7 +168,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       title: this.heroText(tile?.title, 'Limited Time Offers'),
       subtitle: this.heroText(tile?.subtitle, 'Curated drops with countdown badges.'),
       ctaLabel: this.heroText(tile?.ctaLabel, 'Browse deals'),
-      ctaLink: this.heroText(tile?.ctaLink, '/shop?sort=deals'),
+      ctaLink: this.heroText(tile?.ctaLink, '/deals'),
     };
   }
 
@@ -182,7 +182,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         'Unlock free delivery on eligible orders.',
       ),
       ctaLabel: this.heroText(tile?.ctaLabel, 'Learn more'),
-      ctaLink: this.heroText(tile?.ctaLink, '/shop'),
+      ctaLink: this.heroText(tile?.ctaLink, '/free-delivery'),
     };
   }
 
