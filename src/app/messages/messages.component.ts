@@ -1,4 +1,11 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { CommonModule, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -31,6 +38,8 @@ import { SocketService } from '../core/services/socket.service';
   styleUrls: ['./messages.component.css'],
 })
 export class MessagesComponent implements OnInit, OnDestroy {
+  @ViewChild('threadBody') threadBody?: ElementRef<HTMLElement>;
+
   private readonly route = inject(ActivatedRoute);
   readonly router = inject(Router);
   private readonly auth = inject(AuthService);
@@ -43,7 +52,12 @@ export class MessagesComponent implements OnInit, OnDestroy {
   activeConversation: ChatConversation | null = null;
   loadingConversations = true;
   loadingMessages = false;
+  loadingOlder = false;
+  hasMoreMessages = false;
   sending = false;
+
+  private messagesPage = 1;
+  private readonly messagesPageSize = 30;
 
   messageForm = this.fb.group({
     text: ['', [Validators.required, Validators.maxLength(2000)]],
@@ -75,16 +89,21 @@ export class MessagesComponent implements OnInit, OnDestroy {
         } else {
           this.activeConversation = null;
           this.messages = [];
+          this.messagesPage = 1;
+          this.hasMoreMessages = false;
         }
       }),
       this.socket.chatMessage$.subscribe((payload) => {
         if (!this.activeConversation || payload.conversationId !== this.activeConversation._id) {
           return;
         }
-        const exists = this.messages.some((item) => item._id === payload.message._id);
-        if (!exists) {
-          this.messages = [...this.messages, payload.message];
+
+        const viewerId = String(this.auth.getUser()?.id || '');
+        if (String(payload.message.senderId) === viewerId) {
+          return;
         }
+
+        this.appendMessage(payload.message);
       }),
     );
   }
@@ -104,18 +123,9 @@ export class MessagesComponent implements OnInit, OnDestroy {
       };
     }
 
-    this.loadingMessages = true;
-    this.chat.getMessages(conversationId).subscribe({
-      next: (messages) => {
-        this.messages = messages;
-        this.loadingMessages = false;
-        this.chat.markRead(conversationId).subscribe();
-        this.scrollToBottom();
-      },
-      error: () => {
-        this.loadingMessages = false;
-      },
-    });
+    this.messagesPage = 1;
+    this.hasMoreMessages = false;
+    this.loadMessages(conversationId, 1, true);
   }
 
   selectConversation(conversation: ChatConversation): void {
@@ -131,7 +141,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.sending = true;
     this.chat.sendMessage(this.activeConversation._id, text).subscribe({
       next: (message) => {
-        this.messages = [...this.messages, message];
+        this.appendMessage(message);
         this.messageForm.reset();
         this.sending = false;
         this.scrollToBottom();
@@ -142,8 +152,69 @@ export class MessagesComponent implements OnInit, OnDestroy {
     });
   }
 
+  onThreadScroll(event: Event): void {
+    const el = event.target as HTMLElement;
+    if (!el || this.loadingOlder || this.loadingMessages || !this.hasMoreMessages) return;
+    if (el.scrollTop > 100 || !this.activeConversation) return;
+
+    this.loadMessages(this.activeConversation._id, this.messagesPage + 1, false);
+  }
+
   isMine(message: ChatMessage): boolean {
     return String(message.senderId) === String(this.auth.getUser()?.id);
+  }
+
+  private loadMessages(conversationId: string, page: number, replace: boolean): void {
+    if (replace) {
+      this.loadingMessages = true;
+    } else {
+      this.loadingOlder = true;
+    }
+
+    this.chat.getMessagesPage(conversationId, page, this.messagesPageSize).subscribe({
+      next: ({ messages, pagination }) => {
+        const scrollEl = this.threadBody?.nativeElement;
+        const previousHeight = scrollEl?.scrollHeight || 0;
+
+        if (replace) {
+          this.messages = messages;
+        } else {
+          this.messages = this.mergeMessages(messages, this.messages);
+        }
+
+        this.messagesPage = pagination.currentPage;
+        this.hasMoreMessages = pagination.currentPage < pagination.totalPages;
+        this.loadingMessages = false;
+        this.loadingOlder = false;
+
+        if (replace) {
+          this.chat.markRead(conversationId).subscribe();
+          this.scrollToBottom();
+        } else if (scrollEl) {
+          setTimeout(() => {
+            scrollEl.scrollTop = scrollEl.scrollHeight - previousHeight;
+          }, 0);
+        }
+      },
+      error: () => {
+        this.loadingMessages = false;
+        this.loadingOlder = false;
+      },
+    });
+  }
+
+  private appendMessage(message: ChatMessage): void {
+    this.messages = this.mergeMessages(this.messages, [message]);
+  }
+
+  private mergeMessages(existing: ChatMessage[], incoming: ChatMessage[]): ChatMessage[] {
+    const map = new Map<string, ChatMessage>();
+    for (const item of [...existing, ...incoming]) {
+      map.set(String(item._id), item);
+    }
+    return Array.from(map.values()).sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
   }
 
   private scrollToBottom(): void {

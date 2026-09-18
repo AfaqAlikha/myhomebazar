@@ -145,9 +145,19 @@ export class SellerProfileComponent implements OnInit {
     this.gridLayout.syncViewport();
   }
 
+  isOwnProfile(): boolean {
+    const viewerId = this.auth.getUser()?.id;
+    return !!viewerId && String(viewerId) === String(this.user?._id);
+  }
+
   messageSeller(): void {
     const sellerId = this.user?._id;
     if (!sellerId) return;
+
+    if (this.isOwnProfile()) {
+      this.toastr.warning('You cannot message your own store');
+      return;
+    }
 
     if (!this.auth.isLoggedIn()) {
       this.router.navigate(['/signin'], {

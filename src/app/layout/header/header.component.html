@@ -60,6 +60,30 @@
             </span>
             <span>Cart</span>
           </a>
+          <a
+            *ngIf="token"
+            routerLink="/messages"
+            routerLinkActive="header-quick-nav__link--active"
+            class="header-quick-nav__link"
+          >
+            <span class="header-quick-nav__icon-wrap">
+              <mat-icon>forum</mat-icon>
+              <span *ngIf="messageUnread > 0" class="header-quick-nav__badge">
+                {{ messageUnread > 9 ? '9+' : messageUnread }}
+              </span>
+            </span>
+            <span>Messages</span>
+          </a>
+          <button
+            type="button"
+            class="header-quick-nav__link header-quick-nav__link--btn"
+            (click)="toggleTheme()"
+            [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+            [title]="isDarkMode ? 'Light mode' : 'Dark mode'"
+          >
+            <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+            <span>{{ isDarkMode ? 'Light' : 'Dark' }}</span>
+          </button>
           <button
             type="button"
             class="header-quick-nav__link header-quick-nav__link--btn"
@@ -83,8 +107,13 @@
         </nav>
 
         <div class="flex items-center gap-1 md:hidden">
-          <button mat-icon-button type="button" aria-label="Notifications">
-            <mat-icon>notifications</mat-icon>
+          <button
+            mat-icon-button
+            type="button"
+            (click)="toggleTheme()"
+            [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+          >
+            <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
           </button>
         </div>
       </div>

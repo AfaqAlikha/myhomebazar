@@ -54,7 +54,12 @@
         </div>
       </div>
 
-      <div class="messages-thread__body">
+      <div
+        #threadBody
+        class="messages-thread__body"
+        (scroll)="onThreadScroll($event)"
+      >
+        <div *ngIf="loadingOlder" class="messages-load-more">Loading older messages…</div>
         <div *ngIf="loadingMessages" class="messages-empty">Loading messages…</div>
         <div
           *ngFor="let message of messages"

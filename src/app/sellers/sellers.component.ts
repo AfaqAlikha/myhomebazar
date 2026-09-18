@@ -148,9 +148,19 @@ export class SellersComponent implements OnInit {
     return [seller.city, seller.state, seller.country].filter(Boolean).join(', ');
   }
 
+  isOwnSeller(seller: SellerProfile): boolean {
+    const viewerId = this.auth.getUser()?.id;
+    return !!viewerId && String(viewerId) === String(seller._id);
+  }
+
   messageSeller(event: Event, seller: SellerProfile): void {
     event.preventDefault();
     event.stopPropagation();
+
+    if (this.isOwnSeller(seller)) {
+      this.toastr.warning('You cannot message your own store');
+      return;
+    }
 
     if (!this.auth.isLoggedIn()) {
       this.router.navigate(['/signin'], {

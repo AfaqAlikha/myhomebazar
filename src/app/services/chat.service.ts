@@ -1,6 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subscription, map, tap } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 import { API_ENDPOINTS } from '../core/config/api-endpoints';
 import { AuthService } from '../auth/auth.service';
 import { ChatSocketPayload, SocketService } from '../core/services/socket.service';
@@ -29,6 +31,18 @@ export interface ChatMessage {
   createdAt: string | Date;
 }
 
+export interface ChatPagination {
+  totalItems: number;
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export interface ChatMessagesPage {
+  messages: ChatMessage[];
+  pagination: ChatPagination;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ChatService implements OnDestroy {
   private readonly conversationsSubject = new BehaviorSubject<ChatConversation[]>([]);
@@ -36,11 +50,14 @@ export class ChatService implements OnDestroy {
 
   private socketSub?: Subscription;
   private authSub?: Subscription;
+  private buyerNotifSub?: Subscription;
 
   constructor(
     private readonly http: HttpClient,
     private readonly auth: AuthService,
     private readonly socket: SocketService,
+    private readonly toastr: ToastrService,
+    private readonly router: Router,
   ) {
     this.authSub = this.auth.user$.subscribe((user) => {
       if (user?.id) {
@@ -54,11 +71,16 @@ export class ChatService implements OnDestroy {
     this.socketSub = this.socket.chatMessage$.subscribe((payload) => {
       this.applyIncomingSocketMessage(payload);
     });
+
+    this.buyerNotifSub = this.socket.buyerNotification$.subscribe((notification) => {
+      this.handleBuyerNotification(notification);
+    });
   }
 
   ngOnDestroy(): void {
     this.socketSub?.unsubscribe();
     this.authSub?.unsubscribe();
+    this.buyerNotifSub?.unsubscribe();
   }
 
   get unreadTotal(): number {
@@ -93,13 +115,34 @@ export class ChatService implements OnDestroy {
       );
   }
 
-  getMessages(conversationId: string, page = 1, limit = 50): Observable<ChatMessage[]> {
+  getMessages(conversationId: string, page = 1, limit = 30): Observable<ChatMessage[]> {
+    return this.getMessagesPage(conversationId, page, limit).pipe(map((res) => res.messages));
+  }
+
+  getMessagesPage(
+    conversationId: string,
+    page = 1,
+    limit = 30,
+  ): Observable<ChatMessagesPage> {
     return this.http
-      .get<{ success: boolean; messages: ChatMessage[] }>(
-        API_ENDPOINTS.chat.messages(conversationId),
-        { params: { page: String(page), limit: String(limit) } },
-      )
-      .pipe(map((res) => res.messages || []));
+      .get<{
+        success: boolean;
+        messages: ChatMessage[];
+        pagination: ChatPagination;
+      }>(API_ENDPOINTS.chat.messages(conversationId), {
+        params: { page: String(page), limit: String(limit) },
+      })
+      .pipe(
+        map((res) => ({
+          messages: res.messages || [],
+          pagination: res.pagination || {
+            totalItems: 0,
+            currentPage: page,
+            pageSize: limit,
+            totalPages: 1,
+          },
+        })),
+      );
   }
 
   sendMessage(conversationId: string, text: string): Observable<ChatMessage> {
@@ -140,6 +183,30 @@ export class ChatService implements OnDestroy {
   private applyIncomingSocketMessage(payload: ChatSocketPayload): void {
     if (payload.conversation) {
       this.upsertConversation(payload.conversation as ChatConversation);
+    }
+  }
+
+  private handleBuyerNotification(notification: any): void {
+    if (notification?.type !== 'chat_message_received') return;
+
+    this.refreshConversations().subscribe();
+
+    const conversationId = notification?.data?.conversationId;
+    const onMessagesPage =
+      this.router.url.startsWith('/messages') &&
+      (!conversationId || this.router.url.includes(String(conversationId)));
+
+    if (onMessagesPage) return;
+
+    this.toastr.info(notification.message || 'New message received', 'Messages', {
+      timeOut: 5000,
+      closeButton: true,
+    });
+
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      new Notification(notification.title || 'New message', {
+        body: notification.message,
+      });
     }
   }
 }

@@ -72,7 +72,12 @@
 
         <div class="seller-store-card__actions">
           <a [routerLink]="['/profile', seller._id]" class="seller-store-card__cta">View Store</a>
-          <button type="button" class="seller-store-card__chat" (click)="messageSeller($event, seller)">
+          <button
+            *ngIf="!isOwnSeller(seller)"
+            type="button"
+            class="seller-store-card__chat"
+            (click)="messageSeller($event, seller)"
+          >
             <mat-icon>chat</mat-icon>
             Chat
           </button>

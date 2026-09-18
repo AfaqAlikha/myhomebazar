@@ -135,6 +135,17 @@
           </a>
         </li>
 
+        <li>
+          <button
+            type="button"
+            class="nav-link flex items-center gap-2 w-full text-left bg-transparent border-0"
+            (click)="toggleTheme(); drawer.close()"
+          >
+            <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+            {{ isDarkMode ? 'Light mode' : 'Dark mode' }}
+          </button>
+        </li>
+
         <!-- Auth Section -->
         @if (token) {
           <li>

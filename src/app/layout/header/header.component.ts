@@ -20,6 +20,7 @@ import { isPlatformBrowser, NgIf } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { ProductService } from '../../services/product.service';
 import { PwaService } from '../../core/services/pwa.service';
+import { ChatService } from '../../services/chat.service';
 
 @Component({
   selector: 'app-header',
@@ -44,7 +45,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   user: any = null;
   userAvatar: string | null = null;
   token: string | null = null;
-  unreadCount = 5;
+  messageUnread = 0;
   cartCount = 0;
 
   private subs: Subscription[] = [];
@@ -58,6 +59,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private themeService: ThemeService,
     private router: Router,
     private productService: ProductService,
+    private chatService: ChatService,
     public pwa: PwaService,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
@@ -99,6 +101,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.auth.token$.subscribe((t) => (this.token = t)),
       this.themeService.theme$.subscribe((theme) => {
         this.isDarkMode = theme === 'dark';
+      }),
+      this.chatService.conversations$.subscribe(() => {
+        this.messageUnread = this.chatService.unreadTotal;
       }),
     );
     this.loadLogo();
