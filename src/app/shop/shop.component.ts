@@ -4,8 +4,9 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
-import { UiCardComponent } from '../shared/ui-card/ui-card.component';
+import { CategoryChipsComponent } from '../shared/category-chips/category-chips.component';
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
+import { HomeCategoryChip } from '../core/services/home-page.service';
 import { ProductGridLayoutService } from '../shared/product-grid-layout.service';
 
 import { ProductService } from '../services/product.service';
@@ -19,7 +20,7 @@ import { SeoService } from '../services/seo';
     NgFor,
     MatPaginatorModule,
     ProductCardComponent,
-    UiCardComponent,
+    CategoryChipsComponent,
     UiSearchComponent,
     NgClass,
     NgIf,
@@ -29,9 +30,10 @@ import { SeoService } from '../services/seo';
   styleUrls: ['./shop.component.css'],
 })
 export class ShopComponent implements OnInit {
-  borderRadius = '10px';
   isLoading = false;
   noProducts = false;
+  showMobileFilters = false;
+  categoryChips: HomeCategoryChip[] = [];
 
   categories: Category[] = [];
   subCategories: any[] = [];
@@ -69,7 +71,16 @@ export class ShopComponent implements OnInit {
     this.seo.setShopSeo();
     // ✅ Load all categories
     this.categoryService.getCategories().subscribe({
-      next: (cats) => (this.categories = cats),
+      next: (cats) => {
+        this.categories = cats;
+        this.categoryChips = (cats || []).slice(0, 8).map((cat) => ({
+          _id: cat._id,
+          name: cat.name,
+          slug: cat.name?.toLowerCase?.().replace(/\s+/g, '-') || '',
+          image: cat.images?.[0] || '',
+          color: cat.color || '',
+        }));
+      },
       error: (err) => console.error('Error loading categories', err),
     });
 
@@ -116,6 +127,15 @@ export class ShopComponent implements OnInit {
     this.searchQuery = query;
     this.currentPage = 1;
     this.fetchProducts();
+  }
+
+  onCategoryChipSelect(categoryId: string): void {
+    if (!categoryId) {
+      this.showAllProducts();
+      return;
+    }
+    const cat = this.categories.find((c) => c._id === categoryId);
+    if (cat) this.selectCategory(cat);
   }
 
   selectCategory(cat: Category) {

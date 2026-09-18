@@ -27,12 +27,12 @@ import { Tilt3dDirective } from '../../tilt-3d/tilt-3d.directive';
 
 interface Product {
   _id: string;
-  user: string | { _id?: string; id?: string };
+  user?: string | { _id?: string; id?: string };
   name: string;
-  description: string;
+  description?: string;
   images: string[];
   price: number;
-  averageRating: number;
+  averageRating?: number;
   catName?: string;
   category?: { name?: string };
   reviews?: unknown[];

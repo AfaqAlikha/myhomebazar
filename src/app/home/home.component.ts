@@ -1,5 +1,5 @@
 import { Component, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser, NgClass, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
+import { isPlatformBrowser, NgClass, NgFor, NgIf } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
@@ -13,9 +13,15 @@ import {
 } from '../shared/product-search-filter/product-search-filter.component';
 
 import { ProductService } from '../services/product.service';
+import { CategoryService } from '../services/category.service';
 import { SeoService } from '../services/seo';
 import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
-import { HomePageData, HomePageService } from '../core/services/home-page.service';
+import {
+  HomeCategoryChip,
+  HomePageData,
+  HomePageService,
+  HomeProductPreview,
+} from '../core/services/home-page.service';
 
 @Component({
   selector: 'app-home',
@@ -29,7 +35,6 @@ import { HomePageData, HomePageService } from '../core/services/home-page.servic
     NgFor,
     NgIf,
     NgClass,
-    NgTemplateOutlet,
     MatIconModule,
     RouterLink,
   ],
@@ -41,6 +46,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   products: any[] = [];
   page = 1;
   homeData: HomePageData | null = null;
+  displayCategories: HomeCategoryChip[] = [];
+  flashDealProducts: HomeProductPreview[] = [];
+  popularProducts: HomeProductPreview[] = [];
+  trendingProducts: HomeProductPreview[] = [];
+  homeConfigLoading = true;
 
   totalItems = 0;
   itemsPerPage = 0;
@@ -82,6 +92,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(
     private productService: ProductService,
+    private categoryService: CategoryService,
     private homePageService: HomePageService,
     private seo: SeoService,
     @Inject(PLATFORM_ID) platformId: Object,
@@ -133,10 +144,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const options = this.gridOptionsByTier[this.viewportTier];
     const currentIndex = options.indexOf(this.effectiveGridColumns);
     const next = options[(currentIndex + 1) % options.length];
-    this.gridPreferences = {
-      ...this.gridPreferences,
-      [this.viewportTier]: next,
-    };
+    this.gridPreferences = { ...this.gridPreferences, [this.viewportTier]: next };
     this.saveGridPreferences();
   }
 
@@ -155,18 +163,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private loadGridPreference(): void {
     if (!this.isBrowser) return;
-
     try {
       const saved = JSON.parse(localStorage.getItem(this.gridStorageKey) || '{}') as Partial<GridPreferences>;
       this.gridPreferences = {
-        mobile:
-          saved.mobile && this.gridOptionsByTier.mobile.includes(saved.mobile) ? saved.mobile : 2,
-        tablet:
-          saved.tablet && this.gridOptionsByTier.tablet.includes(saved.tablet) ? saved.tablet : 3,
-        desktop:
-          saved.desktop && this.gridOptionsByTier.desktop.includes(saved.desktop)
-            ? saved.desktop
-            : 4,
+        mobile: saved.mobile && this.gridOptionsByTier.mobile.includes(saved.mobile) ? saved.mobile : 2,
+        tablet: saved.tablet && this.gridOptionsByTier.tablet.includes(saved.tablet) ? saved.tablet : 3,
+        desktop: saved.desktop && this.gridOptionsByTier.desktop.includes(saved.desktop) ? saved.desktop : 4,
       };
     } catch {
       this.gridPreferences = { mobile: 2, tablet: 3, desktop: 4 };
@@ -193,12 +195,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   @HostListener('window:scroll')
   onWindowScroll(): void {
     if (!this.isBrowser || this.isLoading || this.loadingMore || !this.hasMore) return;
-    const threshold = 320;
     const scrollPosition = window.innerHeight + window.scrollY;
-    const bottom = document.documentElement.scrollHeight - threshold;
-    if (scrollPosition >= bottom) {
-      this.loadMoreProducts();
-    }
+    const bottom = document.documentElement.scrollHeight - 320;
+    if (scrollPosition >= bottom) this.loadMoreProducts();
   }
 
   loadMoreProducts(): void {
@@ -228,13 +227,39 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private loadHomeConfig(): void {
+    this.homeConfigLoading = true;
     this.homePageService.getPublicHome().subscribe({
       next: (res) => {
         this.homeData = res.data;
+        this.flashDealProducts = res.data?.flashDealProducts || [];
+        this.popularProducts = res.data?.popularProducts || [];
+        this.trendingProducts = res.data?.trendingProducts || [];
+        this.displayCategories = (res.data?.categories || []).slice(0, 8);
+        if (this.displayCategories.length < 5) this.loadCategoriesFallback();
         if (res.data?.flashDeals?.endAt) {
           this.flashEndAt = new Date(res.data.flashDeals.endAt);
           this.startCountdown();
         }
+        this.homeConfigLoading = false;
+      },
+      error: () => {
+        this.homeConfigLoading = false;
+        this.loadCategoriesFallback();
+      },
+    });
+  }
+
+  private loadCategoriesFallback(): void {
+    this.categoryService.getCategories().subscribe({
+      next: (cats) => {
+        const mapped: HomeCategoryChip[] = (cats || []).slice(0, 8).map((cat) => ({
+          _id: cat._id,
+          name: cat.name,
+          slug: cat.name?.toLowerCase?.().replace(/\s+/g, '-') || '',
+          image: cat.images?.[0] || '',
+          color: cat.color || '',
+        }));
+        if (mapped.length) this.displayCategories = mapped;
       },
     });
   }
@@ -242,7 +267,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private startCountdown(): void {
     this.countdownSub?.unsubscribe();
     if (!this.flashEndAt) return;
-
     this.updateCountdown();
     this.countdownSub = interval(1000).subscribe(() => this.updateCountdown());
   }
@@ -254,13 +278,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.flashCountdown = { hours: '00', minutes: '00', seconds: '00' };
       return;
     }
-    const hours = Math.floor(diff / 3600000);
-    const minutes = Math.floor((diff % 3600000) / 60000);
-    const seconds = Math.floor((diff % 60000) / 1000);
     this.flashCountdown = {
-      hours: String(hours).padStart(2, '0'),
-      minutes: String(minutes).padStart(2, '0'),
-      seconds: String(seconds).padStart(2, '0'),
+      hours: String(Math.floor(diff / 3600000)).padStart(2, '0'),
+      minutes: String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
+      seconds: String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
     };
   }
 
@@ -293,13 +314,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   loadFeaturedProducts(): void {
     this.heroLoading = true;
-
     this.productService.getFeaturedProducts().subscribe({
       next: (res: any) => {
         const banners = res.banners || [];
         const productBanners: any[] = [];
         const imageBanners: any[] = [];
-
         banners.forEach((banner: any) => {
           if (banner.productId) {
             productBanners.push({
@@ -309,14 +328,10 @@ export class HomeComponent implements OnInit, OnDestroy {
             });
           } else {
             banner.images?.forEach((img: string) => {
-              imageBanners.push({
-                bannerType: 'image',
-                bannerImage: img,
-              });
+              imageBanners.push({ bannerType: 'image', bannerImage: img });
             });
           }
         });
-
         this.featured = [...productBanners, ...imageBanners];
         this.heroLoading = false;
       },
