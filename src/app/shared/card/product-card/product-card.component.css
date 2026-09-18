@@ -148,3 +148,16 @@
   opacity: 0.75;
 }
 
+.product-card__add-to-cart-bar-icon {
+  width: 1rem !important;
+  height: 1rem !important;
+  font-size: 1rem !important;
+  line-height: 1rem !important;
+  color: #fff !important;
+}
+
+/* Mockup cards use bottom bar only — no floating white cart chip */
+.product-card--mockup .product-card__actions .product-card__action-btn[aria-label='Add to cart'] {
+  display: none !important;
+}
+

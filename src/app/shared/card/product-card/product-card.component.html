@@ -56,6 +56,7 @@
       aria-label="Add to cart"
     >
       <mat-spinner *ngIf="cartLoading" diameter="16"></mat-spinner>
+      <mat-icon *ngIf="!cartLoading" class="product-card__add-to-cart-bar-icon">shopping_cart</mat-icon>
       <span *ngIf="!cartLoading">Add to Cart</span>
     </button>
   </div>
