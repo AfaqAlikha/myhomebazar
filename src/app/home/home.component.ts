@@ -92,6 +92,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly isBrowser: boolean;
   private countdownSub?: Subscription;
   private flashEndAt: Date | null = null;
+  private homeConfigRequestId = 0;
 
   constructor(
     private productService: ProductService,
@@ -288,9 +289,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private loadHomeConfig(): void {
+    const requestId = ++this.homeConfigRequestId;
     this.homeConfigLoading = true;
     this.homePageService.getPublicHome().subscribe({
       next: (data) => {
+        if (requestId !== this.homeConfigRequestId) return;
         this.homeData = data;
         this.syncHeroSlides();
         if (this.heroSlides.length) {
@@ -301,22 +304,38 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.trendingProducts = data?.trendingProducts || [];
         this.displayCategories = (data?.categories || []).slice(0, 8);
         if (this.displayCategories.length < 5) this.loadCategoriesFallback();
-        this.resetFlashCountdown();
-        const countdownEnd = data?.flashDeals?.endAt;
-        if (countdownEnd) {
-          const end = new Date(countdownEnd);
-          if (!Number.isNaN(end.getTime())) {
-            this.flashEndAt = end;
-            this.startCountdown();
-          }
-        }
+        this.applyFlashCountdown(data);
         this.homeConfigLoading = false;
       },
       error: () => {
+        if (requestId !== this.homeConfigRequestId) return;
         this.homeConfigLoading = false;
         this.loadCategoriesFallback();
       },
     });
+  }
+
+  private applyFlashCountdown(data: HomePageData): void {
+    const end = this.resolveFlashCountdownEnd(data);
+    this.resetFlashCountdown();
+    if (!end) return;
+    this.flashEndAt = end;
+    this.updateCountdown();
+    if (this.isBrowser) {
+      this.startCountdown();
+    }
+  }
+
+  private resolveFlashCountdownEnd(data: HomePageData): Date | null {
+    const flashDeals = data?.flashDeals;
+    const source = flashDeals?.countdownSource;
+    if (source !== 'manual' && source !== 'promotion') return null;
+
+    const endAt = flashDeals?.endAt;
+    if (!endAt) return null;
+
+    const end = new Date(endAt);
+    return Number.isNaN(end.getTime()) ? null : end;
   }
 
   private loadCategoriesFallback(): void {
@@ -344,7 +363,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private startCountdown(): void {
     this.countdownSub?.unsubscribe();
     if (!this.flashEndAt) return;
-    this.updateCountdown();
     this.countdownSub = interval(1000).subscribe(() => this.updateCountdown());
   }
 
