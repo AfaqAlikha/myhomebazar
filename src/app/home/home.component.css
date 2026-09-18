@@ -1,5 +1,18 @@
-.home-bento__hero {
+.home-bento__hero,
+.home-bento__promo-slot {
   position: relative;
+}
+
+.home-bento__promo-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100%;
+  gap: 0.5rem;
+}
+
+.home-bento__promo-slot {
+  min-height: 198px;
 }
 
 .home-bento__hero-copy {
@@ -48,15 +61,18 @@
   min-width: 3.1rem;
   padding: 0.35rem 0.45rem;
   border-radius: 0.65rem;
-  background: color-mix(in srgb, var(--color-primary) 12%, var(--color-card));
+  background: color-mix(in srgb, var(--color-accent) 14%, var(--color-card));
+  border: 1px solid color-mix(in srgb, var(--color-accent) 22%, var(--color-border));
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--color-accent) 12%, transparent);
   text-align: center;
+  backdrop-filter: blur(6px);
 }
 
 .flash-countdown__unit strong {
   display: block;
   font-size: 1rem;
   line-height: 1.1;
-  color: var(--color-primary);
+  color: var(--color-accent);
 }
 
 .flash-countdown__unit span {

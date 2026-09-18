@@ -389,21 +389,8 @@ html {
   min-height: 420px;
 }
 
-.home-bento__promo {
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  background: var(--color-card);
-  padding: 1.1rem 1.25rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 120px;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
-}
-
-.home-bento__promo:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-soft);
+.home-bento__promo-slot {
+  min-height: 198px;
 }
 
 .home-bento__promo-badge {
@@ -488,7 +475,7 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .tilt-3d,
   .scroll-reveal,
-  .home-bento__promo,
+  .promo-3d__panel,
   .product-card {
     transition: none !important;
     animation: none !important;

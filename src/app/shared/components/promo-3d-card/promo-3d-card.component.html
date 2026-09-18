@@ -1,0 +1,36 @@
+<div
+  class="promo-3d"
+  [class.promo-3d--flash]="variant === 'flash'"
+  [class.promo-3d--delivery]="variant === 'delivery'"
+  (mousemove)="onMouseMove($event)"
+  (mouseleave)="onMouseLeave()"
+>
+  <div class="promo-3d__aurora" aria-hidden="true"></div>
+  <div class="promo-3d__grid-lines" aria-hidden="true"></div>
+
+  <div class="promo-3d__orbs" aria-hidden="true">
+    <span class="promo-3d__orb promo-3d__orb--1"></span>
+    <span class="promo-3d__orb promo-3d__orb--2"></span>
+  </div>
+
+  <div class="promo-3d__panel" [style.transform]="cardTransform()">
+    <div class="promo-3d__glow" aria-hidden="true"></div>
+
+    <div class="promo-3d__content">
+      <ng-content></ng-content>
+    </div>
+
+    <div class="promo-3d__visual" aria-hidden="true">
+      <span
+        *ngFor="let item of floatIcons"
+        class="promo-3d__float-icon"
+        [style.animationDelay]="item.delay"
+      >
+        <mat-icon>{{ item.icon }}</mat-icon>
+      </span>
+      <div class="promo-3d__icon-core">
+        <mat-icon>{{ heroIcon }}</mat-icon>
+      </div>
+    </div>
+  </div>
+</div>
