@@ -1,0 +1,26 @@
+<div class="offline-page">
+  <div class="offline-card">
+    <div class="offline-logo-wrap">
+      <img *ngIf="logoUrl; else logoFallback" [src]="logoUrl" alt="Logo" class="offline-logo" />
+      <ng-template #logoFallback>
+        <div class="offline-logo-fallback">M</div>
+      </ng-template>
+    </div>
+
+    <div class="offline-icon-wrap">
+      <mat-icon>wifi_off</mat-icon>
+    </div>
+
+    <h1 class="offline-title">No Internet Connection</h1>
+    <p class="offline-text">
+      You are currently offline. Please check your connection and try again. We will bring you back
+      to your last page automatically when the internet returns.
+    </p>
+
+    <button type="button" mat-flat-button class="offline-btn" (click)="refresh()">
+      Refresh
+    </button>
+
+    <p *ngIf="isOnline" class="offline-online-hint">Connection restored. Returning…</p>
+  </div>
+</div>

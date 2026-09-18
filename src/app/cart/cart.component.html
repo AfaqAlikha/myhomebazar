@@ -1,7 +1,12 @@
 <main class="p-3 sm:p-4 container mx-auto max-w-6xl">
-  <app-ui-card [borderRadius]="borderRadius" class="p-3 sm:p-4">
+  <app-ui-card [borderRadius]="borderRadius" class="cart-shell p-3 sm:p-4">
+    <div *ngIf="!cartItems.length" class="cart-empty-state">
+      <p class="text-[var(--color-text-secondary)] mb-4">Your cart is empty.</p>
+      <a routerLink="/shop" class="text-[var(--color-accent)] hover:underline">Continue Shopping</a>
+    </div>
+
     <!-- Desktop table -->
-    <div class="hidden md:block overflow-x-auto">
+    <div *ngIf="cartItems.length" class="hidden md:block overflow-x-auto">
       <table class="w-full border-collapse min-w-[640px]">
         <thead class="bg-[var(--color-border)]">
           <tr>
@@ -51,7 +56,7 @@
     </div>
 
     <!-- Mobile cards -->
-    <div class="md:hidden space-y-3">
+    <div *ngIf="cartItems.length" class="md:hidden space-y-3">
       <div
         *ngFor="let item of cartItems"
         class="border border-[var(--color-border)] rounded-lg p-3 bg-[var(--color-card)]"
@@ -121,13 +126,20 @@
         </div>
         <button
           (click)="proceedToCheckout()"
-          class="bg-[var(--color-accent)] text-white w-full py-2.5 rounded"
+          class="bg-[var(--color-accent)] text-white w-full py-2.5 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="!cartItems.length"
         >
           Proceed to Checkout
         </button>
       </app-ui-card>
     </div>
   </app-ui-card>
+
+  <p *ngIf="isGuestMode && cartItems.length" class="text-center text-sm mt-4">
+    <a routerLink="/track-order" class="text-[var(--color-accent)] hover:underline">
+      Already ordered? Track your order
+    </a>
+  </p>
 </main>
 
 <!-- Order Modal -->
@@ -144,9 +156,7 @@
       <app-ui-input label="Name" controlName="name"></app-ui-input>
       <app-ui-input label="Email" controlName="email" type="email"></app-ui-input>
       <app-ui-input label="Phone" controlName="phone" type="tel" placeholder="03001234567"></app-ui-input>
-      <app-ui-input label="Country" controlName="country"></app-ui-input>
-      <app-ui-input label="State / Province" controlName="state"></app-ui-input>
-      <app-ui-input label="City" controlName="city"></app-ui-input>
+      <app-location-fields (citySelected)="onOrderCityChange()"></app-location-fields>
       <app-ui-input
         label="Complete Address"
         controlName="address"

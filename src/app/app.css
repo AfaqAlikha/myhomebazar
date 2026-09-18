@@ -1,6 +1,9 @@
-/* Sidebar */
+/* Sidebar drawer — safe-area only (iPhone status bar) */
 .custom-sidenav {
-  width: 250px !important;
+  width: min(280px, 86vw) !important;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
   background-color: var(--color-card) !important;
   color: var(--color-text);
   box-shadow: none !important;

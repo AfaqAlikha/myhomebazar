@@ -57,13 +57,25 @@ export class ProductService {
 
   getHomeProducts(
     page = 1,
-    filters?: { country?: string; state?: string; city?: string },
+    filters?: {
+      country?: string;
+      state?: string;
+      city?: string;
+      search?: string;
+      category?: string;
+      subCategory?: string;
+      sort?: string;
+    },
   ): Observable<any> {
     let params = new HttpParams().set('page', String(page)).set('home', 'true');
 
     if (filters?.country) params = params.set('country', filters.country);
     if (filters?.state) params = params.set('state', filters.state);
     if (filters?.city) params = params.set('city', filters.city);
+    if (filters?.search?.trim()) params = params.set('search', filters.search.trim());
+    if (filters?.category) params = params.set('category', filters.category);
+    if (filters?.subCategory) params = params.set('subCategory', filters.subCategory);
+    if (filters?.sort) params = params.set('sort', filters.sort);
 
     return this.http.get(API_ENDPOINTS.products.publicList, { params });
   }
@@ -148,10 +160,11 @@ export class ProductService {
   getProductsBySeller(
     sellerId: string,
     page = 1,
-    limit = 10,
+    limit?: number,
     search = '',
   ): Observable<any> {
-    let params = new HttpParams().set('page', page.toString()).set('limit', limit.toString());
+    let params = new HttpParams().set('page', page.toString());
+    if (limit) params = params.set('limit', limit.toString());
     if (search) params = params.set('search', search);
 
     return this.http.get<any>(API_ENDPOINTS.products.bySeller(sellerId), { params });

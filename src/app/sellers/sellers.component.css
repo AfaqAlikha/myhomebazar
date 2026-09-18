@@ -1,0 +1,51 @@
+.seller-card {
+  position: relative;
+}
+
+.seller-share-actions {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.seller-share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-card);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.seller-share-btn:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.seller-share-btn mat-icon {
+  width: 17px;
+  height: 17px;
+  font-size: 17px;
+  line-height: 17px;
+  pointer-events: none;
+}
+
+.seller-card-link {
+  display: block;
+  text-align: center;
+  padding: 2.25rem 0.5rem 0.5rem;
+}

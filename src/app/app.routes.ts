@@ -34,6 +34,10 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'offline',
+    loadComponent: () => import('./offline/offline.component').then((m) => m.OfflineComponent),
+  },
+  {
     path: '',
     loadComponent: () => import('./home/home.component').then((m) => m.HomeComponent),
   },
@@ -100,6 +104,16 @@ export const routes: Routes = [
       import('./payment-success-cart/payment-success-cart.component').then(
         (m) => m.PaymentSuccessCartComponent,
       ),
+  },
+  {
+    path: 'order-success',
+    loadComponent: () =>
+      import('./order-success/order-success.component').then((m) => m.OrderSuccessComponent),
+  },
+  {
+    path: 'track-order',
+    loadComponent: () =>
+      import('./track-order/track-order.component').then((m) => m.TrackOrderComponent),
   },
   {
     path: 'my-acount',

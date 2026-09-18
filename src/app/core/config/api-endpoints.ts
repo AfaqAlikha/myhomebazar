@@ -30,6 +30,7 @@ export const API_ENDPOINTS = {
   appAssets: {
     banners: `${BASE}/app-assets/public/banners`,
     logo: `${BASE}/app-assets/public/logo`,
+    splash: `${BASE}/app-assets/public/splash`,
   },
   category: {
     list: `${BASE}/category`,
@@ -42,12 +43,16 @@ export const API_ENDPOINTS = {
     remove: (itemId: string) => `${BASE}/cart/remove/${itemId}`,
     updateQuantity: (itemId: string) => `${BASE}/cart/update-quantity/${itemId}`,
     checkout: `${BASE}/cart/checkout`,
+    guestCheckout: `${BASE}/cart/guest-checkout`,
     confirmPayment: `${BASE}/cart/confirm-payment`,
     sessionMetadata: (sessionId: string) => `${BASE}/cart/session-metadata/${sessionId}`,
   },
   productOrder: {
     create: `${BASE}/productOrder`,
     confirmPayment: `${BASE}/productOrder/confirm-payment`,
+    trackGuest: `${BASE}/productOrder/track`,
+    trackGuestComplete: `${BASE}/productOrder/track/complete`,
+    trackGuestReview: `${BASE}/productOrder/track/review`,
     byProduct: (productId: string) => `${BASE}/productOrder/${productId}`,
     orders: `${BASE}/productOrder/orders`,
     update: (id: string) => `${BASE}/productOrder/${id}`,
@@ -90,6 +95,13 @@ export const API_ENDPOINTS = {
     publicSettings: `${BASE}/shipping/settings/public`,
     tracking: (orderId: string) => `${BASE}/shipping/orders/${orderId}/tracking`,
     syncTracking: (orderId: string) => `${BASE}/shipping/orders/${orderId}/tracking/sync`,
+  },
+  locations: {
+    countries: `${BASE}/locations/countries`,
+    statesByCountry: (countryId: string) =>
+      `${BASE}/locations/countries/${countryId}/states`,
+    citiesByState: (stateId: string) =>
+      `${BASE}/locations/states/${stateId}/cities`,
   },
 } as const;
 

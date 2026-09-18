@@ -1,0 +1,18 @@
+<div class="product-search-filter bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-4 mb-6">
+  <p class="text-sm font-semibold mb-3 text-[var(--color-text)]">Search Products</p>
+
+  <div class="flex flex-col sm:flex-row gap-3">
+    <input
+      type="text"
+      [(ngModel)]="search"
+      (keydown)="onEnter($event)"
+      placeholder="Search by product name, brand, category..."
+      class="search-input flex-1 px-4 py-2.5 border rounded-lg bg-[var(--color-card)] text-[var(--color-text)] border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+    />
+
+    <div class="flex gap-3 shrink-0">
+      <app-ui-button variant="danger" label="Reset" (clicked)="reset()"></app-ui-button>
+      <app-ui-button variant="accent" label="Search" (clicked)="apply()"></app-ui-button>
+    </div>
+  </div>
+</div>

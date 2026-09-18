@@ -10,6 +10,9 @@ import { CartService } from '../../../services/cart.service';
 import { AuthService } from '../../../auth/auth.service';
 import { ProductService } from '../../../services/product.service';
 import { isOwnProduct as checkOwnProduct } from '../../../utils/auth';
+import { addProductToGuestCart } from '../../../services/guest-cart.service';
+import { ToastrService } from 'ngx-toastr';
+import { ScrollRevealDirective } from '../../scroll-reveal/scroll-reveal.directive';
 
 interface Product {
   _id: string;
@@ -40,6 +43,7 @@ interface Product {
     MatIconModule,
     MatProgressSpinnerModule,
     DecimalPipe,
+    ScrollRevealDirective,
   ],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css'],
@@ -49,6 +53,7 @@ export class ProductCardComponent implements OnInit {
   private productService = inject(ProductService);
 
   @Input() product!: Product;
+  @Input() revealDelay = 0;
 
   currentUserId: string | null = null;
   wishlistLoading = false;
@@ -62,6 +67,7 @@ export class ProductCardComponent implements OnInit {
     private wishlistService: WishlistService,
     private cartService: CartService,
     private auth: AuthService,
+    private toastr: ToastrService,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
@@ -108,8 +114,19 @@ export class ProductCardComponent implements OnInit {
     });
   }
 
-  addToWishlist(event: Event, productId: string): void {
+  onWishlistClick(event: Event, productId: string): void {
+    event.preventDefault();
     event.stopPropagation();
+    this.addToWishlist(productId);
+  }
+
+  onCartClick(event: Event, product: Product): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.addToCart(product);
+  }
+
+  addToWishlist(productId: string): void {
     if (this.isOwnProduct()) return;
     this.wishlistLoading = true;
     this.wishlistService.addToWishlist(productId).subscribe({
@@ -123,9 +140,26 @@ export class ProductCardComponent implements OnInit {
     });
   }
 
-  addToCart(event: Event, product: Product): void {
-    event.stopPropagation();
+  addToCart(product: Product): void {
     if (this.isOwnProduct()) return;
+
+    if (!this.auth.isLoggedIn()) {
+      addProductToGuestCart(
+        {
+          _id: product._id,
+          name: product.name,
+          images: product.images,
+          price: product.price,
+          weightKg: (product as any).weightKg,
+          user: product.user,
+        },
+        1,
+      );
+      this.toastr.success('Added to cart');
+      this.router.navigate(['/cart']);
+      return;
+    }
+
     this.cartLoading = true;
     this.cartService.addToCart(product._id).subscribe({
       next: () => {

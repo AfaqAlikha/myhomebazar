@@ -6,9 +6,9 @@ import { HeroSwiperComponent } from '../shared/components/hero-swiper/hero-swipe
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { CategoryLinksComponent } from '../shared/category-links/category-links.component';
 import {
-  LocationFilterComponent,
-  LocationFilters,
-} from '../shared/location-filter/location-filter.component';
+  ProductSearchFilterComponent,
+  ProductSearchFilters,
+} from '../shared/product-search-filter/product-search-filter.component';
 
 import { ProductService } from '../services/product.service';
 import { SeoService } from '../services/seo';
@@ -21,7 +21,7 @@ import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
     HeroSwiperComponent,
     CategoryLinksComponent,
     ProductCardComponent,
-    LocationFilterComponent,
+    ProductSearchFilterComponent,
     GoogleAdComponent,
     NgFor,
     NgIf,
@@ -43,7 +43,12 @@ export class HomeComponent implements OnInit {
   hasMore = true;
   heroLoading = true;
 
-  locationFilters: LocationFilters = { country: '', state: '', city: '' };
+  productSearchFilters: ProductSearchFilters = {
+    search: '',
+    categoryId: '',
+    subCategoryId: '',
+    sort: '',
+  };
   viewportTier: ViewportTier = 'desktop';
   gridPreferences: GridPreferences = {
     mobile: 2,
@@ -168,11 +173,24 @@ export class HomeComponent implements OnInit {
     this.loadHomeProducts(true);
   }
 
-  onLocationFilter(filters: LocationFilters): void {
-    this.locationFilters = filters;
+  onProductSearchFilter(filters: ProductSearchFilters): void {
+    this.productSearchFilters = filters;
+    this.resetProductsAndReload();
+  }
+
+  private resetProductsAndReload(): void {
     this.page = 1;
     this.hasMore = true;
     this.loadHomeProducts(false);
+  }
+
+  private buildProductQuery() {
+    return {
+      search: this.productSearchFilters.search,
+      category: this.productSearchFilters.categoryId,
+      subCategory: this.productSearchFilters.subCategoryId,
+      sort: this.productSearchFilters.sort,
+    };
   }
 
   loadHomeProducts(append = false): void {
@@ -183,7 +201,7 @@ export class HomeComponent implements OnInit {
       this.isLoading = true;
     }
 
-    this.productService.getHomeProducts(this.page, this.locationFilters).subscribe({
+    this.productService.getHomeProducts(this.page, this.buildProductQuery()).subscribe({
       next: (res: any) => {
         const incoming = res.products || [];
         this.products = append ? [...this.products, ...incoming] : incoming;

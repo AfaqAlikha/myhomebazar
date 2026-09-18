@@ -1,8 +1,8 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, Inject, PLATFORM_ID } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { NgFor, NgIf, NgClass, DatePipe, DecimalPipe } from '@angular/common';
+import { NgFor, NgIf, NgClass, DatePipe, DecimalPipe, isPlatformBrowser } from '@angular/common';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { MatIconModule } from '@angular/material/icon';
 import { switchMap, tap, catchError, of, EMPTY } from 'rxjs';
@@ -13,6 +13,7 @@ import { UiButtonComponent } from '../shared/ui-button/ui-button.component';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { UiInputComponent } from '../shared/ui-input/ui-input.component';
 import { ProductGalleryComponent } from '../shared/components/product-gallery/product-gallery.component';
+import { UserAvatarComponent } from '../shared/user-avatar/user-avatar.component';
 import { AuthService } from '../auth/auth.service';
 import { isOwnProduct } from '../utils/auth';
 import { ShippingService, ShippingQuote } from '../services/shipping.service';
@@ -24,6 +25,8 @@ import {
   markLocalProductView,
 } from '../utils/visitor-id';
 import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
+import { ToastrService } from 'ngx-toastr';
+import { LocationFieldsComponent } from '../shared/location-fields/location-fields.component';
 
 @Component({
   selector: 'app-product-details',
@@ -35,6 +38,7 @@ import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
     UiCardComponent,
     UiInputComponent,
     ProductGalleryComponent,
+    UserAvatarComponent,
     NgFor,
     NgIf,
     NgClass,
@@ -45,6 +49,7 @@ import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
     RouterLink,
     MatIconModule,
     PaymentMethodsComponent,
+    LocationFieldsComponent,
   ],
 })
 export class ProductDetailsComponent implements OnInit {
@@ -71,6 +76,7 @@ export class ProductDetailsComponent implements OnInit {
   username = '';
   bio = '';
   id = '';
+  sellerAvatar = '';
 
   orderForm!: FormGroup;
 
@@ -81,8 +87,10 @@ export class ProductDetailsComponent implements OnInit {
   canOrder = true;
   isOutOfStock = false;
   likeLoading = false;
+  linkCopied = false;
 
   private destroyRef = inject(DestroyRef);
+  private readonly isBrowser: boolean;
 
   constructor(
     private fb: FormBuilder,
@@ -95,7 +103,15 @@ export class ProductDetailsComponent implements OnInit {
     private paymentGateway: PaymentGatewayService,
     private engagementService: ProductEngagementService,
     private router: Router,
-  ) {}
+    private toastr: ToastrService,
+    @Inject(PLATFORM_ID) platformId: Object,
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
+
+  onOrderCityChange(): void {
+    this.calculateTotalPrice();
+  }
 
   ngOnInit(): void {
     this.currentUserId = this.auth.getUser()?.id ?? '';
@@ -134,6 +150,8 @@ export class ProductDetailsComponent implements OnInit {
     const resolvedProduct = this.route.snapshot.data['product'];
     if (resolvedProduct) {
       this.applyProduct(resolvedProduct);
+    } else {
+      this.setPageLoading(true);
     }
 
     this.route.paramMap
@@ -142,20 +160,20 @@ export class ProductDetailsComponent implements OnInit {
           const id = params.get('id');
           if (!id) {
             this.loadError = true;
-            this.isLoading = false;
+            this.setPageLoading(false);
             return of(null);
           }
           if (this.product?._id === id) {
             return EMPTY;
           }
-          this.isLoading = true;
+          this.setPageLoading(true);
           this.loadError = false;
           this.product = null;
           this.showModal = false;
           return this.productService.getProductById(id).pipe(
             catchError(() => {
               this.loadError = true;
-              this.isLoading = false;
+              this.setPageLoading(false);
               return of(null);
             }),
           );
@@ -173,7 +191,7 @@ export class ProductDetailsComponent implements OnInit {
 
     if (!product) {
       this.loadError = true;
-      this.isLoading = false;
+      this.setPageLoading(false);
       return;
     }
 
@@ -181,6 +199,7 @@ export class ProductDetailsComponent implements OnInit {
     this.username = this.product?.user?.name || '';
     this.bio = this.product?.user?.bio || '';
     this.id = this.product?.user?._id || this.product?.user?.id || '';
+    this.sellerAvatar = this.product?.user?.avatar || '';
 
     const isOwn = isOwnProduct(this.product, this.currentUserId);
     const inStock = Number(this.product?.countInStock ?? 0) > 0;
@@ -202,7 +221,7 @@ export class ProductDetailsComponent implements OnInit {
     this.quantity = 1;
     this.calculateTotalPrice();
     this.seo.setProductSeo(this.product);
-    this.isLoading = false;
+    this.setPageLoading(false);
     this.loadError = false;
 
     if (this.product?.hasViewed) {
@@ -210,6 +229,10 @@ export class ProductDetailsComponent implements OnInit {
     }
 
     this.trackUniqueView();
+  }
+
+  private setPageLoading(loading: boolean): void {
+    this.isLoading = loading;
   }
 
   private trackUniqueView(): void {
@@ -270,11 +293,100 @@ export class ProductDetailsComponent implements OnInit {
     return String(count);
   }
 
+  isProductOwner(): boolean {
+    return isOwnProduct(this.product, this.currentUserId);
+  }
+
+  getProductShareUrl(): string {
+    if (!this.isBrowser || !this.product?._id) return '';
+    return `${window.location.origin}/product/details/${this.product._id}`;
+  }
+
+  canNativeShare(): boolean {
+    return this.isBrowser && typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+  }
+
+  async copyProductLink(event?: Event): Promise<void> {
+    event?.preventDefault();
+    event?.stopPropagation();
+    const url = this.getProductShareUrl();
+    if (!url) return;
+
+    const copied = await this.copyTextToClipboard(url);
+    if (copied) {
+      this.linkCopied = true;
+      this.toastr.success('Product link copied');
+      window.setTimeout(() => {
+        this.linkCopied = false;
+      }, 2000);
+      return;
+    }
+
+    this.toastr.error('Could not copy link');
+  }
+
+  async shareProduct(event?: Event): Promise<void> {
+    event?.preventDefault();
+    event?.stopPropagation();
+    const url = this.getProductShareUrl();
+    if (!url) return;
+
+    if (this.canNativeShare()) {
+      try {
+        await navigator.share({
+          title: this.product?.name || 'MyHomeBazar Product',
+          text: `Check out ${this.product?.name || 'this product'} on MyHomeBazar`,
+          url,
+        });
+        return;
+      } catch (error) {
+        if ((error as Error)?.name === 'AbortError') return;
+      }
+    }
+
+    await this.copyProductLink();
+  }
+
+  private async copyTextToClipboard(text: string): Promise<boolean> {
+    if (!this.isBrowser) return false;
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch {
+      /* fallback below */
+    }
+
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      return copied;
+    } catch {
+      return false;
+    }
+  }
+
   calculateTotalPrice(): void {
     this.subtotal = (this.product?.price || 0) * this.quantity;
     const weightKg = (Number(this.product?.weightKg) || 0.5) * this.quantity;
     const city = this.orderForm?.get('city')?.value || '';
-    this.shippingService.getQuote(this.subtotal, { city, weightKg }).subscribe((quote) => {
+    this.shippingService
+      .getQuote(this.subtotal, {
+        city,
+        weightKg,
+        productId: this.product?._id,
+        quantity: this.quantity,
+      })
+      .subscribe((quote) => {
       this.shippingQuote = quote;
       this.totalPrice = quote.grandTotal;
     });
@@ -291,10 +403,16 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   getFreeShippingHint(): string {
-    if (!this.shippingQuote || this.shippingQuote.isFreeShipping) return '';
+    if (!this.shippingQuote) return '';
+    if (this.shippingQuote.isFreeShipping) {
+      return this.shippingQuote.message || 'Free delivery applied';
+    }
+    if (this.shippingQuote.sellerFreeDeliveryRemaining && this.shippingQuote.sellerFreeDeliveryRemaining > 0) {
+      return this.shippingQuote.message;
+    }
     const remaining = this.shippingQuote.freeShippingThreshold - this.subtotal;
-    if (remaining <= 0) return '';
-    return `Add Rs ${remaining.toLocaleString()} more for free delivery`;
+    if (remaining <= 0) return this.shippingQuote.message || '';
+    return `Add Rs ${remaining.toLocaleString()} more for platform free delivery`;
   }
 
   increment(): void {
@@ -347,10 +465,23 @@ export class ProductDetailsComponent implements OnInit {
       next: (res: any) => {
         this.orderSubmitting = false;
         this.showModal = false;
-        if (res.checkout) {
-          this.paymentGateway.redirectToGateway(res.checkout);
+
+        const checkout = res?.checkout || res?.data?.checkout;
+        if (checkout) {
+          this.paymentGateway.redirectToGateway(checkout);
           return;
         }
+
+        const order = res?.order || res?.data?.order;
+        const orderId = order?._id;
+
+        if (!this.auth.isLoggedIn() && orderId) {
+          this.router.navigate(['/order-success'], {
+            queryParams: { orderId, guest: '1' },
+          });
+          return;
+        }
+
         const id = this.route.snapshot.paramMap.get('id');
         if (id) {
           this.productService.getProductById(id).subscribe((r) => this.applyProduct(r));

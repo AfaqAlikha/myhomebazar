@@ -10,6 +10,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
+import { UserAvatarComponent } from '../shared/user-avatar/user-avatar.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 
@@ -23,9 +24,9 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-
     ProductCardComponent,
     StarRatingComponent,
+    UserAvatarComponent,
     UiSearchComponent,
     CommonModule,
     NgFor,
@@ -51,13 +52,12 @@ export class MyAccountComponent implements OnInit {
   });
   user: any;
   loading = false;
-  profileSubmitting = false;
+  submitting = false;
   productsLoading = false;
 
-  // Products
   products: any[] = [];
   totalItems = 0;
-  itemsPerPage = 6;
+  itemsPerPage = 0;
   currentPage = 1;
   searchQuery = '';
   sortOrder: 'low' | 'high' | '' = '';
@@ -82,16 +82,14 @@ export class MyAccountComponent implements OnInit {
 
         this.user = res;
 
-        // Patch form safely
         this.form.patchValue({
           name: this.user.name || '',
           email: this.user.email || '',
           bio: this.user.bio || '',
         });
 
-        // Show products section for seller/admin/superadmin
         this.showProductsSection = ['seller', 'admin', 'superadmin'].includes(
-          this.user.role
+          this.user.role,
         );
 
         if (this.showProductsSection) {
@@ -112,26 +110,23 @@ export class MyAccountComponent implements OnInit {
     return name ? name.charAt(0).toUpperCase() : '';
   }
 
-  /** Profile Update */
   submit() {
     if (!this.form.valid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    this.profileSubmitting = true;
+    this.submitting = true;
     this.auth.updateProfile(this.user._id, this.form.value).subscribe({
       next: (user) => {
         this.user = user;
-        this.profileSubmitting = false;
+        this.submitting = false;
       },
       error: () => {
-        this.profileSubmitting = false;
+        this.submitting = false;
       },
     });
   }
-
-  /** PRODUCTS SECTION METHODS */
 
   loadCategories() {
     this.categoryService.getCategories().subscribe({
@@ -141,20 +136,11 @@ export class MyAccountComponent implements OnInit {
   }
 
   fetchProducts() {
-    const params = {
-      catName: this.selectedCategoryName,
-      subCatName: this.selectedSubCategory,
-      page: this.currentPage,
-      limit: this.itemsPerPage,
-      sort: this.sortOrder,
-      search: this.searchQuery,
-    };
-
     this.productsLoading = true;
     this.productService
       .getMyProducts({
         page: this.currentPage,
-        limit: this.itemsPerPage,
+        ...(this.itemsPerPage > 0 ? { limit: this.itemsPerPage } : {}),
         catName: this.selectedCategoryName,
         subCatName: this.selectedSubCategory,
         sort: this.sortOrder,

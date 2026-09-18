@@ -1,21 +1,21 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductOrderService } from '../services/product-order.service';
+import { AuthService } from '../auth/auth.service';
 import { Subscription } from 'rxjs';
 import { NgClass, NgIf } from '@angular/common';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-payment-success',
   templateUrl: './payment-success.component.html',
   styleUrls: ['./payment-success.component.css'],
   standalone: true,
-  imports: [NgClass, NgIf, MatProgressSpinnerModule],
+  imports: [NgClass, NgIf],
 })
 export class PaymentSuccessComponent implements OnInit, OnDestroy {
   success: boolean | null = null;
   error: string | null = null;
-  verifying = true;
+  orderId = '';
 
   private subscription: Subscription = new Subscription();
 
@@ -23,6 +23,7 @@ export class PaymentSuccessComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private productOrderService: ProductOrderService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -30,14 +31,23 @@ export class PaymentSuccessComponent implements OnInit, OnDestroy {
     if (!sessionId) return;
 
     const sub = this.productOrderService.confirmPayment(sessionId).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.success = true;
-        this.verifying = false;
+
+        const order = res?.order || res?.data?.order;
+        const orders = res?.orders || res?.data?.orders;
+        this.orderId = order?._id || orders?.[0]?._id || '';
+
+        if (!this.authService.isLoggedIn() && this.orderId) {
+          this.router.navigate(['/order-success'], {
+            queryParams: { orderId: this.orderId, guest: '1' },
+            replaceUrl: true,
+          });
+        }
       },
       error: (err) => {
         this.error = err?.error?.message || 'Payment verification failed.';
         this.success = false;
-        this.verifying = false;
       },
     });
 

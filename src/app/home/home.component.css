@@ -1,3 +1,7 @@
+:host {
+  display: block;
+}
+
 .grid-layout-toggle {
   display: inline-flex;
   align-items: center;

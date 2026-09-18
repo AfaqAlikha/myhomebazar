@@ -15,6 +15,7 @@ export interface SellerProfile {
   state?: string;
   city?: string;
   completedOrders?: number;
+  avatar?: string;
 }
 
 @Injectable({ providedIn: 'root' })

@@ -10,7 +10,6 @@ import {
   AboutStat,
   AboutTeamMember,
 } from '../services/about.service';
-
 @Component({
   selector: 'app-about',
   templateUrl: './about.component.html',

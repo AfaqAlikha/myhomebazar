@@ -16,6 +16,8 @@ export interface ShippingQuote {
   weightFee?: number;
   totalWeightKg?: number;
   city?: string | null;
+  sellerFreeDeliveryAbove?: number | null;
+  sellerFreeDeliveryRemaining?: number | null;
 }
 
 export interface OrderTracking {
@@ -96,6 +98,8 @@ export class ShippingService {
       weightFee: raw?.weightFee,
       totalWeightKg: raw?.totalWeightKg,
       city: raw?.city ?? null,
+      sellerFreeDeliveryAbove: raw?.sellerFreeDeliveryAbove ?? null,
+      sellerFreeDeliveryRemaining: raw?.sellerFreeDeliveryRemaining ?? null,
     };
   }
 
@@ -134,12 +138,23 @@ export class ShippingService {
 
   getQuote(
     subtotal: number,
-    options?: { city?: string; weightKg?: number },
+    options?: { city?: string; weightKg?: number; productId?: string; productIds?: string[]; quantities?: number[]; quantity?: number },
   ): Observable<ShippingQuote> {
     const params = new URLSearchParams({ subtotal: String(subtotal) });
     if (options?.city?.trim()) params.set('city', options.city.trim());
     if (options?.weightKg && options.weightKg > 0) {
       params.set('weightKg', String(options.weightKg));
+    }
+    if (options?.productIds?.length) {
+      params.set('productIds', options.productIds.join(','));
+      if (options.quantities?.length) {
+        params.set('quantities', options.quantities.join(','));
+      }
+    } else if (options?.productId) {
+      params.set('productId', options.productId);
+      if (options?.quantity && options.quantity > 0) {
+        params.set('quantity', String(options.quantity));
+      }
     }
 
     return this.http

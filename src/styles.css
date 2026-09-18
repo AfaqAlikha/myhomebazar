@@ -55,6 +55,10 @@ app-root {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+app-root {
+  display: block;
+}
+
 body {
   font-family: Roboto, 'Helvetica Neue', sans-serif;
   margin: 0;
@@ -73,7 +77,6 @@ body {
 .page-main {
   background-color: var(--color-background);
   color: var(--color-text);
-  min-height: calc(100vh - 120px);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -282,4 +285,18 @@ html {
 
 .product-grid > .product-grid-item {
   min-width: 0;
+}
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s ease;
+  will-change: opacity, transform;
+}
+
+.scroll-reveal--visible {
+  opacity: 1;
+  transform: translateY(0);
 }

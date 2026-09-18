@@ -1,0 +1,29 @@
+<main class="container mx-auto max-w-lg px-4 py-10">
+  <app-ui-card class="p-6 text-center">
+    <div class="text-5xl mb-4">✅</div>
+    <h1 class="text-2xl font-bold mb-2">Order Placed Successfully!</h1>
+    <p class="text-[var(--color-text-secondary)] mb-4">
+      Thank you for your order. The seller will process it shortly.
+    </p>
+
+    <div *ngIf="orderId" class="bg-[var(--color-border)]/30 rounded-lg p-4 mb-6 text-left">
+      <p class="text-sm text-[var(--color-text-secondary)]">Order ID</p>
+      <p class="font-mono text-sm break-all mt-1">{{ orderId }}</p>
+      <p *ngIf="isGuest" class="text-xs text-[var(--color-text-secondary)] mt-2">
+        Save this Order ID and use your phone number to track your order anytime.
+      </p>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <app-ui-button
+        *ngIf="isGuest"
+        label="Track Order"
+        variant="accent"
+        (clicked)="trackOrder()"
+      ></app-ui-button>
+      <a routerLink="/shop" class="inline-block">
+        <app-ui-button label="Continue Shopping" variant="primary"></app-ui-button>
+      </a>
+    </div>
+  </app-ui-card>
+</main>

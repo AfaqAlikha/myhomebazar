@@ -5,6 +5,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { API_ENDPOINTS } from '../core/config/api-endpoints';
 import { AuthService } from '../auth/auth.service';
+import { getOrCreateVisitorId } from '../utils/visitor-id';
 
 @Injectable({
   providedIn: 'root',
@@ -17,8 +18,7 @@ export class CartService {
   ) {}
 
   addToCart(productId: string): Observable<any> {
-    const headers = this.getHeaders();
-    return this.http.post<any>(API_ENDPOINTS.cart.add, { product: productId }, { headers }).pipe(
+    return this.http.post<any>(API_ENDPOINTS.cart.add, { product: productId }, { headers: this.getHeaders() }).pipe(
       tap((res) => {
         if (res?.message) this.toastr.success(res.message);
       }),
@@ -36,15 +36,13 @@ export class CartService {
         }
       });
     }
-    const headers = this.getHeaders();
     return this.http
-      .get<any>(API_ENDPOINTS.cart.myCart, { params: queryParams, headers })
+      .get<any>(API_ENDPOINTS.cart.myCart, { params: queryParams, headers: this.getHeaders() })
       .pipe(catchError((error) => this.handleError(error, 'Failed to fetch cart')));
   }
 
   removeFromCart(itemId: string): Observable<any> {
-    const headers = this.getHeaders();
-    return this.http.delete<any>(API_ENDPOINTS.cart.remove(itemId), { headers }).pipe(
+    return this.http.delete<any>(API_ENDPOINTS.cart.remove(itemId), { headers: this.getHeaders() }).pipe(
       tap((res) => {
         if (res?.message) this.toastr.success(res.message);
       }),
@@ -53,9 +51,8 @@ export class CartService {
   }
 
   updateQuantity(itemId: string, quantity: number): Observable<any> {
-    const headers = this.getHeaders();
     return this.http
-      .put<any>(API_ENDPOINTS.cart.updateQuantity(itemId), { quantity }, { headers })
+      .put<any>(API_ENDPOINTS.cart.updateQuantity(itemId), { quantity }, { headers: this.getHeaders() })
       .pipe(
         tap((res) => {
           if (res?.message) this.toastr.success(res.message);
@@ -65,10 +62,13 @@ export class CartService {
   }
 
   checkoutCart(buyerData: any): Observable<any> {
-    const headers = this.getHeaders();
-    return this.http.post<any>(API_ENDPOINTS.cart.checkout, buyerData, { headers }).pipe(
+    const url = this.authService.isLoggedIn()
+      ? API_ENDPOINTS.cart.checkout
+      : API_ENDPOINTS.cart.guestCheckout;
+
+    return this.http.post<any>(url, buyerData, { headers: this.getHeaders() }).pipe(
       tap((res) => {
-        if (res?.message && !res.url) {
+        if (res?.message && !res.url && !res.data?.checkout) {
           this.toastr.success(res.message);
         }
       }),
@@ -77,16 +77,14 @@ export class CartService {
   }
 
   getSessionMetadata(sessionId: string): Observable<any> {
-    const headers = this.getHeaders();
     return this.http
-      .get<any>(API_ENDPOINTS.cart.sessionMetadata(sessionId), { headers })
+      .get<any>(API_ENDPOINTS.cart.sessionMetadata(sessionId), { headers: this.getHeaders() })
       .pipe(catchError((error) => this.handleError(error, 'Failed to fetch session metadata')));
   }
 
   confirmPayment(sessionId: string): Observable<any> {
-    const headers = this.getHeaders();
     return this.http
-      .post<any>(API_ENDPOINTS.cart.confirmPayment, { sessionId }, { headers })
+      .post<any>(API_ENDPOINTS.cart.confirmPayment, { sessionId }, { headers: this.getHeaders() })
       .pipe(
         tap((res) => {
           if (res?.message) this.toastr.success(res.message);
@@ -96,10 +94,13 @@ export class CartService {
   }
 
   private getHeaders(): HttpHeaders {
-    const token = this.authService.getToken();
-
     let headers = new HttpHeaders();
+    const visitorId = getOrCreateVisitorId();
+    if (visitorId) {
+      headers = headers.set('X-Visitor-Id', visitorId);
+    }
 
+    const token = this.authService.getToken();
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     }

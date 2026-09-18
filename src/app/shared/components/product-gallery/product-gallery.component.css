@@ -75,8 +75,9 @@
 
 .lightbox-close {
   position: absolute;
-  top: 16px;
-  right: 20px;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  right: calc(20px + env(safe-area-inset-right, 0px));
+  z-index: 2;
   font-size: 2rem;
   color: #fff;
   background: none;

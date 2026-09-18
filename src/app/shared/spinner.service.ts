@@ -1,35 +1,29 @@
 import { Injectable } from '@angular/core';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SpinnerService {
-  private activeCount = 0;
+  private loadingCount = 0;
+  private readonly visibleSubject = new BehaviorSubject<boolean>(false);
 
-  constructor(private spinner: NgxSpinnerService) {}
+  readonly visible$ = this.visibleSubject.asObservable();
 
   show(): void {
-    if (this.activeCount === 0) {
-      this.spinner.show();
-    }
-    this.activeCount += 1;
+    this.loadingCount += 1;
+    this.visibleSubject.next(true);
   }
 
   hide(): void {
-    if (this.activeCount <= 0) {
-      this.activeCount = 0;
-      return;
-    }
-
-    this.activeCount -= 1;
-    if (this.activeCount === 0) {
-      this.spinner.hide();
+    this.loadingCount = Math.max(0, this.loadingCount - 1);
+    if (this.loadingCount === 0) {
+      this.visibleSubject.next(false);
     }
   }
 
   forceHide(): void {
-    this.activeCount = 0;
-    this.spinner.hide();
+    this.loadingCount = 0;
+    this.visibleSubject.next(false);
   }
 }

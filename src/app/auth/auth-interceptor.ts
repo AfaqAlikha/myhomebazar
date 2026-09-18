@@ -10,6 +10,8 @@ import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from './auth.service';
+import { getOrCreateVisitorId } from '../utils/visitor-id';
+import { OfflineService } from '../core/services/offline.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -19,6 +21,7 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(
     private auth: AuthService,
     private toastr: ToastrService,
+    private offlineService: OfflineService,
   ) {}
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
@@ -60,7 +63,9 @@ export class AuthInterceptor implements HttpInterceptor {
         } else if (error.status === 500) {
           this.toastr.error('Something went wrong, please try again');
         } else if (error.status === 0) {
-          this.toastr.error('Check your internet connection');
+          if (!this.offlineService.isOfflinePage()) {
+            this.offlineService.goOffline();
+          }
         }
 
         return throwError(() => error);
@@ -69,12 +74,20 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private addAuthHeader(req: HttpRequest<unknown>): HttpRequest<unknown> {
-    if (!this.auth.isLoggedIn()) return req;
+    const headers: Record<string, string> = {};
+    const visitorId = getOrCreateVisitorId();
+    if (visitorId) {
+      headers['X-Visitor-Id'] = visitorId;
+    }
 
-    const token = this.auth.getToken();
-    if (!token) return req;
+    if (this.auth.isLoggedIn()) {
+      const token = this.auth.getToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
 
-    return req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
+    return Object.keys(headers).length ? req.clone({ setHeaders: headers }) : req;
   }
 
   private isPublicAuthRequest(url: string): boolean {
@@ -84,7 +97,10 @@ export class AuthInterceptor implements HttpInterceptor {
       url.includes('/verify-email') ||
       url.includes('/refresh-token') ||
       url.includes('/logout') ||
-      url.includes('/public/')
+      url.includes('/public/') ||
+      url.includes('/guest-checkout') ||
+      url.includes('/productOrder/track') ||
+      url.includes('/productOrder/confirm-payment')
     );
   }
 

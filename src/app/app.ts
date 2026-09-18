@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, Inject } from '@angular/core';
+import { Component, inject, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,13 +14,17 @@ import { Subscription } from 'rxjs';
 import { AuthService } from './auth/auth.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { NgxSpinnerModule } from 'ngx-spinner';
+import { CustomLoaderComponent } from './shared/custom-loader/custom-loader.component';
+import { OfflineService } from './core/services/offline.service';
 import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProductService } from './services/product.service';
 import { ThemeService } from './core/services/theme.service';
 import { SiteThemeService } from './core/services/site-theme.service';
 import { SeoService } from './services/seo';
+import { PushService } from './core/services/push.service';
+import { PwaService } from './core/services/pwa.service';
+import { PwaInstallPromptComponent } from './shared/pwa-install-prompt/pwa-install-prompt.component';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -38,8 +43,9 @@ import { SeoService } from './services/seo';
     RouterLinkActive,
     MatMenuModule,
     NgxPaginationModule,
-    NgxSpinnerModule,
+    CustomLoaderComponent,
     MatProgressSpinnerModule,
+    PwaInstallPromptComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
@@ -52,6 +58,7 @@ export class AppComponent implements OnInit {
   token: string | null = null;
 
   private subs: Subscription[] = [];
+  private readonly isBrowser: boolean;
 
   constructor(
     private auth: AuthService,
@@ -59,16 +66,36 @@ export class AppComponent implements OnInit {
     private seo: SeoService,
     private themeService: ThemeService,
     private siteThemeService: SiteThemeService,
-  ) {}
+    private pushService: PushService,
+    private pwaService: PwaService,
+    private offlineService: OfflineService,
+    @Inject(PLATFORM_ID) platformId: Object,
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
     // 🔹 Subscribe to user + token changes
     this.subs.push(
-      this.auth.user$.subscribe((u) => (this.user = u)),
+      this.auth.user$.subscribe((u) => {
+        this.user = u;
+        if (u?.id) {
+          this.pushService.register().catch(() => {});
+        }
+      }),
       this.auth.token$.subscribe((t) => (this.token = t)),
     );
     this.siteThemeService.loadAndApply();
     this.loadLogo();
+
+    if (this.isBrowser) {
+      this.pwaService.registerServiceWorker().catch(() => {});
+      this.pwaService.maybeShowInstallPrompt();
+    }
+
+    if (this.isBrowser && !navigator.onLine) {
+      this.offlineService.goOffline(this.router.url);
+    }
 
     if (!this.auth.isGuestAuthRoute()) {
       this.auth.trySilentRefresh().subscribe();

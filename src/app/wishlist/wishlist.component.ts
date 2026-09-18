@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { WishlistService } from '../services/wishlist.service';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
+import { ProductGridLayoutService } from '../shared/product-grid-layout.service';
 
 @Component({
   selector: 'app-wishlist',
@@ -17,6 +19,7 @@ import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
     UiSearchComponent,
     NgIf,
     NgClass,
+    MatIconModule,
   ],
 })
 export class WishlistComponent implements OnInit {
@@ -28,9 +31,13 @@ export class WishlistComponent implements OnInit {
   searchQuery = '';
   isLoading = false;
 
-  constructor(private wishlistService: WishlistService) {}
+  constructor(
+    private wishlistService: WishlistService,
+    public gridLayout: ProductGridLayoutService,
+  ) {}
 
   ngOnInit(): void {
+    this.gridLayout.syncViewport();
     this.loadWishlist();
   }
 
@@ -73,5 +80,14 @@ export class WishlistComponent implements OnInit {
     this.sortOrder = order;
     this.currentPage = 1;
     this.loadWishlist();
+  }
+
+  cycleGridLayout(): void {
+    this.gridLayout.cycleGridLayout();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.gridLayout.syncViewport();
   }
 }

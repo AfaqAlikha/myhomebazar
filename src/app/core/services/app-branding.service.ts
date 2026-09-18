@@ -18,14 +18,21 @@ export interface AppLogo {
   isActive?: boolean;
 }
 
+export interface AppSplash {
+  image: string;
+  isActive?: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AppBrandingService {
   private http = inject(HttpClient);
 
   private logoMemory: AppLogo | null = null;
   private bannersMemory: unknown[] | null = null;
+  private splashMemory: AppSplash | null = null;
   private logoRequest: Observable<{ success: boolean; logo: AppLogo }> | null = null;
   private bannersRequest: Observable<{ success: boolean; banners: unknown[] }> | null = null;
+  private splashRequest: Observable<{ success: boolean; splash: AppSplash }> | null = null;
 
   getLogo(): Observable<{ success: boolean; logo: AppLogo }> {
     const cached = this.logoMemory ?? readPublicCache<AppLogo>(CACHE_KEYS.LOGO);
@@ -74,7 +81,35 @@ export class AppBrandingService {
     return this.bannersRequest;
   }
 
+  getSplash(): Observable<{ success: boolean; splash: AppSplash }> {
+    const cached = this.splashMemory ?? readPublicCache<AppSplash>(CACHE_KEYS.SPLASH);
+    if (cached) {
+      this.splashMemory = cached;
+      return of({ success: true, splash: cached });
+    }
+
+    if (!this.splashRequest) {
+      this.splashRequest = this.http
+        .get<{ success: boolean; splash: AppSplash }>(API_ENDPOINTS.appAssets.splash)
+        .pipe(
+          tap((res) => {
+            if (res?.splash) {
+              this.splashMemory = res.splash;
+              writePublicCache(CACHE_KEYS.SPLASH, res.splash, CACHE_TTL.SPLASH_MS);
+            }
+          }),
+          shareReplay(1),
+        );
+    }
+
+    return this.splashRequest;
+  }
+
   getLogoSnapshot(): AppLogo | null {
     return this.logoMemory ?? readPublicCache<AppLogo>(CACHE_KEYS.LOGO);
+  }
+
+  getSplashSnapshot(): AppSplash | null {
+    return this.splashMemory ?? readPublicCache<AppSplash>(CACHE_KEYS.SPLASH);
   }
 }

@@ -12,11 +12,19 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgFor, NgIf, DecimalPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { PaymentMethodsComponent } from '../shared/payment-methods/payment-methods.component';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
 import { ShippingService, ShippingQuote } from '../services/shipping.service';
 import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
+import { LocationFieldsComponent } from '../shared/location-fields/location-fields.component';
+import {
+  GuestCartItem,
+  readGuestCart,
+  removeGuestCartItem,
+  updateGuestCartQuantity,
+  clearGuestCart,
+} from '../services/guest-cart.service';
 
 @Component({
   selector: 'app-cart',
@@ -33,6 +41,7 @@ import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
     RouterLink,
     DecimalPipe,
     PaymentMethodsComponent,
+    LocationFieldsComponent,
   ],
 })
 export class CartComponent implements OnInit {
@@ -43,6 +52,7 @@ export class CartComponent implements OnInit {
   orderSubmitting = false;
   deletingItemId: string | null = null;
   orderForm!: FormGroup;
+  isGuestMode = false;
 
   constructor(
     private cartService: CartService,
@@ -51,11 +61,13 @@ export class CartComponent implements OnInit {
     private authService: AuthService,
     private toastr: ToastrService,
     private fb: FormBuilder,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
-    this.loadCart();
+    this.isGuestMode = !this.authService.isLoggedIn();
     this.initForm();
+    this.loadCart();
   }
 
   initForm(): void {
@@ -90,7 +102,21 @@ export class CartComponent implements OnInit {
     });
   }
 
+  onOrderCityChange(): void {
+    if (this.cartItems.length) this.refreshShippingQuote();
+  }
+
   loadCart(): void {
+    if (this.isGuestMode) {
+      this.cartItems = this.mapGuestItems(readGuestCart());
+      if (this.cartItems.length) {
+        this.refreshShippingQuote();
+      } else {
+        this.shippingQuote = null;
+      }
+      return;
+    }
+
     this.cartService.getCart().subscribe({
       next: (res) => {
         if (res.cart?.items) {
@@ -128,6 +154,18 @@ export class CartComponent implements OnInit {
     });
   }
 
+  private mapGuestItems(items: GuestCartItem[]) {
+    return items.map((item) => ({
+      _id: item.id,
+      product: item.product,
+      productId: item.productId,
+      name: item.product.name,
+      image: item.product.images?.[0] || '',
+      price: item.product.price,
+      quantity: item.quantity || 1,
+    }));
+  }
+
   calculateItemTotal(item: any): number {
     return item.price * item.quantity;
   }
@@ -140,9 +178,21 @@ export class CartComponent implements OnInit {
     const subtotal = this.calculateSubtotal();
     const city = this.orderForm?.get('city')?.value || '';
     const weightKg = this.calculateTotalWeightKg();
-    this.shippingService.getQuote(subtotal, { city, weightKg }).subscribe((quote) => {
-      this.shippingQuote = quote;
-    });
+    const productIds = this.cartItems
+      .map((item) => item.product?._id || item.productId)
+      .filter(Boolean);
+    const quantities = this.cartItems.map((item) => item.quantity || 1);
+
+    this.shippingService
+      .getQuote(subtotal, {
+        city,
+        weightKg,
+        productIds,
+        quantities,
+      })
+      .subscribe((quote) => {
+        this.shippingQuote = quote;
+      });
   }
 
   calculateTotalWeightKg(): number {
@@ -171,17 +221,28 @@ export class CartComponent implements OnInit {
   }
 
   getFreeShippingHint(): string {
-    if (!this.shippingQuote || this.shippingQuote.isFreeShipping) {
-      return this.shippingQuote?.message || 'Free delivery applied';
+    if (!this.shippingQuote) return '';
+    if (this.shippingQuote.isFreeShipping) {
+      return this.shippingQuote.message || 'Free delivery applied';
+    }
+    if (this.shippingQuote.sellerFreeDeliveryRemaining && this.shippingQuote.sellerFreeDeliveryRemaining > 0) {
+      return this.shippingQuote.message;
     }
     const remaining = this.shippingQuote.freeShippingThreshold - this.calculateSubtotal();
-    if (remaining <= 0) return '';
-    return `Add Rs ${remaining.toLocaleString()} more for free delivery`;
+    if (remaining <= 0) return this.shippingQuote.message || '';
+    return `Add Rs ${remaining.toLocaleString()} more for platform free delivery`;
   }
 
   updateQuantity(item: any, event: Event): void {
     const value = (event.target as HTMLInputElement).valueAsNumber;
     if (value <= 0) return;
+
+    if (this.isGuestMode) {
+      this.cartItems = this.mapGuestItems(updateGuestCartQuantity(item._id, value));
+      item.quantity = value;
+      this.refreshShippingQuote();
+      return;
+    }
 
     this.cartService.updateQuantity(item._id, value).subscribe({
       next: () => {
@@ -195,6 +256,12 @@ export class CartComponent implements OnInit {
   }
 
   deleteItem(item: any): void {
+    if (this.isGuestMode) {
+      this.cartItems = this.mapGuestItems(removeGuestCartItem(item._id));
+      this.refreshShippingQuote();
+      return;
+    }
+
     this.deletingItemId = item._id;
     this.cartService.removeFromCart(item._id).subscribe({
       next: () => {
@@ -233,9 +300,18 @@ export class CartComponent implements OnInit {
       this.cartService
         .checkoutCart({ ...buyerData, paymentMethod: 'COD', items: itemsPayload })
         .subscribe({
-          next: () => {
+          next: (res) => {
             this.orderSubmitting = false;
             this.showModal = false;
+            if (this.isGuestMode) {
+              clearGuestCart();
+              const orders = res?.data?.orders || res?.orders || [];
+              const orderId = orders[0]?._id;
+              this.router.navigate(['/order-success'], {
+                queryParams: orderId ? { orderId, guest: '1' } : { guest: '1' },
+              });
+              return;
+            }
             this.toastr.success('Order placed with COD!');
             this.loadCart();
           },
@@ -254,6 +330,9 @@ export class CartComponent implements OnInit {
           this.showModal = false;
           const checkout = res?.data?.checkout || res?.checkout;
           if (checkout) {
+            if (this.isGuestMode) {
+              clearGuestCart();
+            }
             this.paymentGateway.redirectToGateway(checkout);
           } else {
             this.toastr.error('Failed to start payment!');

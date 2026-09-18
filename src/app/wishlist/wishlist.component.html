@@ -8,8 +8,8 @@
       <app-ui-search (search)="onSearch($event)"></app-ui-search>
     </div>
 
-    <!-- Sort -->
-    <div class="flex gap-3">
+    <!-- Sort + Grid -->
+    <div class="flex flex-wrap items-center gap-3">
       <button
         class="px-3 py-1 border rounded-md"
         [ngClass]="{ 'bg-[var(--color-accent)] text-white': sortOrder === 'low' }"
@@ -25,11 +25,21 @@
       >
         High to Low
       </button>
+
+      <button
+        type="button"
+        class="grid-layout-toggle"
+        (click)="cycleGridLayout()"
+        [attr.aria-label]="gridLayout.gridLayoutLabel"
+        [title]="gridLayout.gridLayoutLabel"
+      >
+        <mat-icon>{{ gridLayout.gridLayoutIcon }}</mat-icon>
+      </button>
     </div>
   </div>
 
   <!-- Wishlist Products -->
-  <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+  <div class="flex-1 grid gap-4 mb-6" [ngClass]="gridLayout.productGridClass">
     <!-- Products -->
     <ng-container *ngIf="!isLoading">
       <app-product-card

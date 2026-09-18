@@ -42,6 +42,19 @@
           </a>
         </li>
 
+        <li>
+          <a
+            routerLink="/cart"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
+            (click)="drawer.close()"
+          >
+            <mat-icon>shopping_cart</mat-icon>
+            Cart
+          </a>
+        </li>
+
         @if (token) {
           <li>
             <a
@@ -81,17 +94,17 @@
               Wishlist
             </a>
           </li>
-
+        } @else {
           <li>
             <a
-              routerLink="/cart"
+              routerLink="/track-order"
               routerLinkActive="active-link"
               [routerLinkActiveOptions]="{ exact: true }"
               class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
               (click)="drawer.close()"
             >
-              <mat-icon>shopping_cart</mat-icon>
-              Cart
+              <mat-icon>local_shipping</mat-icon>
+              Track Order
             </a>
           </li>
         }
@@ -182,19 +195,14 @@
   <!-- Main Content -->
   <mat-sidenav-content class="bg-[var(--color-background)]">
     <app-header (toggleDrawerEvent)="drawer.toggle()"></app-header>
-    <ngx-spinner
-      bdColor="rgba(15,23,42,0.35)"
-      size="default"
-      color="var(--color-accent)"
-      type="ball-clip-rotate"
-      [fullScreen]="true"
-    >
-    </ngx-spinner>
+    <app-custom-loader></app-custom-loader>
 
-    <main class="page-main">
+    <main class="page-main min-h-screen">
       <router-outlet></router-outlet>
     </main>
 
     <app-footer></app-footer>
   </mat-sidenav-content>
 </mat-sidenav-container>
+
+<app-pwa-install-prompt></app-pwa-install-prompt>
