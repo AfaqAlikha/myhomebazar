@@ -12,6 +12,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgFor, NgIf, DecimalPipe } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
 import { PaymentMethodsComponent } from '../shared/payment-methods/payment-methods.component';
 import { PaymentGatewayService } from '../services/payment-gateway.service';
@@ -42,6 +43,7 @@ import {
     DecimalPipe,
     PaymentMethodsComponent,
     LocationFieldsComponent,
+    MatProgressSpinnerModule,
   ],
 })
 export class CartComponent implements OnInit {
