@@ -71,6 +71,7 @@
           <mat-menu #accountMenu="matMenu" xPosition="before">
             @if (token) {
               <a mat-menu-item routerLink="/my-acount">Profile</a>
+              <a mat-menu-item routerLink="/messages">Messages</a>
               <a mat-menu-item routerLink="/wishlist">Wishlist</a>
               <a mat-menu-item routerLink="/order-history">Orders</a>
               <button mat-menu-item (click)="logout()">Logout</button>

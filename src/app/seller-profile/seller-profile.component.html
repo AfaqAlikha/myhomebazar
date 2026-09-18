@@ -1,49 +1,72 @@
-<div class="container mx-auto px-4 sm:px-6 md:px-10 py-4">
-  <div *ngIf="loading" class="text-center py-20 text-[var(--color-text-secondary)]">
-    Loading seller profile...
-  </div>
-
-  <div *ngIf="!loading && !user" class="text-center py-20 text-[var(--color-text-secondary)]">
-    Seller profile not found.
-  </div>
+<div class="seller-profile-page">
+  <div *ngIf="loading" class="seller-state">Loading seller profile…</div>
+  <div *ngIf="!loading && !user" class="seller-state">Seller profile not found.</div>
 
   <ng-container *ngIf="!loading && user">
-    <h1 class="text-[24px] font-bold my-3 text-[var(--color-text)]">{{ user.name }} Store</h1>
-    <div
-      class="w-full max-w-xxl p-6 mb-6 bg-[var(--color-card)] rounded-2xl shadow-md transition-colors duration-300"
-    >
-      <div class="flex flex-col items-center mb-4">
-        <app-user-avatar class="mb-3" [name]="user.name" [avatar]="user.avatar" size="lg"></app-user-avatar>
-        <h2 class="text-xl font-semibold text-[var(--color-text)]">{{ user.name }}</h2>
-        <p *ngIf="getLocation()" class="text-sm text-[var(--color-text-secondary)] mt-1">
-          📍 {{ getLocation() }}
-        </p>
-        <span *ngIf="user.bio" class="p-2 text-center text-[13px] text-[var(--color-text-secondary)]">{{
-          user.bio
-        }}</span>
-      </div>
+    <section class="seller-hero">
+      <div class="seller-hero__banner"></div>
+      <div class="seller-hero__content container mx-auto px-4">
+        <div class="seller-hero__card">
+          <app-user-avatar class="seller-hero__avatar" [name]="user.name" [avatar]="user.avatar" size="lg"></app-user-avatar>
+          <div class="seller-hero__info">
+            <div class="seller-hero__title-row">
+              <div>
+                <p class="seller-hero__eyebrow">Verified Seller Store</p>
+                <h1>{{ user.name }}</h1>
+                <p *ngIf="getLocation()" class="seller-hero__location">
+                  <mat-icon>location_on</mat-icon>
+                  {{ getLocation() }}
+                </p>
+              </div>
+              <div class="seller-hero__actions">
+                <button type="button" class="seller-btn seller-btn--primary" (click)="messageSeller()">
+                  <mat-icon>chat</mat-icon>
+                  Message Seller
+                </button>
+                <a href="#seller-products" class="seller-btn seller-btn--ghost">
+                  View Products
+                </a>
+              </div>
+            </div>
 
-      <div class="flex justify-around mb-6 text-sm text-[var(--color-text)]">
-        <div class="text-center">
-          <app-star-rating [value]="user.rating || 0" [readonly]="true" size="sm"></app-star-rating>
-          <p class="mt-1">Rating</p>
-        </div>
-        <div class="text-center">
-          <p class="font-bold">{{ user.completedOrders || 0 }}</p>
-          <p>Completed Orders</p>
-        </div>
-        <div class="text-center" *ngIf="user.badges?.length">
-          <p class="font-bold text-green-500" *ngFor="let badge of user.badges">{{ badge }}</p>
-          <p>Badges</p>
+            <p *ngIf="user.bio" class="seller-hero__bio">{{ user.bio }}</p>
+
+            <div class="seller-stats">
+              <div class="seller-stats__item">
+                <strong>{{ user.rating || 0 | number: '1.1-1' }}</strong>
+                <span>Rating</span>
+                <app-star-rating [value]="user.rating || 0" [readonly]="true" size="sm"></app-star-rating>
+              </div>
+              <div class="seller-stats__item">
+                <strong>{{ user.completedOrders || 0 }}</strong>
+                <span>Completed Orders</span>
+              </div>
+              <div class="seller-stats__item">
+                <strong>{{ user.productCount || 0 }}</strong>
+                <span>Products</span>
+              </div>
+              <div class="seller-stats__item" *ngIf="user.badges?.length">
+                <strong>{{ user.badges.length }}</strong>
+                <span>Badges</span>
+              </div>
+            </div>
+
+            <div class="seller-badges" *ngIf="user.badges?.length">
+              <span *ngFor="let badge of user.badges" class="seller-badge">{{ badge }}</span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="w-full">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-        <h2 class="text-[24px] font-bold text-[var(--color-text)]">{{ user.name }} Products</h2>
-        <div class="flex items-center gap-3 w-full md:w-auto">
-          <div class="w-full md:max-w-sm">
+    <section id="seller-products" class="container mx-auto px-4 py-6">
+      <div class="seller-products-head">
+        <div>
+          <h2>{{ user.name }} Products</h2>
+          <p>Browse items from this seller store.</p>
+        </div>
+        <div class="seller-products-head__tools">
+          <div class="seller-products-head__search">
             <app-ui-search label="Search products" (search)="onProductSearch($event)"></app-ui-search>
           </div>
           <button
@@ -58,32 +81,23 @@
         </div>
       </div>
 
-      <div class="my-3 grid gap-4" [ngClass]="gridLayout.productGridClass">
-        <div
-          *ngIf="productsLoading"
-          class="col-span-full text-center text-[var(--color-text-secondary)] font-medium py-10"
-        >
-          Loading products...
+      <div class="my-3 grid gap-3 md:gap-4 items-stretch" [ngClass]="gridLayout.productGridClass">
+        <div *ngIf="productsLoading" class="col-span-full seller-state">Loading products…</div>
+        <div *ngIf="!productsLoading && noProducts" class="col-span-full seller-state">No products found</div>
+        <div *ngFor="let product of products" class="home-product-grid-item">
+          <app-product-card [product]="product" variant="mockup"></app-product-card>
         </div>
-        <div
-          *ngIf="!productsLoading && noProducts"
-          class="col-span-full text-center text-[var(--color-text-secondary)] font-medium py-10"
-        >
-          No products found
-        </div>
-
-        <app-product-card *ngFor="let product of products" [product]="product"></app-product-card>
       </div>
-    </div>
 
-    <div class="flex w-full justify-end mt-6" *ngIf="totalItems > itemsPerPage">
-      <mat-paginator
-        [length]="totalItems"
-        [pageSize]="itemsPerPage"
-        [pageSizeOptions]="[itemsPerPage]"
-        [pageIndex]="currentPage - 1"
-        (page)="pageChanged($event)"
-      ></mat-paginator>
-    </div>
+      <div class="flex w-full justify-end mt-6" *ngIf="totalItems > itemsPerPage">
+        <mat-paginator
+          [length]="totalItems"
+          [pageSize]="itemsPerPage"
+          [pageSizeOptions]="[itemsPerPage]"
+          [pageIndex]="currentPage - 1"
+          (page)="pageChanged($event)"
+        ></mat-paginator>
+      </div>
+    </section>
   </ng-container>
 </div>

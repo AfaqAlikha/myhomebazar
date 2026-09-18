@@ -17,6 +17,27 @@ export interface OrderStatusUpdatePayload {
   productName?: string;
 }
 
+export interface ChatMessagePayload {
+  _id: string;
+  conversationId: string;
+  senderId: string;
+  text: string;
+  readAt?: string | Date | null;
+  createdAt: string | Date;
+}
+
+export interface ChatSocketPayload {
+  conversationId: string;
+  message: ChatMessagePayload;
+  conversation?: {
+    _id: string;
+    peer: { _id: string; name: string; avatar?: string; role?: string };
+    lastMessage?: string;
+    lastMessageAt?: string | Date | null;
+    unreadCount?: number;
+  };
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -27,6 +48,7 @@ export class SocketService implements OnDestroy {
 
   readonly orderStatusUpdate$ = new Subject<OrderStatusUpdatePayload>();
   readonly buyerNotification$ = new Subject<any>();
+  readonly chatMessage$ = new Subject<ChatSocketPayload>();
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -57,6 +79,10 @@ export class SocketService implements OnDestroy {
 
     this.socket.on('buyerNotification', (payload: any) => {
       this.buyerNotification$.next(payload);
+    });
+
+    this.socket.on('chatMessage', (payload: ChatSocketPayload) => {
+      this.chatMessage$.next(payload);
     });
   }
 

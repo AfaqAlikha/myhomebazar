@@ -15,6 +15,7 @@ export interface SellerProfile {
   state?: string;
   city?: string;
   completedOrders?: number;
+  productCount?: number;
   avatar?: string;
 }
 

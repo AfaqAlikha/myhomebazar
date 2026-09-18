@@ -10,8 +10,10 @@ import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 import { AuthService } from '../auth/auth.service';
 import { ProductService } from '../services/product.service';
 import { SeoService } from '../services/seo';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductGridLayoutService } from '../shared/product-grid-layout.service';
+import { ChatService } from '../services/chat.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-seller-profile',
@@ -28,6 +30,7 @@ import { ProductGridLayoutService } from '../shared/product-grid-layout.service'
     NgClass,
     MatPaginatorModule,
     MatIconModule,
+    RouterLink,
   ],
   templateUrl: './seller-profile.component.html',
   styleUrls: ['./seller-profile.component.css'],
@@ -37,6 +40,9 @@ export class SellerProfileComponent implements OnInit {
   private auth = inject(AuthService);
   private productService = inject(ProductService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private chat = inject(ChatService);
+  private toastr = inject(ToastrService);
   private seo = inject(SeoService);
   public gridLayout = inject(ProductGridLayoutService);
 
@@ -137,5 +143,26 @@ export class SellerProfileComponent implements OnInit {
   @HostListener('window:resize')
   onWindowResize(): void {
     this.gridLayout.syncViewport();
+  }
+
+  messageSeller(): void {
+    const sellerId = this.user?._id;
+    if (!sellerId) return;
+
+    if (!this.auth.isLoggedIn()) {
+      this.router.navigate(['/signin'], {
+        queryParams: { returnUrl: `/profile/${sellerId}` },
+      });
+      return;
+    }
+
+    this.chat.startWithSeller(sellerId).subscribe({
+      next: (conversation) => {
+        this.router.navigate(['/messages', conversation._id]);
+      },
+      error: (err) => {
+        this.toastr.error(err?.error?.message || 'Could not start chat');
+      },
+    });
   }
 }

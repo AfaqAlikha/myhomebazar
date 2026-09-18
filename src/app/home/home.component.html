@@ -101,8 +101,8 @@
       </div>
       <a routerLink="/shop" class="home-section-head__link">View all ›</a>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-      <div *ngFor="let product of popularProducts; let i = index">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 items-stretch">
+      <div *ngFor="let product of popularProducts; let i = index" class="home-product-grid-item">
         <app-product-card [product]="product" [revealDelay]="i * 50" variant="mockup"></app-product-card>
       </div>
     </div>
@@ -150,7 +150,7 @@
       No products found. Try changing your search or filters.
     </p>
 
-    <div class="my-3 grid gap-3 md:gap-4 home-product-grid" [ngClass]="productGridClass">
+    <div class="my-3 grid gap-3 md:gap-4 home-product-grid items-stretch" [ngClass]="productGridClass">
       <ng-container *ngIf="!isLoading">
         <div *ngFor="let product of products; let i = index" class="home-product-grid-item">
           <app-product-card [product]="product" [revealDelay]="(i % 8) * 60" variant="mockup"></app-product-card>
