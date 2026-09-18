@@ -8,6 +8,7 @@ import {
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { SpinnerService } from '../../shared/spinner.service';
+import { SKIP_GLOBAL_LOADER } from './loader.context';
 
 const SKIP_URL_PATTERNS = [
   '/app-assets/public/',
@@ -25,7 +26,10 @@ export class GetLoaderInterceptor implements HttpInterceptor {
   constructor(private spinner: SpinnerService) {}
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    const track = req.method === 'GET' && !this.shouldSkip(req.url);
+    const track =
+      req.method === 'GET' &&
+      !req.context.get(SKIP_GLOBAL_LOADER) &&
+      !this.shouldSkip(req.url);
 
     if (track) {
       this.spinner.show();

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders, HttpParams } from '@angular/common/http';
+import { SKIP_GLOBAL_LOADER } from '../core/interceptors/loader.context';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
@@ -10,6 +11,8 @@ import { AuthService } from '../auth/auth.service';
   providedIn: 'root',
 })
 export class WishlistService {
+  private readonly skipLoaderContext = new HttpContext().set(SKIP_GLOBAL_LOADER, true);
+
   constructor(
     private http: HttpClient,
     private toastr: ToastrService,
@@ -40,7 +43,12 @@ export class WishlistService {
       });
     }
     const headers = this.getHeaders();
-    return this.http.get(API_ENDPOINTS.wishlist.list, { params: queryParams, headers });
+    const page = Number(params?.['page'] ?? 1);
+    return this.http.get(API_ENDPOINTS.wishlist.list, {
+      params: queryParams,
+      headers,
+      ...(page > 1 ? { context: this.skipLoaderContext } : {}),
+    });
   }
 
   addToWishlist(productId: string): Observable<any> {
