@@ -2,15 +2,16 @@
 <section class="home-bento container mx-auto px-2 hidden md:block">
   <div class="home-bento__grid">
     <div class="home-bento__hero">
-      <app-hero-swiper [slides]="featured" [loading]="heroLoading"></app-hero-swiper>
-      <div *ngIf="homeData?.hero?.title" class="home-bento__hero-overlay">
-        <span class="home-bento__promo-badge">{{ homeData?.hero?.badge }}</span>
-        <h1 class="home-bento__hero-title">{{ homeData?.hero?.title }}</h1>
-        <p class="home-bento__hero-sub">{{ homeData?.hero?.subtitle }}</p>
-        <a [routerLink]="homeData?.hero?.ctaLink || '/shop'" class="home-bento__promo-cta">
-          {{ homeData?.hero?.ctaLabel || 'Shop Now' }} →
-        </a>
-      </div>
+      <app-hero-3d-banner [slides]="heroSlides" [loading]="heroLoading">
+        <div hero3d-copy *ngIf="homeData?.hero?.title" class="home-bento__hero-copy">
+          <span class="home-bento__promo-badge">{{ homeData?.hero?.badge }}</span>
+          <h1 class="home-bento__hero-title">{{ homeData?.hero?.title }}</h1>
+          <p class="home-bento__hero-sub">{{ homeData?.hero?.subtitle }}</p>
+          <a [routerLink]="homeData?.hero?.ctaLink || '/shop'" class="home-bento__promo-cta">
+            {{ homeData?.hero?.ctaLabel || 'Shop Now' }} →
+          </a>
+        </div>
+      </app-hero-3d-banner>
     </div>
 
     <div class="home-bento__promo home-bento__promo--flash">
@@ -46,14 +47,16 @@
 
 <!-- Hero: mobile -->
 <section class="mobile-hero-card md:hidden">
-  <app-hero-swiper [slides]="featured" [loading]="heroLoading"></app-hero-swiper>
-  <div class="mobile-hero-card__content">
-    <h1 class="mobile-hero-card__title">{{ homeData?.mobileHero?.title }}</h1>
-    <p class="mobile-hero-card__sub">{{ homeData?.mobileHero?.subtitle }}</p>
-    <a [routerLink]="homeData?.mobileHero?.ctaLink || '/shop'" class="mobile-hero-card__cta">
-      {{ homeData?.mobileHero?.ctaLabel || 'Shop Now' }} →
-    </a>
-  </div>
+  <app-hero-3d-banner [slides]="heroSlides" [loading]="heroLoading">
+    <div hero3d-copy class="mobile-hero-card__content">
+      <span class="home-bento__promo-badge">{{ homeData?.mobileHero?.badge }}</span>
+      <h1 class="mobile-hero-card__title">{{ homeData?.mobileHero?.title }}</h1>
+      <p class="mobile-hero-card__sub">{{ homeData?.mobileHero?.subtitle }}</p>
+      <a [routerLink]="homeData?.mobileHero?.ctaLink || '/shop'" class="mobile-hero-card__cta">
+        {{ homeData?.mobileHero?.ctaLabel || 'Shop Now' }} →
+      </a>
+    </div>
+  </app-hero-3d-banner>
 </section>
 
 <div class="container mx-auto px-2 md:px-3 py-4 space-y-6 md:space-y-8">
