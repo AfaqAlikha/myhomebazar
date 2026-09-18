@@ -1,13 +1,6 @@
 <main class="container mx-auto py-4 px-4 sm:px-6 md:px-10 pb-10 overflow-x-hidden">
   <!-- Skeleton Loader -->
   <div *ngIf="isLoading">
-    <!-- Breadcrumbs Skeleton -->
-    <div class="flex items-center gap-1 mb-4">
-      <div class="bg-gray-300 h-4 w-20 rounded"></div>
-      <div class="bg-gray-300 h-4 w-4 rounded"></div>
-      <div class="bg-gray-300 h-4 w-32 rounded"></div>
-    </div>
-
     <!-- Seller Profile Skeleton -->
     <div class="flex items-center gap-3 p-3 rounded-lg bg-gray-200 animate-pulse">
       <div class="w-12 h-12 rounded-full bg-gray-300"></div>
@@ -82,14 +75,6 @@
   </div>
 
   <div *ngIf="!isLoading && product">
-    <div class="flex items-center gap-1 mb-4 text-sm text-gray-500">
-      <a routerLink="/" class="hover:underline">Account</a>
-      <span>/</span>
-      <p>{{ product.brand }}</p>
-      <span>/</span>
-      <p>{{ product.name }}</p>
-    </div>
-
     <!-- Seller Profile -->
     <div class="seller-profile-card flex gap-3 p-3 rounded-lg bg-[var(--color-card)] shadow-sm">
       <app-user-avatar [name]="username" [avatar]="sellerAvatar" size="sm"></app-user-avatar>

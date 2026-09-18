@@ -148,19 +148,3 @@
   opacity: 0.75;
 }
 
-.product-card__cart-float {
-  position: absolute !important;
-  right: 0.5rem !important;
-  bottom: 0.5rem !important;
-  z-index: 2 !important;
-  width: 34px !important;
-  height: 34px !important;
-  min-width: 34px !important;
-  min-height: 34px !important;
-  padding: 0 !important;
-  border-radius: 999px !important;
-  background: var(--color-card) !important;
-  color: var(--color-accent) !important;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-text) 14%, transparent);
-  pointer-events: auto;
-}
