@@ -159,6 +159,31 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
   }
 
+  get flashDealsCopy() {
+    const tile = this.homeData?.flashDeals;
+    return {
+      badge: this.heroText(tile?.badge, 'Flash Deals'),
+      title: this.heroText(tile?.title, 'Limited Time Offers'),
+      subtitle: this.heroText(tile?.subtitle, 'Curated drops with countdown badges.'),
+      ctaLabel: this.heroText(tile?.ctaLabel, 'Browse deals'),
+      ctaLink: this.heroText(tile?.ctaLink, '/shop?sort=deals'),
+    };
+  }
+
+  get freeDeliveryCopy() {
+    const tile = this.homeData?.freeDelivery;
+    return {
+      badge: this.heroText(tile?.badge, 'Free Delivery'),
+      title: this.heroText(tile?.title, 'Platform shipping perks'),
+      subtitle: this.heroText(
+        tile?.message || tile?.subtitle,
+        'Unlock free delivery on eligible orders.',
+      ),
+      ctaLabel: this.heroText(tile?.ctaLabel, 'Learn more'),
+      ctaLink: this.heroText(tile?.ctaLink, '/shop'),
+    };
+  }
+
   get productGridClass(): string {
     const map: Record<number, string> = {
       1: 'grid-cols-1',
@@ -263,19 +288,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   private loadHomeConfig(): void {
     this.homeConfigLoading = true;
     this.homePageService.getPublicHome().subscribe({
-      next: (res) => {
-        this.homeData = res.data;
+      next: (data) => {
+        this.homeData = data;
         this.syncHeroSlides();
         if (this.heroSlides.length) {
           this.heroSlidesLoading = false;
         }
-        this.flashDealProducts = res.data?.flashDealProducts || [];
-        this.popularProducts = res.data?.popularProducts || [];
-        this.trendingProducts = res.data?.trendingProducts || [];
-        this.displayCategories = (res.data?.categories || []).slice(0, 8);
+        this.flashDealProducts = data?.flashDealProducts || [];
+        this.popularProducts = data?.popularProducts || [];
+        this.trendingProducts = data?.trendingProducts || [];
+        this.displayCategories = (data?.categories || []).slice(0, 8);
         if (this.displayCategories.length < 5) this.loadCategoriesFallback();
-        if (res.data?.flashDeals?.endAt) {
-          this.flashEndAt = new Date(res.data.flashDeals.endAt);
+        if (data?.flashDeals?.endAt) {
+          this.flashEndAt = new Date(data.flashDeals.endAt);
           this.startCountdown();
         }
         this.homeConfigLoading = false;

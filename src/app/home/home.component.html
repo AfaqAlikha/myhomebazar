@@ -16,30 +16,28 @@
 
     <div class="home-bento__promo home-bento__promo--flash">
       <div>
-        <span class="home-bento__promo-badge">{{ homeData?.flashDeals?.badge || 'Flash Deals' }}</span>
-        <p class="home-bento__promo-title">{{ homeData?.flashDeals?.title }}</p>
-        <p class="home-bento__promo-text">{{ homeData?.flashDeals?.subtitle }}</p>
+        <span class="home-bento__promo-badge">{{ flashDealsCopy.badge }}</span>
+        <p class="home-bento__promo-title">{{ flashDealsCopy.title }}</p>
+        <p class="home-bento__promo-text">{{ flashDealsCopy.subtitle }}</p>
         <div *ngIf="flashCountdown" class="flash-countdown" aria-live="polite">
           <div class="flash-countdown__unit"><strong>{{ flashCountdown.hours }}</strong><span>HRS</span></div>
           <div class="flash-countdown__unit"><strong>{{ flashCountdown.minutes }}</strong><span>MINS</span></div>
           <div class="flash-countdown__unit"><strong>{{ flashCountdown.seconds }}</strong><span>SECS</span></div>
         </div>
       </div>
-      <a [routerLink]="homeData?.flashDeals?.ctaLink || '/shop'" class="home-bento__promo-link">
-        {{ homeData?.flashDeals?.ctaLabel || 'Browse deals' }} →
+      <a [routerLink]="flashDealsCopy.ctaLink" class="home-bento__promo-link">
+        {{ flashDealsCopy.ctaLabel }} →
       </a>
     </div>
 
     <div class="home-bento__promo home-bento__promo--delivery">
       <div>
-        <span class="home-bento__promo-badge home-bento__promo-badge--blue">Free Delivery</span>
-        <p class="home-bento__promo-title">{{ homeData?.freeDelivery?.title }}</p>
-        <p class="home-bento__promo-text">
-          {{ homeData?.freeDelivery?.message || homeData?.freeDelivery?.subtitle }}
-        </p>
+        <span class="home-bento__promo-badge home-bento__promo-badge--blue">{{ freeDeliveryCopy.badge }}</span>
+        <p class="home-bento__promo-title">{{ freeDeliveryCopy.title }}</p>
+        <p class="home-bento__promo-text">{{ freeDeliveryCopy.subtitle }}</p>
       </div>
-      <a [routerLink]="homeData?.freeDelivery?.ctaLink || '/shop'" class="home-bento__promo-link home-bento__promo-link--blue">
-        {{ homeData?.freeDelivery?.ctaLabel || 'Learn more' }} →
+      <a [routerLink]="freeDeliveryCopy.ctaLink" class="home-bento__promo-link home-bento__promo-link--blue">
+        {{ freeDeliveryCopy.ctaLabel }} →
       </a>
     </div>
   </div>
@@ -80,7 +78,7 @@
   </section>
 
   <!-- Flash Deals products -->
-  <section *ngIf="flashDealProducts.length">
+  <section *ngIf="homeConfigLoading || flashDealProducts.length">
     <div class="home-section-head">
       <div>
         <h2 class="section-title section-title-accent">{{ homeData?.sections?.dealsTitle || 'Flash Deals' }}</h2>
