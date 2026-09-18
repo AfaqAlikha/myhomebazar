@@ -301,9 +301,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.trendingProducts = data?.trendingProducts || [];
         this.displayCategories = (data?.categories || []).slice(0, 8);
         if (this.displayCategories.length < 5) this.loadCategoriesFallback();
-        if (data?.flashDeals?.endAt) {
-          this.flashEndAt = new Date(data.flashDeals.endAt);
-          this.startCountdown();
+        this.resetFlashCountdown();
+        const countdownEnd = data?.flashDeals?.endAt;
+        if (countdownEnd) {
+          const end = new Date(countdownEnd);
+          if (!Number.isNaN(end.getTime())) {
+            this.flashEndAt = end;
+            this.startCountdown();
+          }
         }
         this.homeConfigLoading = false;
       },
@@ -329,6 +334,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  private resetFlashCountdown(): void {
+    this.countdownSub?.unsubscribe();
+    this.countdownSub = undefined;
+    this.flashEndAt = null;
+    this.flashCountdown = null;
+  }
+
   private startCountdown(): void {
     this.countdownSub?.unsubscribe();
     if (!this.flashEndAt) return;
@@ -340,7 +352,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!this.flashEndAt) return;
     const diff = this.flashEndAt.getTime() - Date.now();
     if (diff <= 0) {
-      this.flashCountdown = { hours: '00', minutes: '00', seconds: '00' };
+      this.flashCountdown = null;
+      this.countdownSub?.unsubscribe();
+      this.countdownSub = undefined;
       return;
     }
     this.flashCountdown = {
