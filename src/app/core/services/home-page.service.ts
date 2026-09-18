@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, shareReplay } from 'rxjs';
+import { Observable, map, shareReplay } from 'rxjs';
 import { API_ENDPOINTS } from '../config/api-endpoints';
 
 export interface HomeHeroSlide {
@@ -69,15 +69,28 @@ export interface HomePageData {
 
 @Injectable({ providedIn: 'root' })
 export class HomePageService {
-  private cache$?: Observable<{ success: boolean; data: HomePageData }>;
+  private cache$?: Observable<HomePageData>;
 
   constructor(private readonly http: HttpClient) {}
 
-  getPublicHome(): Observable<{ success: boolean; data: HomePageData }> {
+  /** SSR returns `{ data }`; browser interceptor may unwrap to `HomePageData` directly. */
+  private normalizeHomePayload(
+    res: HomePageData | { success?: boolean; data?: HomePageData },
+  ): HomePageData {
+    if (res && typeof res === 'object' && 'data' in res && res.data) {
+      return res.data;
+    }
+    return res as HomePageData;
+  }
+
+  getPublicHome(): Observable<HomePageData> {
     if (!this.cache$) {
       this.cache$ = this.http
-        .get<{ success: boolean; data: HomePageData }>(API_ENDPOINTS.home.public)
-        .pipe(shareReplay(1));
+        .get<HomePageData | { success: boolean; data: HomePageData }>(API_ENDPOINTS.home.public)
+        .pipe(
+          map((res) => this.normalizeHomePayload(res)),
+          shareReplay(1),
+        );
     }
     return this.cache$;
   }
