@@ -1,6 +1,6 @@
 import { Inject, Injectable, PLATFORM_ID, TransferState, makeStateKey } from '@angular/core';
 import { isPlatformServer } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, map, of, tap } from 'rxjs';
 import { API_ENDPOINTS } from '../config/api-endpoints';
 
@@ -97,12 +97,7 @@ export class HomePageService {
     }
 
     return this.http
-      .get<HomePageData | { success: boolean; data: HomePageData }>(API_ENDPOINTS.home.public, {
-        headers: new HttpHeaders({
-          'Cache-Control': 'no-cache',
-          Pragma: 'no-cache',
-        }),
-      })
+      .get<HomePageData | { success: boolean; data: HomePageData }>(API_ENDPOINTS.home.public)
       .pipe(
         map((res) => this.normalizeHomePayload(res)),
         tap((data) => {

@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   HostListener,
@@ -63,6 +64,7 @@ interface Product {
   ],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductCardComponent implements OnInit, OnDestroy {
   private static readonly NAV_LOADER_MIN_MS = 250;
@@ -203,13 +205,16 @@ export class ProductCardComponent implements OnInit, OnDestroy {
   addToWishlist(productId: string): void {
     if (this.isOwnProduct()) return;
     this.wishlistLoading = true;
+    this.cdr.markForCheck();
     this.wishlistService.addToWishlist(productId).subscribe({
       next: () => {
         this.wishlistLoading = false;
+        this.cdr.markForCheck();
         this.router.navigate(['/wishlist']);
       },
       error: () => {
         this.wishlistLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -235,13 +240,16 @@ export class ProductCardComponent implements OnInit, OnDestroy {
     }
 
     this.cartLoading = true;
+    this.cdr.markForCheck();
     this.cartService.addToCart(product._id).subscribe({
       next: () => {
         this.cartLoading = false;
+        this.cdr.markForCheck();
         this.router.navigate(['/cart']);
       },
       error: () => {
         this.cartLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }

@@ -1,4 +1,13 @@
-import { Component, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  HostListener,
+  Inject,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+} from '@angular/core';
 import { isPlatformBrowser, NgClass, NgFor, NgIf } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -42,6 +51,7 @@ import {
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit, OnDestroy {
   featured: Hero3dSlide[] = [];
@@ -99,6 +109,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private categoryService: CategoryService,
     private homePageService: HomePageService,
     private seo: SeoService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -203,6 +214,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const next = options[(currentIndex + 1) % options.length];
     this.gridPreferences = { ...this.gridPreferences, [this.viewportTier]: next };
     this.saveGridPreferences();
+    this.cdr.markForCheck();
   }
 
   onCategoryChipSelect(categoryId: string): void {
@@ -247,6 +259,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   @HostListener('window:resize')
   onWindowResize(): void {
     this.syncViewport();
+    this.cdr.markForCheck();
   }
 
   @HostListener('window:scroll')
@@ -306,11 +319,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (this.displayCategories.length < 5) this.loadCategoriesFallback();
         this.applyFlashCountdown(data);
         this.homeConfigLoading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         if (requestId !== this.homeConfigRequestId) return;
         this.homeConfigLoading = false;
         this.loadCategoriesFallback();
+        this.cdr.markForCheck();
       },
     });
   }
@@ -349,6 +364,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           color: cat.color || '',
         }));
         if (mapped.length) this.displayCategories = mapped;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -373,6 +389,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.flashCountdown = null;
       this.countdownSub?.unsubscribe();
       this.countdownSub = undefined;
+      this.cdr.markForCheck();
       return;
     }
     this.flashCountdown = {
@@ -380,6 +397,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       minutes: String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
       seconds: String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
     };
+    this.cdr.markForCheck();
   }
 
   loadHomeProducts(append = false): void {
@@ -400,11 +418,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.hasMore = this.page < res.pagination.totalPages;
         this.isLoading = false;
         this.loadingMore = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         if (append && this.page > 1) this.page -= 1;
         this.isLoading = false;
         this.loadingMore = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -446,9 +466,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.featured = [...productBanners, ...imageBanners];
         this.syncHeroSlides();
         this.heroSlidesLoading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.heroSlidesLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
