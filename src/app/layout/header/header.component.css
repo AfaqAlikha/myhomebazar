@@ -10,33 +10,71 @@
   box-shadow: 0 4px 24px color-mix(in srgb, var(--color-text) 6%, transparent);
 }
 
+.header-mockup-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.header-menu-btn {
+  flex-shrink: 0;
+}
+
+.header-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
 .header-brand__logo {
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   border-radius: 999px;
   object-fit: cover;
   flex-shrink: 0;
 }
 
+.header-brand__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .header-brand__name {
   display: block;
-  font-size: 1.05rem;
+  font-size: 0.9375rem;
   font-weight: 800;
   color: var(--color-text);
   line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-brand__tag {
-  display: block;
-  font-size: 0.6875rem;
+  display: none;
+  font-size: 0.625rem;
   color: var(--color-text-secondary);
-  margin-top: 0.1rem;
+  margin-top: 0.08rem;
+  white-space: nowrap;
 }
 
 .header-search-pill {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 0.35rem;
   height: 2.75rem;
   padding: 0 0.35rem 0 1rem;
@@ -46,6 +84,13 @@
   color: var(--color-text-secondary);
   font-size: 0.875rem;
   transition: border-color 0.2s ease;
+}
+
+.header-search-pill--desktop {
+  display: none;
+  flex: 1 1 auto;
+  max-width: 36rem;
+  margin-inline: 0.5rem;
 }
 
 .header-search-pill:focus-within {
@@ -65,8 +110,9 @@
 }
 
 .header-search-pill__input {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
+  width: 100%;
   border: 0;
   outline: none;
   background: transparent;
@@ -97,6 +143,13 @@
   width: 1.1rem !important;
   height: 1.1rem !important;
   font-size: 1.1rem !important;
+}
+
+.header-quick-nav {
+  display: none;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
 }
 
 .header-quick-nav__link {
@@ -146,9 +199,112 @@
   text-align: center;
 }
 
+.header-mobile-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  flex-shrink: 0;
+}
+
+.header-mobile-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.header-mobile-icon mat-icon {
+  width: 1.35rem !important;
+  height: 1.35rem !important;
+  font-size: 1.35rem !important;
+}
+
+.header-mobile-icon__badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+.header-mobile-tag {
+  display: block;
+}
+
+@media (min-width: 380px) {
+  .header-brand__logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .header-brand__name {
+    font-size: 1rem;
+  }
+
+  .header-brand__tag {
+    display: block;
+  }
+}
+
 @media (min-width: 768px) {
+  .header-brand__logo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .header-left {
+    flex: 0 1 auto;
+  }
+
+  .header-mobile-tag {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
   .header-brand__logo {
     width: 52px;
     height: 52px;
+  }
+
+  .header-brand__name {
+    font-size: 1.05rem;
+  }
+
+  .header-brand__tag {
+    font-size: 0.6875rem;
+  }
+
+  .header-search-pill--desktop {
+    display: flex;
+  }
+
+  .header-search-panel {
+    display: none !important;
+  }
+
+  .header-mobile-actions,
+  .header-menu-btn {
+    display: none !important;
+  }
+
+  .header-quick-nav {
+    display: flex;
+  }
+
+  .header-left {
+    gap: 0.5rem;
   }
 }
