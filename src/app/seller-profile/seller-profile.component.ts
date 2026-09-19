@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ProductService } from '../services/product.service';
 import { SeoService } from '../services/seo';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProductGridLayoutService } from '../shared/product-grid-layout.service';
 import { ChatService } from '../services/chat.service';
 import { ToastrService } from 'ngx-toastr';
@@ -31,7 +31,6 @@ import { ToastrService } from 'ngx-toastr';
     NgClass,
     MatPaginatorModule,
     MatIconModule,
-    RouterLink,
   ],
   templateUrl: './seller-profile.component.html',
   styleUrls: ['./seller-profile.component.css'],
