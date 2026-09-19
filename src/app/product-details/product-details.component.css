@@ -158,9 +158,7 @@ div.p-rating-option.p-rating-option-active {
     overflow-x: hidden;
   }
 
-  .order-modal-panel {
+  .order-modal-body {
     -webkit-overflow-scrolling: touch;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
   }
 }
