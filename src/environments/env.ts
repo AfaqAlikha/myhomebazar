@@ -14,6 +14,5 @@ export const env = {
   googleAdsSlotHorizontal: '3787726405',
   /** myhomebazar_verical_ads */
   googleAdsSlotVertical: '2674669296',
-  // Use polling-only on live until nginx + single PM2 worker are confirmed.
-  SOCKET_TRANSPORTS: ['polling'] as ('polling' | 'websocket')[],
+  SOCKET_TRANSPORTS: ['polling', 'websocket'] as ('polling' | 'websocket')[],
 };
