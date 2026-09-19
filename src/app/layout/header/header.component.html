@@ -115,7 +115,17 @@
           </mat-menu>
         </nav>
 
-        <div class="flex items-center gap-1 md:hidden">
+        <div class="flex items-center gap-1 lg:hidden">
+          <button
+            mat-icon-button
+            type="button"
+            class="header-search-toggle"
+            (click)="toggleMobileSearch()"
+            [attr.aria-label]="mobileSearchOpen ? 'Close search' : 'Open search'"
+            [attr.aria-expanded]="mobileSearchOpen"
+          >
+            <mat-icon>{{ mobileSearchOpen ? 'close' : 'search' }}</mat-icon>
+          </button>
           <button
             mat-icon-button
             type="button"
@@ -127,25 +137,27 @@
         </div>
       </div>
 
-      <form
-        class="header-search-pill header-search-pill--mobile lg:hidden mt-2"
-        (submit)="onSearchSubmit($event)"
-        role="search"
-        aria-label="Search products"
-      >
-        <input
-          type="search"
-          class="header-search-pill__input"
-          [(ngModel)]="searchQuery"
-          name="headerSearchMobile"
-          (keydown)="onSearchKeydown($event)"
-          placeholder="Search products…"
-          autocomplete="off"
-        />
-        <button type="submit" class="header-search-pill__btn" aria-label="Search">
-          <mat-icon>search</mat-icon>
-        </button>
-      </form>
+      <div *ngIf="mobileSearchOpen" class="header-search-panel lg:hidden">
+        <form
+          class="header-search-pill header-search-pill--mobile"
+          (submit)="onSearchSubmit($event)"
+          role="search"
+          aria-label="Search products"
+        >
+          <input
+            type="search"
+            class="header-search-pill__input"
+            [(ngModel)]="searchQuery"
+            name="headerSearchMobile"
+            (keydown)="onSearchKeydown($event)"
+            placeholder="Search products…"
+            autocomplete="off"
+          />
+          <button type="submit" class="header-search-pill__btn" aria-label="Search">
+            <mat-icon>search</mat-icon>
+          </button>
+        </form>
+      </div>
 
       <p class="header-mobile-tag md:hidden text-center text-[10px] tracking-wide uppercase text-[var(--color-text-secondary)] mt-1">
         Pakistan's Home & Living Marketplace

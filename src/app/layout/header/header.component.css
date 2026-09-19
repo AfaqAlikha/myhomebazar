@@ -34,6 +34,7 @@
 }
 
 .header-search-pill {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.35rem;
@@ -55,6 +56,14 @@
   width: 100%;
 }
 
+.header-search-panel {
+  margin-top: 0.65rem;
+}
+
+.header-search-toggle {
+  color: var(--color-text-secondary);
+}
+
 .header-search-pill__input {
   flex: 1;
   min-width: 0;
@@ -71,13 +80,17 @@
 
 .header-search-pill__btn {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 2.25rem;
   height: 2.25rem;
+  margin-left: auto;
+  border: 0;
   border-radius: 999px;
   background: var(--color-accent);
   color: #fff;
+  cursor: pointer;
 }
 
 .header-search-pill__btn mat-icon {
