@@ -94,7 +94,7 @@
       </div>
       <a routerLink="/deals" class="home-section-head__link">View all deals →</a>
     </div>
-    <div class="home-product-row md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:grid-auto-none">
+    <div class="home-product-row home-product-row--deals">
       <div *ngFor="let product of flashDealProducts; let i = index" class="home-product-row__item">
         <app-product-card [product]="product" [revealDelay]="i * 50" variant="mockup"></app-product-card>
       </div>

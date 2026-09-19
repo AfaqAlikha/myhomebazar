@@ -597,6 +597,29 @@ html {
   padding-bottom: 0.35rem;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-text) 25%, transparent) transparent;
+}
+
+.home-product-row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.home-product-row::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-text) 22%, transparent);
+}
+
+.home-product-row::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (min-width: 768px) {
+  .home-product-row--deals {
+    grid-auto-columns: minmax(220px, 260px);
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+  }
 }
 
 .home-product-row__item {
