@@ -1,4 +1,4 @@
-import { Injectable, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID, OnDestroy, NgZone } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { io, Socket } from 'socket.io-client';
 import { Subject } from 'rxjs';
@@ -50,8 +50,15 @@ export class SocketService implements OnDestroy {
   readonly buyerNotification$ = new Subject<any>();
   readonly chatMessage$ = new Subject<ChatSocketPayload>();
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private readonly ngZone: NgZone,
+  ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
+  }
+
+  private emitInZone<T>(subject: Subject<T>, payload: T): void {
+    this.ngZone.run(() => subject.next(payload));
   }
 
   connect(userId: string): void {
@@ -74,15 +81,15 @@ export class SocketService implements OnDestroy {
     });
 
     this.socket.on('orderStatusUpdate', (payload: OrderStatusUpdatePayload) => {
-      this.orderStatusUpdate$.next(payload);
+      this.emitInZone(this.orderStatusUpdate$, payload);
     });
 
     this.socket.on('buyerNotification', (payload: any) => {
-      this.buyerNotification$.next(payload);
+      this.emitInZone(this.buyerNotification$, payload);
     });
 
     this.socket.on('chatMessage', (payload: ChatSocketPayload) => {
-      this.chatMessage$.next(payload);
+      this.emitInZone(this.chatMessage$, payload);
     });
   }
 

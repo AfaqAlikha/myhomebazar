@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   ElementRef,
   OnDestroy,
@@ -6,7 +7,7 @@ import {
   ViewChild,
   inject,
 } from '@angular/core';
-import { CommonModule, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
+import { CommonModule, NgClass, NgFor, NgIf } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,7 +32,6 @@ import { SocketService } from '../core/services/socket.service';
     RouterLink,
     ReactiveFormsModule,
     MatIconModule,
-    DatePipe,
     UserAvatarComponent,
   ],
   templateUrl: './messages.component.html',
@@ -46,6 +46,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
   private readonly chat = inject(ChatService);
   private readonly socket = inject(SocketService);
   private readonly fb = inject(FormBuilder);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   conversations: ChatConversation[] = [];
   messages: ChatMessage[] = [];
@@ -58,6 +59,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
   private messagesPage = 1;
   private readonly messagesPageSize = 30;
+  private loadedConversationId: string | null = null;
 
   messageForm = this.fb.group({
     text: ['', [Validators.required, Validators.maxLength(2000)]],
@@ -80,6 +82,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
       this.chat.conversations$.subscribe((items) => {
         this.conversations = items;
         this.loadingConversations = false;
+        this.syncActiveConversation();
+        this.cdr.markForCheck();
       }),
       this.chat.refreshConversations().subscribe(),
       this.route.paramMap.subscribe((params) => {
@@ -89,23 +93,30 @@ export class MessagesComponent implements OnInit, OnDestroy {
         } else {
           this.activeConversation = null;
           this.chat.setActiveConversation(null);
+          this.loadedConversationId = null;
           this.messages = [];
           this.messagesPage = 1;
           this.hasMoreMessages = false;
+          this.cdr.markForCheck();
         }
       }),
       this.socket.chatMessage$.subscribe((payload) => {
-        if (!this.activeConversation || payload.conversationId !== this.activeConversation._id) {
-          return;
-        }
+        if (!this.activeConversation) return;
+
+        const activeId = String(this.activeConversation._id);
+        if (String(payload.conversationId) !== activeId) return;
+
+        const message = this.normalizeMessage(payload.message);
+        if (!message) return;
 
         const viewerId = String(this.auth.getUser()?.id || '');
-        if (String(payload.message.senderId) === viewerId) {
+        if (String(message.senderId) === viewerId) {
+          this.appendMessage(message);
           return;
         }
 
-        this.appendMessage(payload.message);
-        this.chat.markRead(this.activeConversation._id).subscribe();
+        this.appendMessage(message);
+        this.chat.markRead(activeId).subscribe();
       }),
     );
   }
@@ -116,20 +127,26 @@ export class MessagesComponent implements OnInit, OnDestroy {
   }
 
   openConversation(conversationId: string): void {
-    const found = this.conversations.find((item) => item._id === conversationId);
-    if (found) {
-      this.activeConversation = found;
-    } else if (!this.activeConversation || this.activeConversation._id !== conversationId) {
+    const id = String(conversationId);
+    this.syncActiveConversation(id);
+
+    if (!this.activeConversation || String(this.activeConversation._id) !== id) {
       this.activeConversation = {
-        _id: conversationId,
+        _id: id,
         peer: { _id: '', name: 'Chat' },
       };
     }
 
-    this.chat.setActiveConversation(conversationId);
+    this.chat.setActiveConversation(id);
+
+    if (this.loadedConversationId === id && this.messages.length > 0) {
+      this.cdr.markForCheck();
+      return;
+    }
+
     this.messagesPage = 1;
     this.hasMoreMessages = false;
-    this.loadMessages(conversationId, 1, true);
+    this.loadMessages(id, 1, true);
   }
 
   selectConversation(conversation: ChatConversation): void {
@@ -152,6 +169,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.sending = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -168,20 +186,34 @@ export class MessagesComponent implements OnInit, OnDestroy {
     return String(message.senderId) === String(this.auth.getUser()?.id);
   }
 
+  messageTime(message: ChatMessage): string {
+    const value = message?.createdAt ? new Date(message.createdAt) : null;
+    if (!value || Number.isNaN(value.getTime())) return '';
+    return value.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  }
+
+  peerName(conversation: ChatConversation | null): string {
+    return conversation?.peer?.name?.trim() || 'Chat';
+  }
+
   private loadMessages(conversationId: string, page: number, replace: boolean): void {
+    const id = String(conversationId);
+
     if (replace) {
       this.loadingMessages = true;
     } else {
       this.loadingOlder = true;
     }
+    this.cdr.markForCheck();
 
-    this.chat.getMessagesPage(conversationId, page, this.messagesPageSize).subscribe({
+    this.chat.getMessagesPage(id, page, this.messagesPageSize).subscribe({
       next: ({ messages, pagination }) => {
         const scrollEl = this.threadBody?.nativeElement;
         const previousHeight = scrollEl?.scrollHeight || 0;
 
         if (replace) {
           this.messages = messages;
+          this.loadedConversationId = id;
         } else {
           this.messages = this.mergeMessages(messages, this.messages);
         }
@@ -192,30 +224,65 @@ export class MessagesComponent implements OnInit, OnDestroy {
         this.loadingOlder = false;
 
         if (replace) {
-          this.chat.markRead(conversationId).subscribe();
+          this.chat.markRead(id).subscribe();
           this.scrollToBottom();
         } else if (scrollEl) {
           setTimeout(() => {
             scrollEl.scrollTop = scrollEl.scrollHeight - previousHeight;
           }, 0);
         }
+
+        this.cdr.markForCheck();
       },
       error: () => {
         this.loadingMessages = false;
         this.loadingOlder = false;
+        this.cdr.markForCheck();
       },
     });
   }
 
+  private syncActiveConversation(conversationId?: string): void {
+    const id = conversationId ? String(conversationId) : this.activeConversation?._id;
+    if (!id) return;
+
+    const found = this.conversations.find((item) => String(item._id) === String(id));
+    if (found) {
+      this.activeConversation = found;
+    }
+  }
+
   private appendMessage(message: ChatMessage): void {
-    this.messages = this.mergeMessages(this.messages, [message]);
+    const normalized = this.normalizeMessage(message);
+    if (!normalized) return;
+
+    this.messages = this.mergeMessages(this.messages, [normalized]);
+    this.cdr.markForCheck();
+    this.scrollToBottom();
+  }
+
+  private normalizeMessage(message: ChatMessage | null | undefined): ChatMessage | null {
+    if (!message?._id) return null;
+
+    return {
+      ...message,
+      _id: String(message._id),
+      conversationId: String(message.conversationId || this.activeConversation?._id || ''),
+      senderId: String(message.senderId),
+      text: String(message.text || ''),
+      createdAt: message.createdAt || new Date().toISOString(),
+    };
   }
 
   private mergeMessages(existing: ChatMessage[], incoming: ChatMessage[]): ChatMessage[] {
     const map = new Map<string, ChatMessage>();
+
     for (const item of [...existing, ...incoming]) {
-      map.set(String(item._id), item);
+      const normalized = this.normalizeMessage(item);
+      if (!normalized) continue;
+      map.set(normalized._id, normalized);
     }
+
     return Array.from(map.values()).sort(
       (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );

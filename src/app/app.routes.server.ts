@@ -90,6 +90,14 @@ export const serverRoutes: ServerRoute[] = [
     path: 'my-claims',
     renderMode: RenderMode.Client,
   },
+  {
+    path: 'messages',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'messages/**',
+    renderMode: RenderMode.Client,
+  },
 
   // ❌ Cart / Payment (user data)
   {
