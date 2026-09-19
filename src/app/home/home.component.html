@@ -65,6 +65,44 @@
   </app-hero-3d-banner>
 </section>
 
+<!-- Promo banners: mobile -->
+<section class="home-mobile-promos md:hidden">
+  <div class="home-mobile-promos__flash">
+    <app-promo-3d-card variant="flash">
+      <div class="home-bento__promo-body">
+        <div>
+          <span class="home-bento__promo-badge">{{ flashDealsCopy.badge }}</span>
+          <p class="home-bento__promo-title">{{ flashDealsCopy.title }}</p>
+          <p class="home-bento__promo-text">{{ flashDealsCopy.subtitle }}</p>
+          <div *ngIf="flashCountdown" class="flash-countdown" aria-live="polite">
+            <div class="flash-countdown__unit"><strong>{{ flashCountdown.hours }}</strong><span>HRS</span></div>
+            <div class="flash-countdown__unit"><strong>{{ flashCountdown.minutes }}</strong><span>MINS</span></div>
+            <div class="flash-countdown__unit"><strong>{{ flashCountdown.seconds }}</strong><span>SECS</span></div>
+          </div>
+        </div>
+        <a [routerLink]="flashDealsCopy.ctaLink" class="home-bento__promo-link">
+          {{ flashDealsCopy.ctaLabel }} →
+        </a>
+      </div>
+    </app-promo-3d-card>
+  </div>
+
+  <div class="home-mobile-promos__delivery">
+    <app-promo-3d-card variant="delivery">
+      <div class="home-bento__promo-body">
+        <div>
+          <span class="home-bento__promo-badge home-bento__promo-badge--blue">{{ freeDeliveryCopy.badge }}</span>
+          <p class="home-bento__promo-title">{{ freeDeliveryCopy.title }}</p>
+          <p class="home-bento__promo-text">{{ freeDeliveryCopy.subtitle }}</p>
+        </div>
+        <a [routerLink]="freeDeliveryCopy.ctaLink" class="home-bento__promo-link home-bento__promo-link--blue">
+          {{ freeDeliveryCopy.ctaLabel }} →
+        </a>
+      </div>
+    </app-promo-3d-card>
+  </div>
+</section>
+
 <div class="container mx-auto px-2 md:px-3 py-4 space-y-6 md:space-y-8">
   <!-- Categories -->
   <section class="page-panel">
