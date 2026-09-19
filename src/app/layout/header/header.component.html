@@ -116,10 +116,6 @@
         </nav>
 
         <div class="header-mobile-actions">
-          <a routerLink="/cart" class="header-mobile-icon" aria-label="Cart">
-            <mat-icon>shopping_cart</mat-icon>
-            <span *ngIf="cartCount > 0" class="header-mobile-icon__badge">{{ cartCount > 9 ? '9+' : cartCount }}</span>
-          </a>
           <button
             mat-icon-button
             type="button"
