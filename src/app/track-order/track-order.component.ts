@@ -8,7 +8,6 @@ import { ToastrService } from 'ngx-toastr';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { UiInputComponent } from '../shared/ui-input/ui-input.component';
 import { UiButtonComponent } from '../shared/ui-button/ui-button.component';
-import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { ProductOrderService } from '../services/product-order.service';
 import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
 
@@ -33,20 +32,16 @@ type TrackStep = {
     UiCardComponent,
     UiInputComponent,
     UiButtonComponent,
-    StarRatingComponent,
   ],
   templateUrl: './track-order.component.html',
   styleUrls: ['./track-order.component.css'],
 })
 export class TrackOrderComponent {
   form: FormGroup;
-  reviewForm: FormGroup;
-  completeForm: FormGroup;
   loading = false;
   actionLoading = false;
   order: any = null;
   error = '';
-  showReviewOnComplete = false;
 
   readonly statusFlow = ['pending', 'confirmed', 'shipped', 'delivered', 'completed'];
 
@@ -59,16 +54,6 @@ export class TrackOrderComponent {
     this.form = this.fb.group({
       orderId: ['', Validators.required],
       phone: ['', [Validators.required, pakistaniPhoneValidator]],
-    });
-
-    this.reviewForm = this.fb.group({
-      rating: [0, [Validators.required, Validators.min(0.5)]],
-      comment: [''],
-    });
-
-    this.completeForm = this.fb.group({
-      rating: [0, [Validators.min(0.5)]],
-      comment: [''],
     });
 
     const orderId = this.route.snapshot.queryParamMap.get('orderId');
@@ -86,8 +71,6 @@ export class TrackOrderComponent {
     this.loading = true;
     this.error = '';
     this.order = null;
-    this.showReviewOnComplete = false;
-
     const { orderId, phone } = this.form.value;
     this.productOrderService.trackGuestOrder(orderId, phone).subscribe({
       next: (res: any) => {
@@ -104,21 +87,11 @@ export class TrackOrderComponent {
     });
   }
 
-  completeOrder(withReview = false): void {
+  completeOrder(): void {
     if (!this.order) return;
 
     const { orderId, phone } = this.form.value;
-    const payload: any = { orderId, phone };
-
-    if (withReview) {
-      const { rating, comment } = this.completeForm.value;
-      if (!rating || rating < 0.5) {
-        this.toastr.warning('Please select a rating before submitting.');
-        return;
-      }
-      payload.rating = rating;
-      payload.comment = comment?.trim() || '';
-    }
+    const payload = { orderId, phone };
 
     this.actionLoading = true;
     this.productOrderService.completeGuestOrder(payload).subscribe({
@@ -126,36 +99,11 @@ export class TrackOrderComponent {
         this.actionLoading = false;
         this.order = res?.order || this.order;
         this.toastr.success(res?.message || 'Order completed successfully');
-        this.showReviewOnComplete = false;
         this.track();
       },
       error: (err) => {
         this.actionLoading = false;
         this.toastr.error(err?.error?.message || 'Could not complete order');
-      },
-    });
-  }
-
-  submitReview(): void {
-    if (!this.order || this.reviewForm.invalid) {
-      this.reviewForm.markAllAsTouched();
-      return;
-    }
-
-    const { orderId, phone } = this.form.value;
-    const { rating, comment } = this.reviewForm.value;
-
-    this.actionLoading = true;
-    this.productOrderService.reviewGuestOrder({ orderId, phone, rating, comment }).subscribe({
-      next: (res: any) => {
-        this.actionLoading = false;
-        this.order = res?.order || this.order;
-        this.toastr.success(res?.message || 'Review submitted');
-        this.track();
-      },
-      error: (err) => {
-        this.actionLoading = false;
-        this.toastr.error(err?.error?.message || 'Could not submit review');
       },
     });
   }
@@ -208,11 +156,4 @@ export class TrackOrderComponent {
     return this.order?.canComplete || this.order?.status === 'delivered';
   }
 
-  canReview(): boolean {
-    return Boolean(this.order?.canReview && !this.order?.hasReviewed);
-  }
-
-  hasReview(): boolean {
-    return Boolean(this.order?.hasReviewed && this.order?.review);
-  }
 }
