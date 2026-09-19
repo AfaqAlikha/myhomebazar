@@ -60,11 +60,7 @@
           Filters
         </button>
 
-        <div class="w-full md:max-w-sm">
-          <app-ui-search (search)="onSearch($event)"></app-ui-search>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2 md:ml-auto">
           <span class="text-sm text-[var(--color-text-secondary)]">{{ totalItems }} products</span>
           <button type="button" class="shop-sort-pill" [class.shop-sort-pill--active]="sortOrder === 'low'" (click)="setSort('low')">Low to High</button>
           <button type="button" class="shop-sort-pill" [class.shop-sort-pill--active]="sortOrder === 'high'" (click)="setSort('high')">High to Low</button>

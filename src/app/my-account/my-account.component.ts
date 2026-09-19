@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { UserAvatarComponent } from '../shared/user-avatar/user-avatar.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
-import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
+import { HeaderProductSearchService } from '../core/services/header-product-search.service';
 
 import { AuthService } from '../auth/auth.service';
 import { ProductService } from '../services/product.service';
@@ -27,7 +27,6 @@ import { RouterLink } from '@angular/router';
     ProductCardComponent,
     StarRatingComponent,
     UserAvatarComponent,
-    UiSearchComponent,
     CommonModule,
     NgFor,
     NgIf,
@@ -43,6 +42,8 @@ export class MyAccountComponent implements OnInit {
   private auth = inject(AuthService);
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
+  private destroyRef = inject(DestroyRef);
+  private headerSearch = inject(HeaderProductSearchService);
 
   borderRadius = '8px';
   form: FormGroup = this.fb.group({
@@ -93,6 +94,13 @@ export class MyAccountComponent implements OnInit {
         );
 
         if (this.showProductsSection) {
+          this.searchQuery = this.headerSearch.getQuery('my-account');
+          this.headerSearch.bindPageSearch(this.destroyRef, 'my-account', (query) => {
+            if (this.searchQuery === query) return;
+            this.searchQuery = query;
+            this.currentPage = 1;
+            this.fetchProducts();
+          });
           this.loadCategories();
           this.fetchProducts();
         }
@@ -161,12 +169,6 @@ export class MyAccountComponent implements OnInit {
           this.productsLoading = false;
         },
       });
-  }
-
-  onSearch(query: string) {
-    this.searchQuery = query;
-    this.currentPage = 1;
-    this.fetchProducts();
   }
 
   selectCategory(cat: Category) {

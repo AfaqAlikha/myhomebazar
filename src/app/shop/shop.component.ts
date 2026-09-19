@@ -1,13 +1,13 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, DestroyRef, HostListener, OnInit, inject } from '@angular/core';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { CategoryChipsComponent } from '../shared/category-chips/category-chips.component';
-import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 import { HomeCategoryChip } from '../core/services/home-page.service';
 import { ProductGridLayoutService } from '../shared/product-grid-layout.service';
+import { HeaderProductSearchService } from '../core/services/header-product-search.service';
 
 import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
@@ -21,7 +21,6 @@ import { SeoService } from '../services/seo';
     MatPaginatorModule,
     ProductCardComponent,
     CategoryChipsComponent,
-    UiSearchComponent,
     NgClass,
     NgIf,
     MatIconModule,
@@ -30,6 +29,9 @@ import { SeoService } from '../services/seo';
   styleUrls: ['./shop.component.css'],
 })
 export class ShopComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly headerSearch = inject(HeaderProductSearchService);
+
   isLoading = false;
   noProducts = false;
   showMobileFilters = false;
@@ -69,6 +71,14 @@ export class ShopComponent implements OnInit {
 
   ngOnInit(): void {
     this.seo.setShopSeo();
+    this.searchQuery = this.headerSearch.getQuery('shop');
+    this.headerSearch.bindPageSearch(this.destroyRef, 'shop', (query) => {
+      if (this.searchQuery === query) return;
+      this.searchQuery = query;
+      this.currentPage = 1;
+      this.fetchProducts();
+    });
+
     // ✅ Load all categories
     this.categoryService.getCategories().subscribe({
       next: (cats) => {
@@ -120,13 +130,6 @@ export class ShopComponent implements OnInit {
           this.noProducts = true;
         },
       });
-  }
-
-  // ✅ Search handler
-  onSearch(query: string) {
-    this.searchQuery = query;
-    this.currentPage = 1;
-    this.fetchProducts();
   }
 
   onCategoryChipSelect(categoryId: string): void {
