@@ -4,7 +4,7 @@
       <p class="track-eyebrow">Guest order tracking</p>
       <h1 class="track-title">Track your order</h1>
       <p class="track-subtitle">
-        Enter your order ID and phone number to see live status, confirm delivery, and leave a review.
+        Enter your order ID and phone number to see live status and confirm delivery.
       </p>
     </div>
   </section>
@@ -112,83 +112,16 @@
           <mat-icon>task_alt</mat-icon>
           <div>
             <h3>Confirm you received the order</h3>
-            <p>Mark the order complete after delivery so the seller gets paid and you can leave a review.</p>
+            <p>Mark the order complete after delivery so the seller gets paid.</p>
           </div>
         </div>
 
-        <div class="track-action-options">
-          <app-ui-button
-            label="Complete Order"
-            variant="accent"
-            [loading]="actionLoading && !showReviewOnComplete"
-            (clicked)="completeOrder(false)"
-          ></app-ui-button>
-
-          <button type="button" class="track-link-btn" (click)="showReviewOnComplete = !showReviewOnComplete">
-            {{ showReviewOnComplete ? 'Hide review form' : 'Complete with review' }}
-          </button>
-        </div>
-
-        <div class="track-review-inline" *ngIf="showReviewOnComplete" [formGroup]="completeForm">
-          <p class="track-review-label">Rate your experience</p>
-          <app-star-rating
-            formControlName="rating"
-            [readonly]="false"
-            size="md"
-            [showValue]="true"
-          ></app-star-rating>
-          <textarea
-            class="track-textarea"
-            rows="3"
-            formControlName="comment"
-            placeholder="Share a short review (optional)"
-          ></textarea>
-          <app-ui-button
-            label="Complete & Submit Review"
-            variant="accent"
-            [loading]="actionLoading"
-            (clicked)="completeOrder(true)"
-          ></app-ui-button>
-        </div>
-      </app-ui-card>
-
-      <app-ui-card *ngIf="canReview()" class="track-card track-action-card p-4 sm:p-6">
-        <div class="track-action-head">
-          <mat-icon>rate_review</mat-icon>
-          <div>
-            <h3>Write a review</h3>
-            <p>Tell others about your purchase experience.</p>
-          </div>
-        </div>
-
-        <form [formGroup]="reviewForm" class="track-review-form" (ngSubmit)="submitReview()">
-          <app-star-rating formControlName="rating" [readonly]="false" size="md" [showValue]="true"></app-star-rating>
-          <textarea
-            class="track-textarea"
-            rows="3"
-            formControlName="comment"
-            placeholder="Share your experience (optional)"
-          ></textarea>
-          <app-ui-button
-            label="Submit Review"
-            variant="accent"
-            [loading]="actionLoading"
-            (clicked)="submitReview()"
-          ></app-ui-button>
-        </form>
-      </app-ui-card>
-
-      <app-ui-card *ngIf="hasReview()" class="track-card p-4 sm:p-6">
-        <div class="track-review-display">
-          <p class="track-review-label">Your review</p>
-          <app-star-rating
-            [value]="order.review.rating"
-            [readonly]="true"
-            size="sm"
-            [showValue]="true"
-          ></app-star-rating>
-          <p *ngIf="order.review.comment" class="track-review-comment">{{ order.review.comment }}</p>
-        </div>
+        <app-ui-button
+          label="Complete Order"
+          variant="accent"
+          [loading]="actionLoading"
+          (clicked)="completeOrder()"
+        ></app-ui-button>
       </app-ui-card>
 
       <app-ui-card class="track-card p-4 sm:p-6">
