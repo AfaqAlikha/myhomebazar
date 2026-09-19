@@ -23,7 +23,7 @@
       >
         <app-user-avatar
           [name]="peerName(conversation)"
-          [avatar]="conversation.peer?.avatar"
+          [avatar]="conversation.peer.avatar"
           size="md"
         ></app-user-avatar>
         <div class="messages-inbox__content">
@@ -45,7 +45,7 @@
         </button>
         <app-user-avatar
           [name]="peerName(activeConversation)"
-          [avatar]="activeConversation.peer?.avatar"
+          [avatar]="activeConversation.peer.avatar"
           size="sm"
         ></app-user-avatar>
         <div>
