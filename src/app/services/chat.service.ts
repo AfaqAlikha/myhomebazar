@@ -92,7 +92,7 @@ export class ChatService implements OnDestroy {
   }
 
   setActiveConversation(conversationId: string | null): void {
-    this.activeConversationId = conversationId;
+    this.activeConversationId = conversationId ? String(conversationId) : null;
   }
 
   refreshConversations(): Observable<ChatConversation[]> {
@@ -139,7 +139,7 @@ export class ChatService implements OnDestroy {
       })
       .pipe(
         map((res) => ({
-          messages: res.messages || [],
+          messages: (res.messages || []).map((message) => this.normalizeMessage(message)),
           pagination: res.pagination || {
             totalItems: 0,
             currentPage: page,
@@ -156,28 +156,63 @@ export class ChatService implements OnDestroy {
         API_ENDPOINTS.chat.messages(conversationId),
         { text },
       )
-      .pipe(map((res) => res.message));
+      .pipe(
+        map((res) => {
+          if (!res?.message?._id) {
+            throw new Error('Invalid chat message response');
+          }
+          return this.normalizeMessage(res.message);
+        }),
+      );
   }
 
   markRead(conversationId: string): Observable<void> {
-    return this.http.patch<void>(API_ENDPOINTS.chat.read(conversationId), {}).pipe(
+    const id = String(conversationId);
+    return this.http.patch<void>(API_ENDPOINTS.chat.read(id), {}).pipe(
       tap(() => {
         const updated = this.conversationsSubject.value.map((item) =>
-          item._id === conversationId ? { ...item, unreadCount: 0 } : item,
+          String(item._id) === id ? { ...item, unreadCount: 0 } : item,
         );
         this.conversationsSubject.next(updated);
       }),
     );
   }
 
+  private normalizeMessage(message: ChatMessage): ChatMessage {
+    return {
+      ...message,
+      _id: String(message._id),
+      conversationId: String(message.conversationId),
+      senderId: String(message.senderId),
+      createdAt: message.createdAt || new Date().toISOString(),
+    };
+  }
+
   private upsertConversation(conversation: ChatConversation): void {
+    const id = String(conversation._id);
     const current = [...this.conversationsSubject.value];
-    const index = current.findIndex((item) => item._id === conversation._id);
+    const index = current.findIndex((item) => String(item._id) === id);
+
     if (index >= 0) {
-      current[index] = { ...current[index], ...conversation };
+      const existing = current[index];
+      current[index] = {
+        ...existing,
+        ...conversation,
+        _id: id,
+        peer: {
+          ...(existing.peer || { _id: '', name: 'Chat' }),
+          ...(conversation.peer || {}),
+          name: conversation.peer?.name || existing.peer?.name || 'Chat',
+        },
+      };
     } else {
-      current.unshift(conversation);
+      current.unshift({
+        ...conversation,
+        _id: id,
+        peer: conversation.peer || { _id: '', name: 'Chat' },
+      });
     }
+
     current.sort(
       (a, b) =>
         new Date(b.lastMessageAt || 0).getTime() - new Date(a.lastMessageAt || 0).getTime(),
@@ -189,43 +224,40 @@ export class ChatService implements OnDestroy {
     if (!payload.conversation) return;
 
     const conversation = payload.conversation as ChatConversation;
+    const conversationId = String(conversation._id);
     const isActive =
-      !!this.activeConversationId
-      && String(conversation._id) === String(this.activeConversationId);
+      !!this.activeConversationId && conversationId === String(this.activeConversationId);
 
     if (isActive) {
-      this.upsertConversation({ ...conversation, unreadCount: 0 });
-      this.markRead(this.activeConversationId!).subscribe();
+      this.upsertConversation({ ...conversation, _id: conversationId, unreadCount: 0 });
       return;
     }
 
-    this.upsertConversation(conversation);
+    this.upsertConversation({ ...conversation, _id: conversationId });
   }
 
   private handleBuyerNotification(notification: any): void {
     if (notification?.type !== 'chat_message_received') return;
 
-    const conversationId = notification?.data?.conversationId;
+    const conversationId = notification?.data?.conversationId
+      ? String(notification.data.conversationId)
+      : null;
+
     const onActiveChat =
       !!conversationId
       && !!this.activeConversationId
-      && String(this.activeConversationId) === String(conversationId);
+      && String(this.activeConversationId) === conversationId;
 
-    if (onActiveChat) {
-      this.markRead(conversationId).subscribe();
+    const onMessagesPage =
+      this.router.url.startsWith('/messages')
+      && (!conversationId || this.router.url.includes(conversationId));
+
+    if (onActiveChat || onMessagesPage) {
+      if (conversationId) this.markRead(conversationId).subscribe();
       return;
     }
 
     this.refreshConversations().subscribe();
-
-    const onMessagesPage =
-      this.router.url.startsWith('/messages') &&
-      (!conversationId || this.router.url.includes(String(conversationId)));
-
-    if (onMessagesPage) {
-      if (conversationId) this.markRead(conversationId).subscribe();
-      return;
-    }
 
     this.toastr.info(notification.message || 'New message received', 'Messages', {
       timeOut: 5000,

@@ -22,13 +22,13 @@
         (click)="selectConversation(conversation)"
       >
         <app-user-avatar
-          [name]="conversation.peer.name"
-          [avatar]="conversation.peer.avatar"
+          [name]="peerName(conversation)"
+          [avatar]="conversation.peer?.avatar"
           size="md"
         ></app-user-avatar>
         <div class="messages-inbox__content">
           <div class="messages-inbox__row">
-            <strong>{{ conversation.peer.name }}</strong>
+            <strong>{{ peerName(conversation) }}</strong>
             <span *ngIf="conversation.unreadCount" class="messages-inbox__badge">
               {{ conversation.unreadCount }}
             </span>
@@ -44,12 +44,12 @@
           <mat-icon>arrow_back</mat-icon>
         </button>
         <app-user-avatar
-          [name]="activeConversation.peer.name"
-          [avatar]="activeConversation.peer.avatar"
+          [name]="peerName(activeConversation)"
+          [avatar]="activeConversation.peer?.avatar"
           size="sm"
         ></app-user-avatar>
         <div>
-          <h2>{{ activeConversation.peer.name }}</h2>
+          <h2>{{ peerName(activeConversation) }}</h2>
           <p>Seller chat</p>
         </div>
       </div>
@@ -67,7 +67,7 @@
           [ngClass]="isMine(message) ? 'messages-bubble--mine' : 'messages-bubble--theirs'"
         >
           <p>{{ message.text }}</p>
-          <span>{{ message.createdAt | date: 'shortTime' }}</span>
+          <span>{{ messageTime(message) }}</span>
         </div>
         <div id="chat-thread-bottom"></div>
       </div>
