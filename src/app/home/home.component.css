@@ -91,6 +91,30 @@
   box-shadow: var(--shadow-soft);
 }
 
+.home-mobile-promos {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.75rem 0.75rem 0;
+}
+
+.home-mobile-promos__flash,
+.home-mobile-promos__delivery {
+  min-height: 168px;
+}
+
+.home-mobile-promos .flash-countdown {
+  margin-top: 0.5rem;
+}
+
+.home-mobile-promos .flash-countdown__unit {
+  min-width: 2.75rem;
+  padding: 0.3rem 0.35rem;
+}
+
+.home-mobile-promos .flash-countdown__unit strong {
+  font-size: 0.875rem;
+}
+
 .mobile-hero-card__content {
   padding: 0.25rem 0 0.5rem;
   color: var(--color-text);
