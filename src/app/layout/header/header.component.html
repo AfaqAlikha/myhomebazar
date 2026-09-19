@@ -1,19 +1,19 @@
 <app-ui-card class="w-full border-0 rounded-0">
   <header class="site-header site-header--glass sticky top-0 left-0 right-0 z-50">
     <div class="container mx-auto px-3 py-2.5 md:py-3">
-      <div class="header-mockup-row flex items-center justify-between gap-3">
-        <div class="flex items-center gap-3 min-w-0">
+      <div class="header-mockup-row">
+        <div class="header-left">
           <button
             type="button"
             mat-icon-button
-            class="md:hidden !flex-shrink-0"
+            class="header-menu-btn lg:hidden"
             (click)="openDrawer()"
             aria-label="Open menu"
           >
             <mat-icon>menu</mat-icon>
           </button>
 
-          <a routerLink="/" class="header-brand flex items-center gap-2.5 min-w-0">
+          <a routerLink="/" class="header-brand">
             <img
               *ngIf="logo?.image"
               [src]="logo.image"
@@ -26,7 +26,7 @@
               alt="MyHouseBazar"
               class="header-brand__logo"
             />
-            <span class="hidden sm:block min-w-0">
+            <span class="header-brand__text">
               <span class="header-brand__name">MyHouseBazar</span>
               <span class="header-brand__tag">Pakistan 🇵🇰</span>
             </span>
@@ -34,7 +34,7 @@
         </div>
 
         <form
-          class="header-search-pill hidden lg:flex flex-1 max-w-xl mx-2"
+          class="header-search-pill header-search-pill--desktop"
           (submit)="onSearchSubmit($event)"
           role="search"
           aria-label="Search products"
@@ -53,7 +53,7 @@
           </button>
         </form>
 
-        <nav class="header-quick-nav hidden md:flex items-center gap-4">
+        <nav class="header-quick-nav">
           <a routerLink="/shop" routerLinkActive="header-quick-nav__link--active" class="header-quick-nav__link">
             <mat-icon>storefront</mat-icon>
             <span>Shop</span>
@@ -115,7 +115,11 @@
           </mat-menu>
         </nav>
 
-        <div class="flex items-center gap-1 lg:hidden">
+        <div class="header-mobile-actions">
+          <a routerLink="/cart" class="header-mobile-icon" aria-label="Cart">
+            <mat-icon>shopping_cart</mat-icon>
+            <span *ngIf="cartCount > 0" class="header-mobile-icon__badge">{{ cartCount > 9 ? '9+' : cartCount }}</span>
+          </a>
           <button
             mat-icon-button
             type="button"
@@ -137,7 +141,7 @@
         </div>
       </div>
 
-      <div *ngIf="mobileSearchOpen" class="header-search-panel lg:hidden">
+      <div *ngIf="mobileSearchOpen" class="header-search-panel">
         <form
           class="header-search-pill header-search-pill--mobile"
           (submit)="onSearchSubmit($event)"
@@ -159,7 +163,7 @@
         </form>
       </div>
 
-      <p class="header-mobile-tag md:hidden text-center text-[10px] tracking-wide uppercase text-[var(--color-text-secondary)] mt-1">
+      <p class="header-mobile-tag text-center text-[10px] tracking-wide uppercase text-[var(--color-text-secondary)] mt-1">
         Pakistan's Home & Living Marketplace
       </p>
     </div>
