@@ -11,7 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
-import { CommonModule, NgIf, isPlatformBrowser, DecimalPipe } from '@angular/common';
+import { CommonModule, NgIf, isPlatformBrowser, DecimalPipe, NgOptimizedImage } from '@angular/common';
 import { StarRatingComponent } from '../../star-rating/star-rating.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -59,6 +59,7 @@ interface Product {
     MatIconModule,
     MatProgressSpinnerModule,
     DecimalPipe,
+    NgOptimizedImage,
     ScrollRevealDirective,
     Tilt3dDirective,
   ],
