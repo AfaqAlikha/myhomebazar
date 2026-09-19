@@ -83,66 +83,74 @@
   color: var(--color-text-secondary);
 }
 
-.mobile-hero-card {
-  margin: 0.75rem 0.75rem 0;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-soft);
+.home-bento__hero-copy--mobile {
+  padding: 0.15rem 0 0.35rem;
 }
 
-.home-mobile-promos {
-  display: grid;
-  gap: 0.75rem;
-  margin: 0.75rem 0.75rem 0;
-}
-
-.home-mobile-promos__flash,
-.home-mobile-promos__delivery {
-  min-height: 168px;
-}
-
-.home-mobile-promos .flash-countdown {
-  margin-top: 0.5rem;
-}
-
-.home-mobile-promos .flash-countdown__unit {
-  min-width: 2.75rem;
-  padding: 0.3rem 0.35rem;
-}
-
-.home-mobile-promos .flash-countdown__unit strong {
-  font-size: 0.875rem;
-}
-
-.mobile-hero-card__content {
-  padding: 0.25rem 0 0.5rem;
-  color: var(--color-text);
-}
-
-.mobile-hero-card__title {
-  margin: 0;
+.home-bento__hero-title--mobile {
   font-size: 1.35rem;
-  font-weight: 800;
   line-height: 1.15;
 }
 
-.mobile-hero-card__sub {
-  margin: 0.35rem 0 0.75rem;
-  font-size: 0.8125rem;
-  opacity: 0.95;
+.home-bento__promos-row {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
 }
 
-.mobile-hero-card__cta {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.5rem 0.95rem;
-  border-radius: 999px;
-  background: var(--color-accent);
-  color: #fff;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  text-decoration: none;
+.home-bento__promos-row .home-bento__promo-slot {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 168px;
+}
+
+.home-bento__promos-row .flash-countdown {
+  margin-top: 0.5rem;
+  gap: 0.35rem;
+}
+
+.home-bento__promos-row .flash-countdown__unit {
+  min-width: 2.5rem;
+  padding: 0.28rem 0.32rem;
+}
+
+.home-bento__promos-row .flash-countdown__unit strong {
+  font-size: 0.875rem;
+}
+
+.home-bento__promos-row .home-bento__promo-title {
+  font-size: 0.875rem;
+}
+
+.home-bento__promos-row .home-bento__promo-text {
+  font-size: 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .home-bento__promos-row {
+    display: contents;
+  }
+
+  .home-bento__promos-row .home-bento__promo-slot {
+    min-height: 198px;
+  }
+
+  .home-bento__promos-row .home-bento__promo-title {
+    font-size: 1rem;
+  }
+
+  .home-bento__promos-row .home-bento__promo-text {
+    font-size: 0.8125rem;
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
 }
 
 .home-mockup--mobile {

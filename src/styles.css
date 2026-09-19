@@ -386,11 +386,21 @@ html {
   overflow: hidden;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-soft);
-  min-height: 420px;
+  min-height: 300px;
 }
 
 .home-bento__promo-slot {
-  min-height: 198px;
+  min-height: 168px;
+}
+
+@media (min-width: 768px) {
+  .home-bento__hero {
+    min-height: 420px;
+  }
+
+  .home-bento__promo-slot {
+    min-height: 198px;
+  }
 }
 
 .home-bento__promo-badge {
