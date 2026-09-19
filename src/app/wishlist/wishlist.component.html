@@ -1,14 +1,6 @@
 <div class="container mx-auto min-h-screen flex flex-col py-4 px-10">
-  <!-- Top Bar: Search + Sort -->
-  <div
-    class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6"
-  >
-    <!-- Search -->
-    <div class="">
-      <app-ui-search (search)="onSearch($event)"></app-ui-search>
-    </div>
-
-    <!-- Sort + Grid -->
+  <!-- Top Bar: Sort -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-end gap-4 mb-6">
     <div class="flex flex-wrap items-center gap-3">
       <button
         class="px-3 py-1 border rounded-md"

@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, NgClass, NgFor, NgIf } from '@angular/common';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -6,8 +6,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { UserAvatarComponent } from '../shared/user-avatar/user-avatar.component';
-import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 import { AuthService } from '../auth/auth.service';
+import { HeaderProductSearchService } from '../core/services/header-product-search.service';
+import { Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ProductService } from '../services/product.service';
 import { SeoService } from '../services/seo';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -23,7 +25,6 @@ import { ToastrService } from 'ngx-toastr';
     ProductCardComponent,
     StarRatingComponent,
     UserAvatarComponent,
-    UiSearchComponent,
     CommonModule,
     NgFor,
     NgIf,
@@ -35,12 +36,13 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './seller-profile.component.html',
   styleUrls: ['./seller-profile.component.css'],
 })
-export class SellerProfileComponent implements OnInit {
+export class SellerProfileComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private productService = inject(ProductService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private headerSearch = inject(HeaderProductSearchService);
   private chat = inject(ChatService);
   private toastr = inject(ToastrService);
   private seo = inject(SeoService);
@@ -62,6 +64,8 @@ export class SellerProfileComponent implements OnInit {
   itemsPerPage = 0;
   currentPage = 1;
   noProducts = false;
+  private searchScope = '';
+  private searchSub?: Subscription;
 
   ngOnInit(): void {
     this.gridLayout.syncViewport();
@@ -70,6 +74,10 @@ export class SellerProfileComponent implements OnInit {
       this.loading = false;
       return;
     }
+
+    this.searchScope = `profile:${sellerId}`;
+    this.productSearch = this.headerSearch.getQuery(this.searchScope);
+    this.bindHeaderSearch();
 
     this.auth.getPublicProfile(sellerId).subscribe({
       next: (user) => {
@@ -98,11 +106,22 @@ export class SellerProfileComponent implements OnInit {
     return [this.user.city, this.user.state, this.user.country].filter(Boolean).join(', ');
   }
 
-  onProductSearch(query: string): void {
-    this.productSearch = query;
-    this.currentPage = 1;
-    const sellerId = this.user?._id;
-    if (sellerId) this.fetchProducts(sellerId);
+  ngOnDestroy(): void {
+    this.searchSub?.unsubscribe();
+  }
+
+  private bindHeaderSearch(): void {
+    this.searchSub?.unsubscribe();
+    this.searchSub = this.headerSearch
+      .watch(this.searchScope)
+      .pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe((query) => {
+        if (this.productSearch === query) return;
+        this.productSearch = query;
+        this.currentPage = 1;
+        const sellerId = this.user?._id;
+        if (sellerId) this.fetchProducts(sellerId);
+      });
   }
 
   fetchProducts(sellerId: string): void {

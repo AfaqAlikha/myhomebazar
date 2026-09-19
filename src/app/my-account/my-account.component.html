@@ -80,11 +80,8 @@
 
   <!-- Products Section -->
   <div *ngIf="showProductsSection" class="w-full">
-    <!-- Search + Sort -->
-    <div
-      class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 px-3"
-    >
-      <app-ui-search (search)="onSearch($event)"></app-ui-search>
+    <!-- Sort -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-end gap-4 mb-6 px-3">
       <div class="flex justify-start md:justify-end gap-3">
         <button
           class="px-4 py-2 border rounded-md"

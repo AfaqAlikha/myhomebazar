@@ -1,11 +1,11 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, DestroyRef, HostListener, OnInit, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { WishlistService } from '../services/wishlist.service';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
-import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 import { ProductGridLayoutService } from '../shared/product-grid-layout.service';
+import { HeaderProductSearchService } from '../core/services/header-product-search.service';
 
 @Component({
   selector: 'app-wishlist',
@@ -16,13 +16,15 @@ import { ProductGridLayoutService } from '../shared/product-grid-layout.service'
     MatPaginatorModule,
     NgFor,
     ProductCardComponent,
-    UiSearchComponent,
     NgIf,
     NgClass,
     MatIconModule,
   ],
 })
 export class WishlistComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly headerSearch = inject(HeaderProductSearchService);
+
   products: any[] = [];
   totalItems = 0;
   itemsPerPage = 0;
@@ -38,6 +40,13 @@ export class WishlistComponent implements OnInit {
 
   ngOnInit(): void {
     this.gridLayout.syncViewport();
+    this.searchQuery = this.headerSearch.getQuery('wishlist');
+    this.headerSearch.bindPageSearch(this.destroyRef, 'wishlist', (query) => {
+      if (this.searchQuery === query) return;
+      this.searchQuery = query;
+      this.currentPage = 1;
+      this.loadWishlist();
+    });
     this.loadWishlist();
   }
 
@@ -67,12 +76,6 @@ export class WishlistComponent implements OnInit {
 
   pageChanged(event: PageEvent) {
     this.currentPage = event.pageIndex + 1;
-    this.loadWishlist();
-  }
-
-  onSearch(query: string) {
-    this.searchQuery = query;
-    this.currentPage = 1;
     this.loadWishlist();
   }
 

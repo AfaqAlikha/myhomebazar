@@ -2,25 +2,23 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   HostListener,
   Inject,
   OnDestroy,
   OnInit,
   PLATFORM_ID,
+  inject,
 } from '@angular/core';
 import { isPlatformBrowser, NgClass, NgFor, NgIf } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { interval, Subscription } from 'rxjs';
+import { forkJoin, interval, Subscription } from 'rxjs';
 
 import { Hero3dBannerComponent, Hero3dSlide } from '../shared/components/hero-3d-banner/hero-3d-banner.component';
 import { Promo3dCardComponent } from '../shared/components/promo-3d-card/promo-3d-card.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { CategoryChipsComponent } from '../shared/category-chips/category-chips.component';
-import {
-  ProductSearchFilterComponent,
-  ProductSearchFilters,
-} from '../shared/product-search-filter/product-search-filter.component';
 
 import { ProductService } from '../services/product.service';
 import { CategoryService } from '../services/category.service';
@@ -32,6 +30,7 @@ import {
   HomePageService,
   HomeProductPreview,
 } from '../core/services/home-page.service';
+import { HeaderProductSearchService } from '../core/services/header-product-search.service';
 
 @Component({
   selector: 'app-home',
@@ -41,7 +40,6 @@ import {
     Promo3dCardComponent,
     CategoryChipsComponent,
     ProductCardComponent,
-    ProductSearchFilterComponent,
     GoogleAdComponent,
     NgFor,
     NgIf,
@@ -54,6 +52,9 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly headerSearch = inject(HeaderProductSearchService);
+
   featured: Hero3dSlide[] = [];
   heroSlides: Hero3dSlide[] = [];
   products: any[] = [];
@@ -64,6 +65,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   popularProducts: HomeProductPreview[] = [];
   trendingProducts: HomeProductPreview[] = [];
   homeConfigLoading = true;
+  sectionsLoading = false;
 
   totalItems = 0;
   itemsPerPage = 0;
@@ -73,12 +75,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   heroSlidesLoading = true;
   flashCountdown: { hours: string; minutes: string; seconds: string } | null = null;
 
-  productSearchFilters: ProductSearchFilters = {
-    search: '',
-    categoryId: '',
-    subCategoryId: '',
-    sort: '',
-  };
+  selectedCategoryId = '';
+  searchQuery = '';
+
+  private defaultFlashDealProducts: HomeProductPreview[] = [];
+  private defaultPopularProducts: HomeProductPreview[] = [];
+  private defaultTrendingProducts: HomeProductPreview[] = [];
+  private sectionRequestId = 0;
   viewportTier: ViewportTier = 'desktop';
   gridPreferences: GridPreferences = {
     mobile: 2,
@@ -119,6 +122,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.seo.setDefaultSeo();
     this.syncViewport();
     this.loadGridPreference();
+    this.searchQuery = this.headerSearch.getQuery('home');
+    this.headerSearch.bindPageSearch(this.destroyRef, 'home', (query) => {
+      if (this.searchQuery === query) return;
+      this.searchQuery = query;
+      this.applyProductFilters();
+    });
+
+    if (this.hasActiveProductFilters()) {
+      this.reloadHomeSections();
+    }
+
     this.loadHomeConfig();
     this.loadHomeProducts();
     this.loadFeaturedProducts();
@@ -218,11 +232,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onCategoryChipSelect(categoryId: string): void {
-    this.onProductSearchFilter({
-      ...this.productSearchFilters,
-      categoryId,
-      subCategoryId: '',
-    });
+    this.selectedCategoryId = categoryId || '';
+    this.applyProductFilters();
   }
 
   private saveGridPreferences(): void {
@@ -276,8 +287,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadHomeProducts(true);
   }
 
-  onProductSearchFilter(filters: ProductSearchFilters): void {
-    this.productSearchFilters = filters;
+  private applyProductFilters(): void {
+    this.reloadHomeSections();
     this.resetProductsAndReload();
   }
 
@@ -287,13 +298,69 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadHomeProducts(false);
   }
 
+  private hasActiveProductFilters(): boolean {
+    return Boolean(this.selectedCategoryId || this.searchQuery.trim());
+  }
+
   private buildProductQuery() {
     return {
-      search: this.productSearchFilters.search,
-      category: this.productSearchFilters.categoryId,
-      subCategory: this.productSearchFilters.subCategoryId,
-      sort: this.productSearchFilters.sort,
+      search: this.searchQuery.trim(),
+      category: this.selectedCategoryId,
     };
+  }
+
+  private reloadHomeSections(): void {
+    if (!this.hasActiveProductFilters()) {
+      this.flashDealProducts = [...this.defaultFlashDealProducts];
+      this.popularProducts = [...this.defaultPopularProducts];
+      this.trendingProducts = [...this.defaultTrendingProducts];
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const requestId = ++this.sectionRequestId;
+    const filters = this.buildProductQuery();
+    this.sectionsLoading = true;
+    this.cdr.markForCheck();
+
+    forkJoin({
+      flash: this.productService.getProducts({
+        ...filters,
+        promoted: true,
+        sort: 'deals',
+        page: 1,
+        limit: 8,
+      }),
+      popular: this.productService.getProducts({
+        ...filters,
+        sort: 'selling',
+        page: 1,
+        limit: 8,
+      }),
+      trending: this.productService.getProducts({
+        ...filters,
+        sort: 'selling',
+        page: 1,
+        limit: 4,
+      }),
+    }).subscribe({
+      next: ({ flash, popular, trending }) => {
+        if (requestId !== this.sectionRequestId) return;
+        this.flashDealProducts = flash?.products || [];
+        this.popularProducts = popular?.products || [];
+        this.trendingProducts = trending?.products || [];
+        this.sectionsLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        if (requestId !== this.sectionRequestId) return;
+        this.flashDealProducts = [];
+        this.popularProducts = [];
+        this.trendingProducts = [];
+        this.sectionsLoading = false;
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   private heroText(value: string | undefined | null, fallback: string): string {
@@ -312,9 +379,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (this.heroSlides.length) {
           this.heroSlidesLoading = false;
         }
-        this.flashDealProducts = data?.flashDealProducts || [];
-        this.popularProducts = data?.popularProducts || [];
-        this.trendingProducts = data?.trendingProducts || [];
+        this.defaultFlashDealProducts = data?.flashDealProducts || [];
+        this.defaultPopularProducts = data?.popularProducts || [];
+        this.defaultTrendingProducts = data?.trendingProducts || [];
+        if (!this.hasActiveProductFilters()) {
+          this.flashDealProducts = [...this.defaultFlashDealProducts];
+          this.popularProducts = [...this.defaultPopularProducts];
+          this.trendingProducts = [...this.defaultTrendingProducts];
+        }
         this.displayCategories = (data?.categories || []).slice(0, 8);
         if (this.displayCategories.length < 5) this.loadCategoriesFallback();
         this.applyFlashCountdown(data);

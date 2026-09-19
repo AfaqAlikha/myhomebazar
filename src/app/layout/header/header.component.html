@@ -33,16 +33,25 @@
           </a>
         </div>
 
-        <a
-          routerLink="/shop"
+        <form
           class="header-search-pill hidden lg:flex flex-1 max-w-xl mx-2"
-          aria-label="Search products in shop"
+          (submit)="onSearchSubmit($event)"
+          role="search"
+          aria-label="Search products"
         >
-          <span class="header-search-pill__placeholder">Search for products, brands or sellers…</span>
-          <span class="header-search-pill__btn" aria-hidden="true">
+          <input
+            type="search"
+            class="header-search-pill__input"
+            [(ngModel)]="searchQuery"
+            name="headerSearch"
+            (keydown)="onSearchKeydown($event)"
+            placeholder="Search for products, brands or sellers…"
+            autocomplete="off"
+          />
+          <button type="submit" class="header-search-pill__btn" aria-label="Search">
             <mat-icon>search</mat-icon>
-          </span>
-        </a>
+          </button>
+        </form>
 
         <nav class="header-quick-nav hidden md:flex items-center gap-4">
           <a routerLink="/shop" routerLinkActive="header-quick-nav__link--active" class="header-quick-nav__link">
@@ -117,6 +126,26 @@
           </button>
         </div>
       </div>
+
+      <form
+        class="header-search-pill header-search-pill--mobile lg:hidden mt-2"
+        (submit)="onSearchSubmit($event)"
+        role="search"
+        aria-label="Search products"
+      >
+        <input
+          type="search"
+          class="header-search-pill__input"
+          [(ngModel)]="searchQuery"
+          name="headerSearchMobile"
+          (keydown)="onSearchKeydown($event)"
+          placeholder="Search products…"
+          autocomplete="off"
+        />
+        <button type="submit" class="header-search-pill__btn" aria-label="Search">
+          <mat-icon>search</mat-icon>
+        </button>
+      </form>
 
       <p class="header-mobile-tag md:hidden text-center text-[10px] tracking-wide uppercase text-[var(--color-text-secondary)] mt-1">
         Pakistan's Home & Living Marketplace

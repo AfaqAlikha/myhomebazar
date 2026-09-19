@@ -36,6 +36,7 @@
 .header-search-pill {
   align-items: center;
   justify-content: space-between;
+  gap: 0.35rem;
   height: 2.75rem;
   padding: 0 0.35rem 0 1rem;
   border-radius: 999px;
@@ -43,18 +44,29 @@
   background: var(--color-card);
   color: var(--color-text-secondary);
   font-size: 0.875rem;
-  text-decoration: none;
   transition: border-color 0.2s ease;
 }
 
-.header-search-pill:hover {
+.header-search-pill:focus-within {
   border-color: var(--color-accent);
 }
 
-.header-search-pill__placeholder {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+.header-search-pill--mobile {
+  width: 100%;
+}
+
+.header-search-pill__input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+
+.header-search-pill__input::placeholder {
+  color: var(--color-text-secondary);
 }
 
 .header-search-pill__btn {

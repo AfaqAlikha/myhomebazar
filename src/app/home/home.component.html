@@ -77,7 +77,7 @@
     </div>
     <app-category-chips
       [categories]="displayCategories"
-      [selectedId]="productSearchFilters.categoryId"
+      [selectedId]="selectedCategoryId"
       (selectedChange)="onCategoryChipSelect($event)"
     ></app-category-chips>
     <p *ngIf="!displayCategories.length && !homeConfigLoading" class="text-sm text-[var(--color-text-secondary)] mt-3">
@@ -86,7 +86,7 @@
   </section>
 
   <!-- Flash Deals products -->
-  <section *ngIf="homeConfigLoading || flashDealProducts.length">
+  <section *ngIf="homeConfigLoading || sectionsLoading || flashDealProducts.length">
     <div class="home-section-head">
       <div>
         <h2 class="section-title section-title-accent">{{ homeData?.sections?.dealsTitle || 'Flash Deals' }}</h2>
@@ -102,7 +102,7 @@
   </section>
 
   <!-- Popular products -->
-  <section *ngIf="popularProducts.length">
+  <section *ngIf="sectionsLoading || popularProducts.length">
     <div class="home-section-head">
       <div>
         <h2 class="section-title section-title-accent">{{ homeData?.sections?.popularTitle || 'Popular Picks' }}</h2>
@@ -118,7 +118,7 @@
   </section>
 
   <!-- Trending -->
-  <section *ngIf="trendingProducts.length" class="hidden md:block">
+  <section *ngIf="sectionsLoading || trendingProducts.length" class="hidden md:block">
     <div class="home-section-head">
       <div>
         <h2 class="section-title section-title-accent">{{ homeData?.sections?.trendingTitle || 'Trending Now' }}</h2>
@@ -149,11 +149,6 @@
         <mat-icon>{{ gridLayoutIcon }}</mat-icon>
       </button>
     </div>
-
-    <app-product-search-filter
-      [initial]="productSearchFilters"
-      (filterChange)="onProductSearchFilter($event)"
-    ></app-product-search-filter>
 
     <p *ngIf="!isLoading && !products.length" class="text-center text-sm text-[var(--color-text-secondary)] py-8">
       No products found. Try changing your search or filters.

@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,12 +6,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
-import { UiSearchComponent } from '../shared/ui-search/ui-search.component';
 import { ProductGridLayoutService } from '../shared/product-grid-layout.service';
+import { HeaderProductSearchService } from '../core/services/header-product-search.service';
 
 import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
 import { SeoService } from '../services/seo';
+import { Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-category',
@@ -21,7 +23,6 @@ import { SeoService } from '../services/seo';
     MatPaginatorModule,
     ProductCardComponent,
     UiCardComponent,
-    UiSearchComponent,
     NgClass,
     NgIf,
     MatIconModule,
@@ -29,7 +30,11 @@ import { SeoService } from '../services/seo';
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.css'],
 })
-export class CategoryComponent implements OnInit {
+export class CategoryComponent implements OnInit, OnDestroy {
+  private readonly headerSearch = inject(HeaderProductSearchService);
+  private searchScope = '';
+  private searchSub?: Subscription;
+
   borderRadius = '10px';
   isLoading = false;
   noProducts = false;
@@ -77,16 +82,18 @@ export class CategoryComponent implements OnInit {
     this.route.params.subscribe((params) => {
       this.selectedCategoryName = params['slug'];
       this.selectedCategoryId = params['id'];
+      this.searchScope = `category:${this.selectedCategoryId}`;
 
       this.seo.setCategorySeo(this.selectedCategoryName, this.selectedCategoryId);
 
       // Reset filters
       this.selectedSubCategoryId = '';
       this.selectedSubCategory = '';
-      this.searchQuery = '';
+      this.searchQuery = this.headerSearch.getQuery(this.searchScope);
       this.sortOrder = '';
       this.currentPage = 1;
 
+      this.bindHeaderSearch();
       this.fetchProducts();
 
       // Load subcategories
@@ -136,11 +143,21 @@ export class CategoryComponent implements OnInit {
       });
   }
 
-  // Search handler
-  onSearch(query: string) {
-    this.searchQuery = query;
-    this.currentPage = 1;
-    this.fetchProducts();
+  ngOnDestroy(): void {
+    this.searchSub?.unsubscribe();
+  }
+
+  private bindHeaderSearch(): void {
+    this.searchSub?.unsubscribe();
+    this.searchSub = this.headerSearch
+      .watch(this.searchScope)
+      .pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe((query) => {
+        if (this.searchQuery === query) return;
+        this.searchQuery = query;
+        this.currentPage = 1;
+        this.fetchProducts();
+      });
   }
 
   // Subcategory filter

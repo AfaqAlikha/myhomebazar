@@ -6,21 +6,24 @@ import {
   OnDestroy,
   Inject,
 } from '@angular/core';
-import { RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
+import { FormsModule } from '@angular/forms';
 import { UiCardComponent } from '../../shared/ui-card/ui-card.component';
 import { AuthService } from '../../auth/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { isPlatformBrowser, NgIf } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { ProductService } from '../../services/product.service';
 import { PwaService } from '../../core/services/pwa.service';
 import { ChatService } from '../../services/chat.service';
+import { HeaderProductSearchService } from '../../core/services/header-product-search.service';
 
 @Component({
   selector: 'app-header',
@@ -35,6 +38,7 @@ import { ChatService } from '../../services/chat.service';
     MatDividerModule,
     UiCardComponent,
     NgIf,
+    FormsModule,
   ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
@@ -47,6 +51,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   token: string | null = null;
   messageUnread = 0;
   cartCount = 0;
+  searchQuery = '';
 
   private subs: Subscription[] = [];
   private isBrowser: boolean;
@@ -60,6 +65,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private router: Router,
     private productService: ProductService,
     private chatService: ChatService,
+    private headerSearch: HeaderProductSearchService,
     public pwa: PwaService,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
@@ -105,8 +111,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.chatService.conversations$.subscribe(() => {
         this.messageUnread = this.chatService.unreadTotal;
       }),
+      this.router.events
+        .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+        .subscribe(() => this.syncSearchFromScope()),
     );
+    this.syncSearchFromScope();
     this.loadLogo();
+  }
+
+  onSearchSubmit(event?: Event): void {
+    event?.preventDefault();
+    this.headerSearch.submit(this.searchQuery);
+  }
+
+  onSearchKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.onSearchSubmit();
+    }
+  }
+
+  private syncSearchFromScope(): void {
+    const scope = this.headerSearch.getActiveScope();
+    this.searchQuery = scope ? this.headerSearch.getQuery(scope) : '';
   }
 
   logout(): void {
