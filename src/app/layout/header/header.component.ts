@@ -52,6 +52,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   messageUnread = 0;
   cartCount = 0;
   searchQuery = '';
+  mobileSearchOpen = false;
 
   private subs: Subscription[] = [];
   private isBrowser: boolean;
@@ -113,15 +114,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }),
       this.router.events
         .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
-        .subscribe(() => this.syncSearchFromScope()),
+        .subscribe(() => {
+          this.mobileSearchOpen = false;
+          this.syncSearchFromScope();
+        }),
     );
     this.syncSearchFromScope();
     this.loadLogo();
   }
 
+  toggleMobileSearch(): void {
+    this.mobileSearchOpen = !this.mobileSearchOpen;
+  }
+
   onSearchSubmit(event?: Event): void {
     event?.preventDefault();
     this.headerSearch.submit(this.searchQuery);
+    this.mobileSearchOpen = false;
   }
 
   onSearchKeydown(event: KeyboardEvent): void {
