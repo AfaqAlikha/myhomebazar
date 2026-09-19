@@ -14,12 +14,19 @@ const SKIP_URL_PATTERNS = [
   '/app-assets/public/',
   '/theme/',
   '/about/',
+  '/home/public',
+  '/categories',
   '/payments/settings/public',
   '/payments/methods',
   '/shipping/',
+  '/pagination/settings/public',
   '/user/refresh-token',
   '/products/locations',
+  '/products/home',
+  '/products/featured',
 ];
+
+const LOADER_DELAY_MS = 350;
 
 @Injectable()
 export class GetLoaderInterceptor implements HttpInterceptor {
@@ -31,13 +38,22 @@ export class GetLoaderInterceptor implements HttpInterceptor {
       !req.context.get(SKIP_GLOBAL_LOADER) &&
       !this.shouldSkip(req.url);
 
+    let showTimer: ReturnType<typeof setTimeout> | null = null;
+    let loaderVisible = false;
+
     if (track) {
-      this.spinner.show();
+      showTimer = setTimeout(() => {
+        loaderVisible = true;
+        this.spinner.show();
+      }, LOADER_DELAY_MS);
     }
 
     return next.handle(req).pipe(
       finalize(() => {
-        if (track) {
+        if (showTimer) {
+          clearTimeout(showTimer);
+        }
+        if (track && loaderVisible) {
           this.spinner.hide();
         }
       }),

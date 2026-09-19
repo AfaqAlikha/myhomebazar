@@ -20,8 +20,10 @@
 
   <div class="product-card__image relative w-full shrink-0 overflow-hidden bg-[color-mix(in_srgb,var(--color-border)_35%,var(--color-card))]">
     <img
-      [src]="product.images[0]"
+      [ngSrc]="product.images[0]"
       [alt]="product.name"
+      width="400"
+      height="400"
       class="product-card__img transition-transform duration-500 group-hover:scale-[1.03]"
       loading="lazy"
     />
