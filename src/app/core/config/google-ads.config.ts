@@ -5,7 +5,7 @@ import { env } from '../../../environments/env';
 
 export const GOOGLE_ADS = {
   enabled: true,
-  publisherId: env.googleAdsPublisherId || 'ca-pub-1353355245412217',
+  publisherId: env.googleAdsPublisherId || 'ca-pub-4666633726308706',
   slots: {
     /** myhomebazar_horizontal_ads */
     horizontal: env.googleAdsSlotHorizontal || '',
