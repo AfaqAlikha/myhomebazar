@@ -82,7 +82,7 @@ export class ChatService implements OnDestroy {
       this.applyIncomingSocketMessage(payload);
     });
 
-    this.buyerNotifSub = this.socket.buyerNotification$.subscribe((notification) => {
+    this.buyerNotifSub = this.socket.chatNotification$.subscribe((notification) => {
       this.handleBuyerNotification(notification);
     });
   }
