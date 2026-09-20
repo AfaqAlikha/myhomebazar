@@ -90,18 +90,35 @@
 .wa-avatar-wrap {
   position: relative;
   flex-shrink: 0;
-  display: inline-flex;
+  display: inline-block;
+  line-height: 0;
+}
+
+.wa-avatar-wrap app-user-avatar {
+  display: block;
 }
 
 .wa-presence-dot {
   position: absolute;
-  right: -1px;
-  bottom: -1px;
-  width: 0.7rem;
-  height: 0.7rem;
+  right: 2px;
+  bottom: 2px;
+  width: 0.72rem;
+  height: 0.72rem;
   border-radius: 999px;
   border: 2px solid var(--color-card);
   background: #8696a0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.wa-inbox__item .wa-presence-dot {
+  right: 4px;
+  bottom: 4px;
+}
+
+.wa-thread__header .wa-presence-dot {
+  right: 1px;
+  bottom: 1px;
 }
 
 .wa-presence-dot--header {
