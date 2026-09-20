@@ -33,6 +33,8 @@
   --glass-bg: color-mix(in srgb, var(--color-card) 82%, transparent);
   --glass-border: color-mix(in srgb, var(--color-border) 75%, transparent);
   --mobile-nav-height: 4.35rem;
+  --page-back-bar-height: 2.5rem;
+  --app-header-offset: 72px;
 }
 
 .dark {
@@ -500,6 +502,55 @@ html {
 @media (min-width: 768px) {
   .page-main {
     padding-bottom: 0;
+  }
+}
+
+/* Chat route: lock outer page scroll; chat fills space between header, footer, and bottom nav */
+html.chat-route-active,
+html.chat-route-active body {
+  overflow: hidden;
+  height: 100dvh;
+}
+
+html.chat-route-active mat-sidenav-container {
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+html.chat-route-active mat-sidenav-content {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+html.chat-route-active .page-main {
+  flex: 1 1 auto;
+  min-height: 0 !important;
+  overflow: hidden;
+  padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  html.chat-route-active .page-main {
+    padding-bottom: 0;
+  }
+}
+
+html.chat-route-active app-footer {
+  flex-shrink: 0;
+}
+
+html.chat-route-active app-mobile-bottom-nav {
+  flex-shrink: 0;
+}
+
+@media (max-width: 899px) {
+  html.chat-route-active.chat-thread-active app-page-back-bar {
+    display: none;
   }
 }
 

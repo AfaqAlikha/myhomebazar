@@ -1,40 +1,42 @@
-<div class="wa-chat-page" [class.wa-chat-page--thread]="!!activeConversation">
+<div class="wa-chat-page">
   <div class="wa-chat-shell">
     <aside class="wa-inbox" [class.wa-inbox--hidden-mobile]="activeConversation">
       <header class="wa-inbox__header">
         <h1>Chats</h1>
       </header>
 
-      <div *ngIf="loadingConversations" class="wa-empty">Loading conversations…</div>
-      <div *ngIf="!loadingConversations && !conversations.length" class="wa-empty">
-        No chats yet. Message a seller from their profile or a product page.
-      </div>
-
-      <button
-        type="button"
-        *ngFor="let conversation of conversations"
-        class="wa-inbox__item"
-        [class.wa-inbox__item--active]="activeConversation?._id === conversation._id"
-        (click)="selectConversation(conversation)"
-      >
-        <app-user-avatar
-          [name]="peerName(conversation)"
-          [avatar]="conversation.peer.avatar"
-          size="md"
-        ></app-user-avatar>
-        <div class="wa-inbox__content">
-          <div class="wa-inbox__row">
-            <strong>{{ peerName(conversation) }}</strong>
-            <span class="wa-inbox__time">{{ conversationTime(conversation) }}</span>
-          </div>
-          <div class="wa-inbox__row">
-            <p>{{ conversation.lastMessage || 'Start chatting…' }}</p>
-            <span *ngIf="conversation.unreadCount" class="wa-inbox__badge">
-              {{ conversation.unreadCount }}
-            </span>
-          </div>
+      <div class="wa-inbox__list">
+        <div *ngIf="loadingConversations" class="wa-empty">Loading conversations…</div>
+        <div *ngIf="!loadingConversations && !conversations.length" class="wa-empty">
+          No chats yet. Message a seller from their profile or a product page.
         </div>
-      </button>
+
+        <button
+          type="button"
+          *ngFor="let conversation of conversations"
+          class="wa-inbox__item"
+          [class.wa-inbox__item--active]="activeConversation?._id === conversation._id"
+          (click)="selectConversation(conversation)"
+        >
+          <app-user-avatar
+            [name]="peerName(conversation)"
+            [avatar]="conversation.peer.avatar"
+            size="md"
+          ></app-user-avatar>
+          <div class="wa-inbox__content">
+            <div class="wa-inbox__row">
+              <strong>{{ peerName(conversation) }}</strong>
+              <span class="wa-inbox__time">{{ conversationTime(conversation) }}</span>
+            </div>
+            <div class="wa-inbox__row">
+              <p>{{ conversation.lastMessage || 'Start chatting…' }}</p>
+              <span *ngIf="conversation.unreadCount" class="wa-inbox__badge">
+                {{ conversation.unreadCount }}
+              </span>
+            </div>
+          </div>
+        </button>
+      </div>
     </aside>
 
     <section class="wa-thread" *ngIf="activeConversation; else emptyThread">
