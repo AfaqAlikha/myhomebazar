@@ -4,10 +4,11 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
+  PLATFORM_ID,
   ViewChild,
   inject,
 } from '@angular/core';
-import { CommonModule, DecimalPipe, NgClass, NgFor, NgIf } from '@angular/common';
+import { CommonModule, DecimalPipe, NgClass, NgFor, NgIf, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -49,6 +50,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
   private readonly socket = inject(SocketService);
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   conversations: ChatConversation[] = [];
   messages: ChatMessage[] = [];
@@ -86,6 +89,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.setChatRouteLayout(true);
+
     const user = this.auth.getUser();
     if (user?.id) this.socket.connect(user.id);
 
@@ -114,6 +119,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.setChatRouteLayout(false);
     this.deactivateChatPresence();
     this.emitStopTyping();
     this.chat.setActiveConversation(null);
@@ -148,6 +154,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.typingLabel = '';
     this.peerOnline = false;
     this.peerLastSeen = this.activeConversation.peer?.lastSeenAt ?? null;
+    this.updateChatThreadLayout();
     this.activateChatPresence();
 
     if (this.loadedConversationId === id && this.messages.length > 0) {
@@ -404,7 +411,29 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.hasMoreMessages = false;
     this.typingLabel = '';
     this.peerOnline = false;
+    this.updateChatThreadLayout();
     this.cdr.markForCheck();
+  }
+
+  private setChatRouteLayout(active: boolean): void {
+    if (!this.isBrowser) return;
+
+    document.documentElement.classList.toggle('chat-route-active', active);
+    document.body.classList.toggle('chat-route-active', active);
+    if (!active) {
+      document.documentElement.classList.remove('chat-thread-active');
+      document.body.classList.remove('chat-thread-active');
+    } else {
+      this.updateChatThreadLayout();
+    }
+  }
+
+  private updateChatThreadLayout(): void {
+    if (!this.isBrowser) return;
+
+    const inThread = !!this.activeConversation;
+    document.documentElement.classList.toggle('chat-thread-active', inThread);
+    document.body.classList.toggle('chat-thread-active', inThread);
   }
 
   private loadMessages(conversationId: string, page: number, replace: boolean): void {
