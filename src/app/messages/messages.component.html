@@ -1,24 +1,20 @@
-<div class="messages-page container mx-auto px-4 py-5">
-  <div class="messages-page__head">
-    <div>
-      <h1 class="messages-page__title">Messages</h1>
-      <p class="messages-page__subtitle">Chat with sellers in real time.</p>
-    </div>
-    <a routerLink="/sellers" class="messages-page__link">Browse sellers</a>
-  </div>
+<div class="wa-chat-page">
+  <div class="wa-chat-shell">
+    <aside class="wa-inbox" [class.wa-inbox--hidden-mobile]="activeConversation">
+      <header class="wa-inbox__header">
+        <h1>Chats</h1>
+      </header>
 
-  <div class="messages-shell">
-    <aside class="messages-inbox" [class.messages-inbox--hidden-mobile]="activeConversation">
-      <div *ngIf="loadingConversations" class="messages-empty">Loading conversations…</div>
-      <div *ngIf="!loadingConversations && !conversations.length" class="messages-empty">
-        No conversations yet. Open a seller profile and tap <strong>Message Seller</strong>.
+      <div *ngIf="loadingConversations" class="wa-empty">Loading conversations…</div>
+      <div *ngIf="!loadingConversations && !conversations.length" class="wa-empty">
+        No chats yet. Message a seller from their profile or a product page.
       </div>
 
       <button
         type="button"
         *ngFor="let conversation of conversations"
-        class="messages-inbox__item"
-        [class.messages-inbox__item--active]="activeConversation?._id === conversation._id"
+        class="wa-inbox__item"
+        [class.wa-inbox__item--active]="activeConversation?._id === conversation._id"
         (click)="selectConversation(conversation)"
       >
         <app-user-avatar
@@ -26,21 +22,24 @@
           [avatar]="conversation.peer.avatar"
           size="md"
         ></app-user-avatar>
-        <div class="messages-inbox__content">
-          <div class="messages-inbox__row">
+        <div class="wa-inbox__content">
+          <div class="wa-inbox__row">
             <strong>{{ peerName(conversation) }}</strong>
-            <span *ngIf="conversation.unreadCount" class="messages-inbox__badge">
+            <span class="wa-inbox__time">{{ conversationTime(conversation) }}</span>
+          </div>
+          <div class="wa-inbox__row">
+            <p>{{ conversation.lastMessage || 'Start chatting…' }}</p>
+            <span *ngIf="conversation.unreadCount" class="wa-inbox__badge">
               {{ conversation.unreadCount }}
             </span>
           </div>
-          <p class="messages-inbox__preview">{{ conversation.lastMessage || 'Start chatting…' }}</p>
         </div>
       </button>
     </aside>
 
-    <section class="messages-thread" *ngIf="activeConversation; else emptyThread">
-      <div class="messages-thread__head">
-        <button type="button" class="messages-thread__back md:hidden" (click)="router.navigate(['/messages'])">
+    <section class="wa-thread" *ngIf="activeConversation; else emptyThread">
+      <header class="wa-thread__header">
+        <button type="button" class="wa-thread__back md:hidden" (click)="router.navigate(['/messages'])">
           <mat-icon>arrow_back</mat-icon>
         </button>
         <app-user-avatar
@@ -48,49 +47,77 @@
           [avatar]="activeConversation.peer.avatar"
           size="sm"
         ></app-user-avatar>
-        <div>
-          <h2>{{ peerName(activeConversation) }}</h2>
-          <p>Seller chat</p>
+        <div class="wa-thread__meta">
+          <strong>{{ peerName(activeConversation) }}</strong>
+          <span *ngIf="typingLabel; else onlineLabel">{{ typingLabel }}</span>
+          <ng-template #onlineLabel><span class="wa-thread__status">online</span></ng-template>
         </div>
-      </div>
+      </header>
 
-      <div
-        #threadBody
-        class="messages-thread__body"
-        (scroll)="onThreadScroll($event)"
+      <a
+        *ngIf="productContext as product"
+        class="wa-product-card"
+        [routerLink]="['/product/details', product.productId]"
       >
-        <div *ngIf="loadingOlder" class="messages-load-more">Loading older messages…</div>
-        <div *ngIf="loadingMessages" class="messages-empty">Loading messages…</div>
+        <img [src]="product.image" [alt]="product.name" loading="lazy" />
+        <div>
+          <p>{{ product.name }}</p>
+          <span>Rs {{ product.price | number:'1.0-0' }}</span>
+        </div>
+        <mat-icon>open_in_new</mat-icon>
+      </a>
+
+      <div #threadBody class="wa-thread__body" (scroll)="onThreadScroll($event)">
+        <div *ngIf="loadingOlder" class="wa-load-more">Loading older messages…</div>
+        <div *ngIf="loadingMessages && !messages.length" class="wa-empty">Loading messages…</div>
+
         <div
           *ngFor="let message of messages"
-          class="messages-bubble"
-          [ngClass]="isMine(message) ? 'messages-bubble--mine' : 'messages-bubble--theirs'"
+          class="wa-bubble"
+          [ngClass]="isMine(message) ? 'wa-bubble--mine' : 'wa-bubble--theirs'"
         >
           <p>{{ message.text }}</p>
           <span>{{ messageTime(message) }}</span>
         </div>
+
+        <div *ngIf="typingLabel" class="wa-typing">
+          <span></span><span></span><span></span>
+        </div>
+
         <div id="chat-thread-bottom"></div>
       </div>
 
-      <form class="messages-thread__composer" [formGroup]="messageForm" (ngSubmit)="sendMessage()">
+      <div *ngIf="showEmojiPicker" class="wa-emoji-bar">
+        <button type="button" *ngFor="let emoji of emojiList" (click)="insertEmoji(emoji)">
+          {{ emoji }}
+        </button>
+      </div>
+
+      <form class="wa-composer" [formGroup]="messageForm" (ngSubmit)="sendMessage()">
+        <button type="button" class="wa-composer__emoji" (click)="toggleEmojiPicker()" aria-label="Emoji">
+          <mat-icon>mood</mat-icon>
+        </button>
         <input
           type="text"
           formControlName="text"
-          placeholder="Type your message…"
+          placeholder="Type a message"
           maxlength="2000"
           autocomplete="off"
+          (input)="onComposerInput()"
+          (blur)="onComposerBlur()"
         />
-        <button type="submit" [disabled]="messageForm.invalid || sending">
-          <mat-icon>{{ sending ? 'hourglass_top' : 'send' }}</mat-icon>
+        <button type="submit" class="wa-composer__send" [disabled]="messageForm.invalid || sending">
+          <mat-icon *ngIf="!sending">send</mat-icon>
+          <span *ngIf="sending" class="wa-composer__spinner"></span>
         </button>
       </form>
     </section>
 
     <ng-template #emptyThread>
-      <section class="messages-thread messages-thread--placeholder hidden md:flex">
+      <section class="wa-thread wa-thread--placeholder hidden md:flex">
         <mat-icon>forum</mat-icon>
-        <h2>Select a conversation</h2>
-        <p>Your chats with sellers will appear here.</p>
+        <h2>MyHomeBazar Chat</h2>
+        <p>Select a conversation to message sellers in real time.</p>
       </section>
     </ng-template>
   </div>
