@@ -537,6 +537,12 @@ html.chat-route-active .page-main {
 @media (min-width: 768px) {
   html.chat-route-active .page-main {
     padding-bottom: 0;
+    flex: 1 1 0;
+    min-height: calc(100dvh - var(--app-header-offset) - var(--page-back-bar-height));
+  }
+
+  html.chat-route-active app-footer {
+    display: none;
   }
 }
 

@@ -74,6 +74,7 @@ export class SocketService implements OnDestroy {
 
   readonly orderStatusUpdate$ = new Subject<OrderStatusUpdatePayload>();
   readonly buyerNotification$ = new Subject<any>();
+  readonly chatNotification$ = new Subject<any>();
   readonly chatMessage$ = new Subject<ChatSocketPayload>();
   readonly chatTyping$ = new Subject<ChatTypingPayload>();
   readonly chatStopTyping$ = new Subject<ChatTypingPayload>();
@@ -116,6 +117,10 @@ export class SocketService implements OnDestroy {
 
     this.socket.on('buyerNotification', (payload: any) => {
       this.emitInZone(this.buyerNotification$, payload);
+    });
+
+    this.socket.on('chatNotification', (payload: any) => {
+      this.emitInZone(this.chatNotification$, payload);
     });
 
     this.socket.on('chatMessage', (payload: ChatSocketPayload) => {
