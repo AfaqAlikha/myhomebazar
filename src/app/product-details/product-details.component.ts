@@ -27,6 +27,7 @@ import {
 import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
 import { ToastrService } from 'ngx-toastr';
 import { LocationFieldsComponent } from '../shared/location-fields/location-fields.component';
+import { ChatService } from '../services/chat.service';
 
 @Component({
   selector: 'app-product-details',
@@ -90,6 +91,7 @@ export class ProductDetailsComponent implements OnInit {
   linkCopied = false;
 
   private destroyRef = inject(DestroyRef);
+  private chat = inject(ChatService);
   private readonly isBrowser: boolean;
 
   constructor(
@@ -512,5 +514,34 @@ export class ProductDetailsComponent implements OnInit {
   getPromotionExpiryLabel(): string {
     if (!this.isPromotionActive() || !this.product.promotionExpiresAt) return '';
     return new Date(this.product.promotionExpiresAt).toLocaleDateString();
+  }
+
+  isOwnProductListing(): boolean {
+    return isOwnProduct(this.product, this.currentUserId);
+  }
+
+  chatAboutProduct(): void {
+    if (!this.id || !this.product?._id) return;
+
+    if (this.isOwnProductListing()) {
+      this.toastr.warning('You cannot message your own store');
+      return;
+    }
+
+    if (!this.auth.isLoggedIn()) {
+      this.router.navigate(['/signin'], {
+        queryParams: { returnUrl: `/product/details/${this.product._id}` },
+      });
+      return;
+    }
+
+    this.chat.startWithSeller(this.id, this.product._id).subscribe({
+      next: (conversation) => {
+        this.router.navigate(['/messages', conversation._id]);
+      },
+      error: (err) => {
+        this.toastr.error(err?.error?.message || 'Could not start chat');
+      },
+    });
   }
 }

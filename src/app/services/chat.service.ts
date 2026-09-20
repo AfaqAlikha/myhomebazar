@@ -14,12 +14,20 @@ export interface ChatPeer {
   role?: string;
 }
 
+export interface ChatProductContext {
+  productId: string;
+  name: string;
+  image: string;
+  price: number;
+}
+
 export interface ChatConversation {
   _id: string;
   peer: ChatPeer;
   lastMessage?: string;
   lastMessageAt?: string | Date | null;
   unreadCount?: number;
+  productContext?: ChatProductContext | null;
 }
 
 export interface ChatMessage {
@@ -109,10 +117,11 @@ export class ChatService implements OnDestroy {
       );
   }
 
-  startWithSeller(sellerId: string): Observable<ChatConversation> {
+  startWithSeller(sellerId: string, productId?: string): Observable<ChatConversation> {
     return this.http
       .post<{ success: boolean; conversation: ChatConversation }>(API_ENDPOINTS.chat.conversations, {
         sellerId,
+        ...(productId ? { productId } : {}),
       })
       .pipe(
         map((res) => res.conversation),

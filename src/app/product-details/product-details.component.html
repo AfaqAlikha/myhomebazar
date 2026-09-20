@@ -426,6 +426,16 @@
               class="ml-2 flex-shrink-0"
               variant="accent"
             ></app-ui-button>
+
+            <button
+              *ngIf="id && !isOwnProductListing()"
+              type="button"
+              class="product-chat-btn"
+              (click)="chatAboutProduct()"
+            >
+              <mat-icon>chat</mat-icon>
+              Chat about this product
+            </button>
           </div>
 
           <p *ngIf="isOutOfStock" class="text-[var(--color-danger)] text-sm mt-2">

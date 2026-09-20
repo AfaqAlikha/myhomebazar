@@ -26,6 +26,13 @@ export interface ChatMessagePayload {
   createdAt: string | Date;
 }
 
+export interface ChatProductContext {
+  productId: string;
+  name: string;
+  image: string;
+  price: number;
+}
+
 export interface ChatSocketPayload {
   conversationId: string;
   message: ChatMessagePayload;
@@ -35,7 +42,14 @@ export interface ChatSocketPayload {
     lastMessage?: string;
     lastMessageAt?: string | Date | null;
     unreadCount?: number;
+    productContext?: ChatProductContext | null;
   };
+}
+
+export interface ChatTypingPayload {
+  conversationId: string;
+  userId: string;
+  userName?: string;
 }
 
 @Injectable({
@@ -49,6 +63,8 @@ export class SocketService implements OnDestroy {
   readonly orderStatusUpdate$ = new Subject<OrderStatusUpdatePayload>();
   readonly buyerNotification$ = new Subject<any>();
   readonly chatMessage$ = new Subject<ChatSocketPayload>();
+  readonly chatTyping$ = new Subject<ChatTypingPayload>();
+  readonly chatStopTyping$ = new Subject<ChatTypingPayload>();
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -90,6 +106,36 @@ export class SocketService implements OnDestroy {
 
     this.socket.on('chatMessage', (payload: ChatSocketPayload) => {
       this.emitInZone(this.chatMessage$, payload);
+    });
+
+    this.socket.on('chatTyping', (payload: ChatTypingPayload) => {
+      this.emitInZone(this.chatTyping$, payload);
+    });
+
+    this.socket.on('chatStopTyping', (payload: ChatTypingPayload) => {
+      this.emitInZone(this.chatStopTyping$, payload);
+    });
+  }
+
+  emitChatTyping(
+    conversationId: string,
+    recipientId: string,
+    userId: string,
+    userName: string,
+  ): void {
+    this.socket?.emit('chatTyping', {
+      conversationId: String(conversationId),
+      recipientId: String(recipientId),
+      userId: String(userId),
+      userName,
+    });
+  }
+
+  emitChatStopTyping(conversationId: string, recipientId: string, userId: string): void {
+    this.socket?.emit('chatStopTyping', {
+      conversationId: String(conversationId),
+      recipientId: String(recipientId),
+      userId: String(userId),
     });
   }
 
