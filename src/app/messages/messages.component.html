@@ -18,11 +18,17 @@
           [class.wa-inbox__item--active]="activeConversation?._id === conversation._id"
           (click)="selectConversation(conversation)"
         >
+        <div class="wa-avatar-wrap">
           <app-user-avatar
             [name]="peerName(conversation)"
             [avatar]="conversation.peer.avatar"
             size="md"
           ></app-user-avatar>
+          <span
+            class="wa-presence-dot"
+            [class.wa-presence-dot--online]="isPeerOnline(conversation.peer._id)"
+          ></span>
+        </div>
           <div class="wa-inbox__content">
             <div class="wa-inbox__row">
               <strong>{{ peerName(conversation) }}</strong>
@@ -44,11 +50,17 @@
         <button type="button" class="wa-thread__back md:hidden" (click)="router.navigate(['/messages'])">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <app-user-avatar
-          [name]="peerName(activeConversation)"
-          [avatar]="activeConversation.peer.avatar"
-          size="sm"
-        ></app-user-avatar>
+        <div class="wa-avatar-wrap">
+          <app-user-avatar
+            [name]="peerName(activeConversation)"
+            [avatar]="activeConversation.peer.avatar"
+            size="sm"
+          ></app-user-avatar>
+          <span
+            class="wa-presence-dot wa-presence-dot--header"
+            [class.wa-presence-dot--online]="isPeerOnline(activeConversation.peer._id)"
+          ></span>
+        </div>
         <div class="wa-thread__meta">
           <strong>{{ peerName(activeConversation) }}</strong>
           <span class="wa-thread__status">{{ peerStatusLabel }}</span>

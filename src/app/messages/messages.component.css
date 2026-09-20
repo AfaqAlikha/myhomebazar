@@ -87,6 +87,31 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.wa-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+}
+
+.wa-presence-dot {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  border: 2px solid var(--color-card);
+  background: #8696a0;
+}
+
+.wa-presence-dot--header {
+  border-color: #008069;
+}
+
+.wa-presence-dot--online {
+  background: #25d366;
+}
+
 .wa-inbox__item {
   width: 100%;
   display: flex;
