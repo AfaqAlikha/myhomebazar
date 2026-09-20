@@ -1,4 +1,4 @@
-<div class="wa-chat-page">
+<div class="wa-chat-page" [class.wa-chat-page--thread]="!!activeConversation">
   <div class="wa-chat-shell">
     <aside class="wa-inbox" [class.wa-inbox--hidden-mobile]="activeConversation">
       <header class="wa-inbox__header">
