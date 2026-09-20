@@ -60,6 +60,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
   sending = false;
   showEmojiPicker = false;
   typingLabel = '';
+  peerOnline = false;
+  peerLastSeen: string | Date | null = null;
 
   readonly emojiList = ['😀', '😂', '😍', '👍', '🙏', '🔥', '✅', '❤️', '😊', '🎉', '💯', '🛒'];
 
@@ -106,13 +108,22 @@ export class MessagesComponent implements OnInit, OnDestroy {
       this.socket.chatMessage$.subscribe((payload) => this.handleIncomingMessage(payload)),
       this.socket.chatTyping$.subscribe((payload) => this.handleTyping(payload)),
       this.socket.chatStopTyping$.subscribe((payload) => this.handleStopTyping(payload)),
+      this.socket.chatPresence$.subscribe((payload) => this.handlePresence(payload)),
+      this.socket.chatMessagesRead$.subscribe((payload) => this.handleMessagesRead(payload)),
     );
   }
 
   ngOnDestroy(): void {
+    this.deactivateChatPresence();
     this.emitStopTyping();
     this.chat.setActiveConversation(null);
     this.subs.forEach((sub) => sub.unsubscribe());
+  }
+
+  get peerStatusLabel(): string {
+    if (this.typingLabel) return this.typingLabel;
+    if (this.peerOnline) return 'online';
+    return this.formatLastSeen(this.peerLastSeen ?? this.activeConversation?.peer?.lastSeenAt);
   }
 
   get productContext(): ChatProductContext | null {
@@ -121,6 +132,9 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
   openConversation(conversationId: string): void {
     const id = String(conversationId);
+    if (this.activeConversation && String(this.activeConversation._id) !== id) {
+      this.deactivateChatPresence();
+    }
     this.syncActiveConversation(id);
 
     if (!this.activeConversation || String(this.activeConversation._id) !== id) {
@@ -132,6 +146,9 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
     this.chat.setActiveConversation(id);
     this.typingLabel = '';
+    this.peerOnline = false;
+    this.peerLastSeen = this.activeConversation.peer?.lastSeenAt ?? null;
+    this.activateChatPresence();
 
     if (this.loadedConversationId === id && this.messages.length > 0) {
       this.cdr.markForCheck();
@@ -234,6 +251,30 @@ export class MessagesComponent implements OnInit, OnDestroy {
     return conversation?.peer?.name?.trim() || 'Chat';
   }
 
+  isMessageRead(message: ChatMessage): boolean {
+    return this.isMine(message) && !!message.readAt;
+  }
+
+  formatLastSeen(value: string | Date | null | undefined): string {
+    if (!value) return 'offline';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'offline';
+
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const time = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+    if (isToday) return `last seen today at ${time}`;
+
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    if (date.toDateString() === yesterday.toDateString()) {
+      return `last seen yesterday at ${time}`;
+    }
+
+    return `last seen ${date.toLocaleDateString()} ${time}`;
+  }
+
   private handleIncomingMessage(payload: {
     conversationId: string;
     message: ChatMessage;
@@ -300,7 +341,60 @@ export class MessagesComponent implements OnInit, OnDestroy {
     if (this.stopTypingTimeout) clearTimeout(this.stopTypingTimeout);
   }
 
+  private handlePresence(payload: {
+    userId: string;
+    status: 'online' | 'offline';
+    lastSeenAt?: string | Date | null;
+  }): void {
+    if (!this.activeConversation?.peer?._id) return;
+    if (String(payload.userId) !== String(this.activeConversation.peer._id)) return;
+
+    if (payload.status === 'online') {
+      this.peerOnline = true;
+    } else {
+      this.peerOnline = false;
+      if (payload.lastSeenAt) this.peerLastSeen = payload.lastSeenAt;
+    }
+    this.cdr.markForCheck();
+  }
+
+  private handleMessagesRead(payload: {
+    conversationId: string;
+    readAt: string | Date;
+  }): void {
+    if (!this.activeConversation) return;
+    if (String(payload.conversationId) !== String(this.activeConversation._id)) return;
+
+    const readAt = payload.readAt;
+    const viewerId = String(this.auth.getUser()?.id || '');
+    this.messages = this.messages.map((message) =>
+      String(message.senderId) === viewerId && !message.readAt
+        ? { ...message, readAt }
+        : message,
+    );
+    this.cdr.markForCheck();
+  }
+
+  private activateChatPresence(): void {
+    const viewer = this.auth.getUser();
+    const peerId = this.activeConversation?.peer?._id;
+    const conversationId = this.activeConversation?._id;
+    if (!viewer?.id || !peerId || !conversationId) return;
+
+    this.socket.emitChatPresenceActive(conversationId, peerId, viewer.id);
+  }
+
+  private deactivateChatPresence(): void {
+    const viewer = this.auth.getUser();
+    const peerId = this.activeConversation?.peer?._id;
+    if (!viewer?.id || !peerId) return;
+
+    this.socket.emitChatPresenceInactive(peerId, viewer.id);
+    this.peerOnline = false;
+  }
+
   private clearActiveConversation(): void {
+    this.deactivateChatPresence();
     this.emitStopTyping();
     this.activeConversation = null;
     this.chat.setActiveConversation(null);
@@ -309,6 +403,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.messagesPage = 1;
     this.hasMoreMessages = false;
     this.typingLabel = '';
+    this.peerOnline = false;
     this.cdr.markForCheck();
   }
 
@@ -387,6 +482,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
       senderId: String(message.senderId),
       text: String(message.text || ''),
       createdAt: message.createdAt || new Date().toISOString(),
+      readAt: message.readAt ?? null,
     };
   }
 
@@ -406,8 +502,10 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
   private scrollToBottom(): void {
     setTimeout(() => {
-      const el = document.getElementById('chat-thread-bottom');
-      el?.scrollIntoView({ behavior: 'smooth' });
+      const el = this.threadBody?.nativeElement;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
     }, 50);
   }
 }

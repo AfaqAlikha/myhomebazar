@@ -12,6 +12,7 @@ export interface ChatPeer {
   name: string;
   avatar?: string;
   role?: string;
+  lastSeenAt?: string | Date | null;
 }
 
 export interface ChatProductContext {
