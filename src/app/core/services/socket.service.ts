@@ -52,6 +52,18 @@ export interface ChatTypingPayload {
   userName?: string;
 }
 
+export interface ChatPresencePayload {
+  userId: string;
+  conversationId?: string;
+  status: 'online' | 'offline';
+  lastSeenAt?: string | Date | null;
+}
+
+export interface ChatMessagesReadPayload {
+  conversationId: string;
+  readAt: string | Date;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -65,6 +77,8 @@ export class SocketService implements OnDestroy {
   readonly chatMessage$ = new Subject<ChatSocketPayload>();
   readonly chatTyping$ = new Subject<ChatTypingPayload>();
   readonly chatStopTyping$ = new Subject<ChatTypingPayload>();
+  readonly chatPresence$ = new Subject<ChatPresencePayload>();
+  readonly chatMessagesRead$ = new Subject<ChatMessagesReadPayload>();
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -114,6 +128,29 @@ export class SocketService implements OnDestroy {
 
     this.socket.on('chatStopTyping', (payload: ChatTypingPayload) => {
       this.emitInZone(this.chatStopTyping$, payload);
+    });
+
+    this.socket.on('chatPresence', (payload: ChatPresencePayload) => {
+      this.emitInZone(this.chatPresence$, payload);
+    });
+
+    this.socket.on('chatMessagesRead', (payload: ChatMessagesReadPayload) => {
+      this.emitInZone(this.chatMessagesRead$, payload);
+    });
+  }
+
+  emitChatPresenceActive(conversationId: string, recipientId: string, userId: string): void {
+    this.socket?.emit('chatPresenceActive', {
+      conversationId: String(conversationId),
+      recipientId: String(recipientId),
+      userId: String(userId),
+    });
+  }
+
+  emitChatPresenceInactive(recipientId: string, userId: string): void {
+    this.socket?.emit('chatPresenceInactive', {
+      recipientId: String(recipientId),
+      userId: String(userId),
     });
   }
 

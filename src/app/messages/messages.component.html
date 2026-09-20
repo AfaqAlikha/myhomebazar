@@ -49,8 +49,7 @@
         ></app-user-avatar>
         <div class="wa-thread__meta">
           <strong>{{ peerName(activeConversation) }}</strong>
-          <span *ngIf="typingLabel; else onlineLabel">{{ typingLabel }}</span>
-          <ng-template #onlineLabel><span class="wa-thread__status">online</span></ng-template>
+          <span class="wa-thread__status">{{ peerStatusLabel }}</span>
         </div>
       </header>
 
@@ -77,7 +76,16 @@
           [ngClass]="isMine(message) ? 'wa-bubble--mine' : 'wa-bubble--theirs'"
         >
           <p>{{ message.text }}</p>
-          <span>{{ messageTime(message) }}</span>
+          <div class="wa-bubble__meta">
+            <span>{{ messageTime(message) }}</span>
+            <span
+              *ngIf="isMine(message)"
+              class="wa-ticks"
+              [class.wa-ticks--read]="isMessageRead(message)"
+            >
+              <mat-icon>{{ isMessageRead(message) ? 'done_all' : 'done' }}</mat-icon>
+            </span>
+          </div>
         </div>
 
         <div *ngIf="typingLabel" class="wa-typing">

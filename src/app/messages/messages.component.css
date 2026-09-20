@@ -1,5 +1,7 @@
 .wa-chat-page {
-  min-height: calc(100vh - 120px);
+  height: calc(100vh - 120px);
+  max-height: calc(100vh - 120px);
+  overflow: hidden;
   padding: 0.75rem;
 }
 
@@ -195,9 +197,6 @@
   opacity: 0.9;
 }
 
-.wa-thread__status {
-  color: #bbf7d0;
-}
 
 .wa-product-card {
   display: grid;
@@ -266,12 +265,37 @@
   word-break: break-word;
 }
 
-.wa-bubble span {
-  display: block;
+.wa-bubble__meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.2rem;
   margin-top: 0.15rem;
+}
+
+.wa-bubble__meta span {
   font-size: 0.625rem;
   opacity: 0.7;
-  text-align: right;
+}
+
+.wa-ticks {
+  display: inline-flex;
+  color: #8696a0;
+  line-height: 1;
+}
+
+.wa-ticks mat-icon {
+  font-size: 0.875rem;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.wa-ticks--read {
+  color: #53bdeb;
+}
+
+.wa-thread__status {
+  color: color-mix(in srgb, #fff 88%, transparent);
 }
 
 .wa-bubble--mine {
