@@ -65,6 +65,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
   typingLabel = '';
   peerOnline = false;
   peerLastSeen: string | Date | null = null;
+  peerPresenceByUserId: Record<string, { online: boolean; lastSeenAt?: string | Date | null }> = {};
 
   readonly emojiList = ['😀', '😂', '😍', '👍', '🙏', '🔥', '✅', '❤️', '😊', '🎉', '💯', '🛒'];
 
@@ -74,6 +75,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
   private typingTimeout?: ReturnType<typeof setTimeout>;
   private stopTypingTimeout?: ReturnType<typeof setTimeout>;
   private isTyping = false;
+  private activePresencePeers = new Set<string>();
 
   messageForm = this.fb.group({
     text: ['', [Validators.required, Validators.maxLength(2000)]],
@@ -99,6 +101,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
         this.conversations = items;
         this.loadingConversations = false;
         this.syncActiveConversation();
+        this.syncChatPresence();
         this.cdr.markForCheck();
       }),
       this.chat.refreshConversations().subscribe(),
@@ -120,7 +123,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.setChatRouteLayout(false);
-    this.deactivateChatPresence();
+    this.deactivateAllChatPresence();
     this.emitStopTyping();
     this.chat.setActiveConversation(null);
     this.subs.forEach((sub) => sub.unsubscribe());
@@ -136,11 +139,13 @@ export class MessagesComponent implements OnInit, OnDestroy {
     return this.activeConversation?.productContext || null;
   }
 
+  isPeerOnline(peerId?: string | null): boolean {
+    if (!peerId) return false;
+    return this.peerPresenceByUserId[String(peerId)]?.online === true;
+  }
+
   openConversation(conversationId: string): void {
     const id = String(conversationId);
-    if (this.activeConversation && String(this.activeConversation._id) !== id) {
-      this.deactivateChatPresence();
-    }
     this.syncActiveConversation(id);
 
     if (!this.activeConversation || String(this.activeConversation._id) !== id) {
@@ -152,10 +157,13 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
     this.chat.setActiveConversation(id);
     this.typingLabel = '';
-    this.peerOnline = false;
-    this.peerLastSeen = this.activeConversation.peer?.lastSeenAt ?? null;
+    const peerId = this.activeConversation.peer?._id;
+    const peerPresence = peerId ? this.peerPresenceByUserId[String(peerId)] : undefined;
+    this.peerOnline = peerPresence?.online === true;
+    this.peerLastSeen =
+      peerPresence?.lastSeenAt ?? this.activeConversation.peer?.lastSeenAt ?? null;
     this.updateChatThreadLayout();
-    this.activateChatPresence();
+    this.syncChatPresence();
 
     if (this.loadedConversationId === id && this.messages.length > 0) {
       this.cdr.markForCheck();
@@ -353,15 +361,22 @@ export class MessagesComponent implements OnInit, OnDestroy {
     status: 'online' | 'offline';
     lastSeenAt?: string | Date | null;
   }): void {
-    if (!this.activeConversation?.peer?._id) return;
-    if (String(payload.userId) !== String(this.activeConversation.peer._id)) return;
+    const userId = String(payload.userId);
+    const online = payload.status === 'online';
+    const previous = this.peerPresenceByUserId[userId];
 
-    if (payload.status === 'online') {
-      this.peerOnline = true;
-    } else {
-      this.peerOnline = false;
-      if (payload.lastSeenAt) this.peerLastSeen = payload.lastSeenAt;
+    this.peerPresenceByUserId[userId] = {
+      online,
+      lastSeenAt: payload.lastSeenAt ?? previous?.lastSeenAt ?? null,
+    };
+
+    if (this.activeConversation?.peer?._id && String(this.activeConversation.peer._id) === userId) {
+      this.peerOnline = online;
+      this.peerLastSeen = online
+        ? previous?.lastSeenAt ?? this.activeConversation.peer?.lastSeenAt ?? null
+        : payload.lastSeenAt ?? previous?.lastSeenAt ?? this.activeConversation.peer?.lastSeenAt ?? null;
     }
+
     this.cdr.markForCheck();
   }
 
@@ -382,26 +397,48 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  private activateChatPresence(): void {
+  private syncChatPresence(): void {
     const viewer = this.auth.getUser();
-    const peerId = this.activeConversation?.peer?._id;
-    const conversationId = this.activeConversation?._id;
-    if (!viewer?.id || !peerId || !conversationId) return;
+    if (!viewer?.id) return;
 
-    this.socket.emitChatPresenceActive(conversationId, peerId, viewer.id);
+    const desiredPeers = new Map<string, string>();
+    if (this.activeConversation?.peer?._id) {
+      desiredPeers.set(String(this.activeConversation.peer._id), String(this.activeConversation._id));
+    } else {
+      this.conversations.forEach((conversation) => {
+        if (conversation.peer?._id) {
+          desiredPeers.set(String(conversation.peer._id), String(conversation._id));
+        }
+      });
+    }
+
+    for (const peerId of this.activePresencePeers) {
+      if (!desiredPeers.has(peerId)) {
+        this.socket.emitChatPresenceInactive(peerId, viewer.id);
+      }
+    }
+
+    for (const [peerId, conversationId] of desiredPeers.entries()) {
+      if (!this.activePresencePeers.has(peerId)) {
+        this.socket.emitChatPresenceActive(conversationId, peerId, viewer.id);
+      }
+    }
+
+    this.activePresencePeers = new Set(desiredPeers.keys());
   }
 
-  private deactivateChatPresence(): void {
+  private deactivateAllChatPresence(): void {
     const viewer = this.auth.getUser();
-    const peerId = this.activeConversation?.peer?._id;
-    if (!viewer?.id || !peerId) return;
+    if (!viewer?.id) return;
 
-    this.socket.emitChatPresenceInactive(peerId, viewer.id);
+    for (const peerId of this.activePresencePeers) {
+      this.socket.emitChatPresenceInactive(peerId, viewer.id);
+    }
+    this.activePresencePeers.clear();
     this.peerOnline = false;
   }
 
   private clearActiveConversation(): void {
-    this.deactivateChatPresence();
     this.emitStopTyping();
     this.activeConversation = null;
     this.chat.setActiveConversation(null);
@@ -411,6 +448,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.hasMoreMessages = false;
     this.typingLabel = '';
     this.peerOnline = false;
+    this.syncChatPresence();
     this.updateChatThreadLayout();
     this.cdr.markForCheck();
   }
