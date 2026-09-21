@@ -496,8 +496,7 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   isPromotionActive(): boolean {
-    if (!this.product?.isPromoted) return false;
-    if (!this.product.promotionExpiresAt) return !!this.product.isPromoted;
+    if (!this.product?.isPromoted || !this.product.promotionExpiresAt) return false;
     return new Date(this.product.promotionExpiresAt).getTime() > Date.now();
   }
 
