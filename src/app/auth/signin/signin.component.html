@@ -24,7 +24,17 @@
       </div>
     </div>
 
+    <div class="w-full p-2" *ngIf="!showManualForm">
+      <app-social-auth-buttons
+        manualLabel="Sign in with Email"
+        (googleToken)="onGoogleToken($event)"
+        (facebookToken)="onFacebookToken($event)"
+        (manualClick)="showManualForm = true"
+      ></app-social-auth-buttons>
+    </div>
+
     <form
+      *ngIf="showManualForm"
       [formGroup]="form"
       (ngSubmit)="submit()"
       class="signin-form flex flex-col gap-6 w-full p-2"

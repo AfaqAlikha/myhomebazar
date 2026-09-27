@@ -10,7 +10,7 @@ import { SeoService } from '../../services/seo';
   template: `
     <app-legal-page
       pageTitle="Terms & Conditions"
-      lastUpdated="17 July 2026"
+      lastUpdated="27 September 2026"
       [intro]="intro"
       [sections]="sections"
     />
@@ -18,7 +18,7 @@ import { SeoService } from '../../services/seo';
 })
 export class TermsAndConditionsComponent implements OnInit {
   intro =
-    'Welcome to My Home Bazar. By accessing or using our website, creating an account, or placing an order, you agree to these Terms & Conditions. Please read them carefully. If you do not agree, do not use our services.';
+    'Welcome to My Home Bazar (myhomebazar.com) and our seller/admin portal (admin.myhomebazar.com). By accessing our sites, creating an account (with email, Google, or Facebook), or placing an order, you agree to these Terms & Conditions and our Privacy Policy. Please read them carefully. If you do not agree, do not use our services.';
 
   sections: LegalSection[] = [
     {
@@ -33,9 +33,20 @@ export class TermsAndConditionsComponent implements OnInit {
       bullets: [
         'Be at least 18 years old and capable of entering a binding contract.',
         'Provide accurate registration information and keep your account details up to date.',
-        'Verify your email address within the time limit stated at signup. Unverified accounts may be deleted after 24 hours.',
-        'Maintain the confidentiality of your password and notify us of unauthorized access.',
-        'Sellers must register as a store account and comply with additional seller obligations.',
+        'Accept these Terms and our Privacy Policy at registration (including when completing profile after Google or Facebook sign-in).',
+        'Email sign-up: verify your email within the time limit stated at signup. Unverified email accounts may be deleted after 24 hours.',
+        'Social sign-up (Google/Facebook): complete required profile fields (name, country, state, city) before using marketplace features.',
+        'Maintain the confidentiality of your password (email accounts) and notify us of unauthorized access.',
+        'Use only one account per person unless we approve otherwise. If an email is already registered, sign in with that method or contact support.',
+        'Sellers must use the admin portal and comply with additional seller obligations below.',
+      ],
+    },
+    {
+      title: '2A. Google & Facebook Sign-In',
+      paragraphs: [
+        'Optional social login is offered on the customer site and admin portal. By using it, you also agree to the applicable provider terms (Google / Meta) for authentication.',
+        'Social login does not replace these Terms. You remain responsible for activity on your My Home Bazar account. We may link your account to the provider ID we receive; we do not control Google or Meta services.',
+        'Admin portal social sign-in is only for authorized sellers and staff roles. Buyers with a standard customer account cannot use the admin portal even if they use the same email on Facebook or Google.',
       ],
     },
     {

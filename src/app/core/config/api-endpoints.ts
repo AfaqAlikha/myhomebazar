@@ -16,6 +16,9 @@ export const API_ENDPOINTS = {
     changePasswordWithOtp: `${BASE}/user/password/change-with-otp`,
     refreshToken: `${BASE}/user/refresh-token`,
     logout: `${BASE}/user/logout`,
+    googleAuth: `${BASE}/user/auth/google`,
+    facebookAuth: `${BASE}/user/auth/facebook`,
+    completeSocialProfile: `${BASE}/user/auth/social/complete-profile`,
   },
   products: {
     list: `${BASE}/products`,

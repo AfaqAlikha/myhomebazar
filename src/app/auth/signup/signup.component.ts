@@ -9,6 +9,7 @@ import { AuthService } from '../auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { NgIf } from '@angular/common';
+import { SocialAuthButtonsComponent } from '../social-auth-buttons/social-auth-buttons.component';
 
 @Component({
   selector: 'app-signup',
@@ -24,12 +25,14 @@ import { NgIf } from '@angular/common';
     RouterLink,
     UiCardComponent,
     NgIf,
+    SocialAuthButtonsComponent,
   ],
 })
 export class SignupComponent implements OnInit {
   form: FormGroup;
   logo: any = null;
   submitLoading = false;
+  showManualForm = false;
 
   constructor(
     private fb: FormBuilder,
@@ -59,6 +62,18 @@ export class SignupComponent implements OnInit {
           this.logo = res.logo;
         }
       },
+    });
+  }
+
+  onGoogleToken(idToken: string): void {
+    this.auth.googleAuth(idToken).subscribe({
+      next: (res) => this.auth.handleSocialAuthResponse(res),
+    });
+  }
+
+  onFacebookToken(accessToken: string): void {
+    this.auth.facebookAuth(accessToken).subscribe({
+      next: (res) => this.auth.handleSocialAuthResponse(res),
     });
   }
 

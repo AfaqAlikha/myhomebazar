@@ -277,7 +277,7 @@ export class SeoService {
     this.setMeta({
       title: 'Privacy Policy | MyHomeBazar',
       description:
-        'Read how My Home Bazar collects, uses, and protects your personal information when you shop on our Pakistan marketplace.',
+        'Privacy Policy for My Home Bazar — account data, orders, Google/Facebook sign-in, cookies, AdSense, and how to request data deletion.',
       url: `${SITE_URL}/privacy-policy`,
       type: 'website',
     });
@@ -287,7 +287,7 @@ export class SeoService {
     this.setMeta({
       title: 'Terms & Conditions | MyHomeBazar',
       description:
-        'Terms and conditions for using My Home Bazar — orders, payments, shipping, returns, and seller rules.',
+        'Terms and conditions for My Home Bazar — accounts (email, Google, Facebook), orders, payments, shipping, returns, and seller rules.',
       url: `${SITE_URL}/terms-and-conditions`,
       type: 'website',
     });

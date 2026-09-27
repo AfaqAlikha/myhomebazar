@@ -9,6 +9,7 @@ import { RouterLink, Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { NgIf } from '@angular/common';
 import { env } from '../../../environments/env';
+import { SocialAuthButtonsComponent } from '../social-auth-buttons/social-auth-buttons.component';
 
 @Component({
   selector: 'app-signin',
@@ -23,6 +24,7 @@ import { env } from '../../../environments/env';
     UiCardComponent,
     RouterLink,
     NgIf,
+    SocialAuthButtonsComponent,
   ],
 })
 export class SigninComponent implements OnInit {
@@ -30,6 +32,8 @@ export class SigninComponent implements OnInit {
   form: FormGroup;
   logo: any = null;
   submitLoading = false;
+  socialLoading = false;
+  showManualForm = false;
   showVerificationNotice = false;
   sellerPortalUrl = `${env.SELLER_PORTAL_URL}/register`;
 
@@ -61,6 +65,34 @@ export class SigninComponent implements OnInit {
         if (res?.logo) {
           this.logo = res.logo;
         }
+      },
+    });
+  }
+
+  onGoogleToken(idToken: string): void {
+    this.socialLoading = true;
+    this.auth.googleAuth(idToken).subscribe({
+      next: (res) => {
+        this.socialLoading = false;
+        this.auth.handleSocialAuthResponse(res);
+        if (!res.needsProfile) this.router.navigate(['']);
+      },
+      error: () => {
+        this.socialLoading = false;
+      },
+    });
+  }
+
+  onFacebookToken(accessToken: string): void {
+    this.socialLoading = true;
+    this.auth.facebookAuth(accessToken).subscribe({
+      next: (res) => {
+        this.socialLoading = false;
+        this.auth.handleSocialAuthResponse(res);
+        if (!res.needsProfile) this.router.navigate(['']);
+      },
+      error: () => {
+        this.socialLoading = false;
       },
     });
   }

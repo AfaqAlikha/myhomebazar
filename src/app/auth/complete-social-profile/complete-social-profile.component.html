@@ -1,0 +1,35 @@
+<div class="app-container flex flex-col items-center justify-center min-h-[80vh] px-4 py-4 bg-[var(--color-background)]">
+  <app-ui-card borderRadius="0.5rem" class="w-full max-w-xl">
+    <h3 class="text-center text-xl font-semibold mb-2">Complete your profile</h3>
+    <p class="text-center text-sm text-[var(--color-text-secondary)] mb-4 px-2">
+      Add the same details we ask for on manual registration so we can show sellers and products near you.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-5 w-full p-2">
+      <app-ui-input label="Name" type="text" placeholder="Your name" [controlName]="'name'"></app-ui-input>
+      <app-ui-input label="Email" type="email" placeholder="Email" [controlName]="'email'"></app-ui-input>
+      <app-ui-input label="Country" type="text" placeholder="Country" [controlName]="'country'"></app-ui-input>
+      <app-ui-input label="State" type="text" placeholder="State" [controlName]="'state'"></app-ui-input>
+      <app-ui-input label="City" type="text" placeholder="City" [controlName]="'city'"></app-ui-input>
+
+      <mat-checkbox formControlName="terms">
+        I accept the
+        <a routerLink="/terms-and-conditions" target="_blank" class="text-[var(--color-accent)] hover:underline">
+          Terms & Conditions
+        </a>
+        and
+        <a routerLink="/privacy-policy" target="_blank" class="text-[var(--color-accent)] hover:underline">
+          Privacy Policy
+        </a>
+      </mat-checkbox>
+
+      <app-ui-button
+        label="Finish registration"
+        type="submit"
+        [disabled]="form.invalid"
+        [loading]="submitLoading"
+        variant="accent"
+      ></app-ui-button>
+    </form>
+  </app-ui-card>
+</div>
