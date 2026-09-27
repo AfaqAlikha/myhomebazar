@@ -94,6 +94,9 @@ export class AuthInterceptor implements HttpInterceptor {
     return (
       url.includes('/login') ||
       url.includes('/signup') ||
+      url.includes('/auth/google') ||
+      url.includes('/auth/facebook') ||
+      url.includes('/auth/social/complete-profile') ||
       url.includes('/verify-email') ||
       url.includes('/refresh-token') ||
       url.includes('/logout') ||

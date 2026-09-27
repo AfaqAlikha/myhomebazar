@@ -109,8 +109,93 @@ export class AuthService {
       url.includes('/signin') ||
       url.includes('/signup') ||
       url.includes('/forgot-password') ||
-      url.includes('/verify-email')
+      url.includes('/verify-email') ||
+      url.includes('/complete-social-profile')
     );
+  }
+
+  private applyLoginTokens(res: { token?: string; accessToken?: string; message?: string }) {
+    const token = res.token || res.accessToken;
+    if (token) {
+      if (this.isBrowser) this.setCookie('token', token);
+      this.tokenSubject.next(token);
+      this.userSubject.next(this.getUser());
+      this.sessionWasActive = true;
+    }
+    if (res.message) this.toastr.success(res.message);
+  }
+
+  googleAuth(idToken: string) {
+    return this.http
+      .post<any>(
+        API_ENDPOINTS.auth.googleAuth,
+        { idToken, adminPortal: false, role: 'user' },
+        { withCredentials: true },
+      )
+      .pipe(
+        map((res) => res.data ?? res),
+        catchError((err) => {
+          this.toastr.error(err?.error?.message || 'Google sign-in failed');
+          return throwError(() => err);
+        }),
+      );
+  }
+
+  facebookAuth(accessToken: string) {
+    return this.http
+      .post<any>(
+        API_ENDPOINTS.auth.facebookAuth,
+        { accessToken, adminPortal: false, role: 'user' },
+        { withCredentials: true },
+      )
+      .pipe(
+        map((res) => res.data ?? res),
+        catchError((err) => {
+          this.toastr.error(err?.error?.message || 'Facebook sign-in failed');
+          return throwError(() => err);
+        }),
+      );
+  }
+
+  handleSocialAuthResponse(res: {
+    needsProfile?: boolean;
+    pendingToken?: string;
+    profile?: { name?: string; email?: string };
+    token?: string;
+    accessToken?: string;
+    message?: string;
+  }) {
+    if (res.needsProfile && res.pendingToken) {
+      sessionStorage.setItem('socialPendingToken', res.pendingToken);
+      this.router.navigate(['/complete-social-profile'], {
+        state: { pendingToken: res.pendingToken, profile: res.profile },
+      });
+      return;
+    }
+    this.applyLoginTokens(res);
+  }
+
+  completeSocialProfile(payload: {
+    pendingToken: string;
+    name: string;
+    country: string;
+    state: string;
+    city: string;
+    terms: boolean;
+  }) {
+    return this.http
+      .post<any>(API_ENDPOINTS.auth.completeSocialProfile, payload, { withCredentials: true })
+      .pipe(
+        map((res) => {
+          const body = res.data ?? res;
+          this.applyLoginTokens(body);
+          return body;
+        }),
+        catchError((err) => {
+          this.toastr.error(err?.error?.message || 'Could not complete profile');
+          return throwError(() => err);
+        }),
+      );
   }
 
   clearSession(showToast = false): void {

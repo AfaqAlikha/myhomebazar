@@ -18,6 +18,12 @@
         <ul *ngIf="section.bullets?.length" class="list-disc pl-6 space-y-2 text-[var(--color-text-secondary)]">
           <li *ngFor="let item of section.bullets">{{ item }}</li>
         </ul>
+        <p
+          *ngFor="let paragraph of section.paragraphsAfter"
+          class="text-[var(--color-text-secondary)] leading-relaxed mb-3 mt-3"
+        >
+          {{ paragraph }}
+        </p>
       </section>
     </article>
 

@@ -15,6 +15,14 @@ export const routes: Routes = [
     canActivate: [GuestGuard],
   },
   {
+    path: 'complete-social-profile',
+    loadComponent: () =>
+      import('./auth/complete-social-profile/complete-social-profile.component').then(
+        (m) => m.CompleteSocialProfileComponent,
+      ),
+    canActivate: [GuestGuard],
+  },
+  {
     path: 'forgot-password',
     loadComponent: () =>
       import('./auth/forgot-password/forgot-password.component').then((m) => m.ForgotPasswordComponent),
