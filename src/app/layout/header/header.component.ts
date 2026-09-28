@@ -24,6 +24,7 @@ import { ProductService } from '../../services/product.service';
 import { PwaService } from '../../core/services/pwa.service';
 import { ChatService } from '../../services/chat.service';
 import { HeaderProductSearchService } from '../../core/services/header-product-search.service';
+import { SELLER_REGISTER_URL } from '../../core/constants/seller-portal';
 
 @Component({
   selector: 'app-header',
@@ -44,6 +45,7 @@ import { HeaderProductSearchService } from '../../core/services/header-product-s
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  readonly sellerRegisterUrl = SELLER_REGISTER_URL;
   isDarkMode = false;
   logo: any = null;
   user: any = null;

@@ -109,8 +109,17 @@
               <a mat-menu-item routerLink="/order-history">Orders</a>
               <button mat-menu-item (click)="logout()">Logout</button>
             } @else {
-              <a mat-menu-item routerLink="/signin">Sign In</a>
-              <a mat-menu-item routerLink="/signup">Sign Up</a>
+              <a mat-menu-item routerLink="/signin" class="header-account-menu__item">Sign In</a>
+              <a mat-menu-item routerLink="/signup" class="header-account-menu__item">Sign Up</a>
+              <a
+                mat-menu-item
+                class="header-account-menu__item header-account-menu__item--seller"
+                [href]="sellerRegisterUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Sign up with seller account
+              </a>
             }
           </mat-menu>
         </nav>

@@ -240,6 +240,14 @@
   }
 }
 
+.header-account-menu__item {
+  color: var(--color-text);
+}
+
+.header-account-menu__item--seller {
+  font-weight: 600;
+}
+
 @media (min-width: 1024px) {
   .header-brand__logo {
     width: 52px;

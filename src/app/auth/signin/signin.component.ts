@@ -8,7 +8,6 @@ import { AuthService } from '../auth.service';
 import { RouterLink, Router } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { NgIf } from '@angular/common';
-import { env } from '../../../environments/env';
 import { SocialAuthButtonsComponent } from '../social-auth-buttons/social-auth-buttons.component';
 
 @Component({
@@ -34,7 +33,6 @@ export class SigninComponent implements OnInit {
   submitLoading = false;
   socialLoading = false;
   showVerificationNotice = false;
-  sellerPortalUrl = `${env.SELLER_PORTAL_URL}/register`;
 
   constructor(
     private fb: FormBuilder,

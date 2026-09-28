@@ -30,6 +30,8 @@ import { PwaInstallPromptComponent } from './shared/pwa-install-prompt/pwa-insta
 import { MobileBottomNavComponent } from './shared/mobile-bottom-nav/mobile-bottom-nav.component';
 import { PageBackBarComponent } from './shared/page-back-bar/page-back-bar.component';
 import { ChatService } from './services/chat.service';
+import { SELLER_REGISTER_URL } from './core/constants/seller-portal';
+import { AppBrandingService } from './core/services/app-branding.service';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -60,6 +62,9 @@ import { ChatService } from './services/chat.service';
 export class AppComponent implements OnInit {
   loading = true;
   private router = inject(Router);
+  private branding = inject(AppBrandingService);
+
+  readonly sellerRegisterUrl = SELLER_REGISTER_URL;
 
   user: any = null;
   token: string | null = null;
@@ -104,7 +109,11 @@ export class AppComponent implements OnInit {
     );
     this.isDarkMode = this.themeService.isDark();
     this.siteThemeService.loadAndApply();
-    this.loadLogo();
+
+    const snapshot = this.branding.getLogoSnapshot();
+    if (snapshot) {
+      this.seo.setOrganizationBranding(snapshot);
+    }
 
     if (this.isBrowser) {
       this.pwaService.registerServiceWorker().catch(() => {});
@@ -115,16 +124,39 @@ export class AppComponent implements OnInit {
           this.refreshCartCount();
         }),
       );
+
+      this.runWhenIdle(() => {
+        if (!this.branding.getLogoSnapshot()) {
+          this.loadLogo();
+        }
+      });
+
+      if (!this.auth.isGuestAuthRoute()) {
+        this.runWhenIdle(() => this.auth.trySilentRefresh().subscribe());
+      } else {
+        this.auth.clearStaleSession();
+      }
+    } else if (!this.auth.isGuestAuthRoute()) {
+      this.auth.trySilentRefresh().subscribe();
+    } else {
+      this.auth.clearStaleSession();
     }
 
     if (this.isBrowser && !navigator.onLine) {
       this.offlineService.goOffline(this.router.url);
     }
+  }
 
-    if (!this.auth.isGuestAuthRoute()) {
-      this.auth.trySilentRefresh().subscribe();
+  private runWhenIdle(fn: () => void): void {
+    if (!this.isBrowser) {
+      fn();
+      return;
+    }
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number };
+    if (typeof w.requestIdleCallback === 'function') {
+      w.requestIdleCallback(fn, { timeout: 2500 });
     } else {
-      this.auth.clearStaleSession();
+      setTimeout(fn, 0);
     }
   }
 
