@@ -2,7 +2,7 @@
   <div class="home-hero-section__grid">
     <div class="home-hero-section__hero">
       <app-hero-3d-banner [slides]="slides" [loading]="loading" [variant]="visualVariant">
-        <div hero3d-copy class="home-hero-section__copy home-hero-section__copy--desktop hidden md:block">
+        <div hero3d-copy class="home-hero-section__copy home-hero-section__copy--desktop">
           <span class="home-hero-section__badge">{{ desktopCopy.badge }}</span>
           <h1 class="home-hero-section__title">{{ desktopCopy.title }}</h1>
           <p class="home-hero-section__sub">{{ desktopCopy.subtitle }}</p>
@@ -10,7 +10,7 @@
             {{ desktopCopy.ctaLabel }} →
           </a>
         </div>
-        <div hero3d-copy class="home-hero-section__copy home-hero-section__copy--mobile md:hidden">
+        <div hero3d-copy class="home-hero-section__copy home-hero-section__copy--mobile">
           <span class="home-hero-section__badge">{{ mobileCopy.badge }}</span>
           <h1 class="home-hero-section__title home-hero-section__title--mobile">{{ mobileCopy.title }}</h1>
           <p class="home-hero-section__sub">{{ mobileCopy.subtitle }}</p>
@@ -21,7 +21,11 @@
       </app-hero-3d-banner>
     </div>
 
-    <div class="home-hero-section__promos" *ngIf="flashDealsActive || freeDeliveryActive">
+    <div
+      class="home-hero-section__promos"
+      *ngIf="flashDealsActive || freeDeliveryActive"
+      [ngClass]="promoGridClasses"
+    >
       <div class="home-hero-section__promo-slot" *ngIf="flashDealsActive">
         <app-promo-3d-card variant="flash">
           <div class="home-hero-section__promo-body">
