@@ -33,18 +33,6 @@
   pointer-events: none;
 }
 
-.hero-3d__grid-lines {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--color-border) 35%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--color-border) 35%, transparent) 1px, transparent 1px);
-  background-size: 36px 36px;
-  mask-image: radial-gradient(circle at 70% 40%, black, transparent 72%);
-  opacity: 0.35;
-  pointer-events: none;
-}
-
 .hero-3d__orbs {
   position: absolute;
   inset: 0;
@@ -73,15 +61,6 @@
   left: 12%;
   background: color-mix(in srgb, var(--color-primary) 50%, transparent);
   animation-delay: 1.2s;
-}
-
-.hero-3d__orb--3 {
-  width: 70px;
-  height: 70px;
-  top: 55%;
-  right: 8%;
-  background: color-mix(in srgb, var(--color-success) 45%, transparent);
-  animation-delay: 2.1s;
 }
 
 .hero-3d__skeleton {
@@ -416,15 +395,13 @@
   }
 }
 
-/* —— Variant: clean (simple bento) —— */
-.hero-3d--clean .hero-3d__aurora,
-.hero-3d--clean .hero-3d__grid-lines,
-.hero-3d--clean .hero-3d__orbs,
-.hero-3d--clean .hero-3d__float-icons,
-.hero-3d--clean .hero-3d__frame-glow {
-  display: none;
+.hero-3d--lite .hero-3d__frame,
+.hero-3d--lite .hero-3d__slide-img,
+.hero-3d--lite .hero-3d__frame-glow {
+  animation: none !important;
 }
 
+/* —— Variant: clean (simple bento) —— */
 .hero-3d--clean {
   background: linear-gradient(
     145deg,
@@ -448,17 +425,6 @@
 }
 
 /* —— Variant: minimal (stack layout) —— */
-.hero-3d--minimal .hero-3d__aurora,
-.hero-3d--minimal .hero-3d__grid-lines,
-.hero-3d--minimal .hero-3d__orbs,
-.hero-3d--minimal .hero-3d__float-icons {
-  display: none;
-}
-
-.hero-3d--minimal .hero-3d__frame-glow {
-  opacity: 0.15;
-}
-
 .hero-3d--minimal .hero-3d__layout {
   grid-template-columns: 1fr;
 }
