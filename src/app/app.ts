@@ -116,6 +116,13 @@ export class AppComponent implements OnInit {
     }
 
     if (this.isBrowser) {
+      try {
+        localStorage.removeItem('mhb_cache_home_public');
+        localStorage.removeItem('mhb_cache_splash');
+      } catch {
+        /* ignore */
+      }
+
       this.pwaService.registerServiceWorker().catch(() => {});
       this.pwaService.maybeShowInstallPrompt();
       this.refreshCartCount();

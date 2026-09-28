@@ -33,7 +33,6 @@ export const API_ENDPOINTS = {
   appAssets: {
     banners: `${BASE}/app-assets/public/banners`,
     logo: `${BASE}/app-assets/public/logo`,
-    splash: `${BASE}/app-assets/public/splash`,
   },
   category: {
     list: `${BASE}/category`,

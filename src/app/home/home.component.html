@@ -51,7 +51,7 @@
   </section>
 
   <!-- Popular products -->
-  <section *ngIf="sectionsLoading || popularProducts.length">
+  <section *ngIf="homeConfigLoading || sectionsLoading || popularProducts.length">
     <div class="home-section-head">
       <div>
         <h2 class="section-title section-title-accent">{{ homeData?.sections?.popularTitle || 'Popular Picks' }}</h2>
@@ -67,7 +67,7 @@
   </section>
 
   <!-- Trending -->
-  <section *ngIf="sectionsLoading || trendingProducts.length" class="hidden md:block">
+  <section *ngIf="homeConfigLoading || sectionsLoading || trendingProducts.length" class="hidden md:block">
     <div class="home-section-head">
       <div>
         <h2 class="section-title section-title-accent">{{ homeData?.sections?.trendingTitle || 'Trending Now' }}</h2>

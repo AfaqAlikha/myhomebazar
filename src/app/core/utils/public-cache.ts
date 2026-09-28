@@ -7,16 +7,12 @@ export const CACHE_KEYS = {
   LOGO: 'mhb_cache_logo',
   BANNERS: 'mhb_cache_banners',
   THEME: 'mhb_cache_theme',
-  SPLASH: 'mhb_cache_splash',
-  HOME_PUBLIC: 'mhb_cache_home_public',
 } as const;
 
 export const CACHE_TTL = {
   LOGO_MS: 60 * 60 * 1000,
   BANNERS_MS: 15 * 60 * 1000,
   THEME_MS: 60 * 60 * 1000,
-  SPLASH_MS: 60 * 60 * 1000,
-  HOME_PUBLIC_MS: 3 * 60 * 1000,
 } as const;
 
 export function readPublicCache<T>(key: string): T | null {
