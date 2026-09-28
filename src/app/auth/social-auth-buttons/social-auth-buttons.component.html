@@ -1,13 +1,8 @@
 <div class="social-auth" *ngIf="social.googleEnabled">
-  <div #googleBtnHost class="social-auth__google"></div>
-  <!-- Facebook disabled until Meta app is live
-  @if (social.facebookEnabled) {
-    <app-ui-button label="Continue with Facebook" ... />
-  }
-  -->
   <div class="social-auth__divider">
     <span></span>
     <span>{{ dividerLabel }}</span>
     <span></span>
   </div>
+  <div #googleBtnHost class="social-auth__google"></div>
 </div>

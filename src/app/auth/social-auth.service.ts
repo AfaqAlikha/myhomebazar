@@ -89,9 +89,10 @@ export class SocialAuthService {
           },
         });
         container.innerHTML = '';
-        const width = Math.min(
-          Math.max(container.offsetWidth || container.parentElement?.offsetWidth || 320, 280),
-          400,
+        const form = container.closest('form');
+        const source = form || container.parentElement || container;
+        const width = Math.floor(
+          Math.max(source.getBoundingClientRect().width || container.offsetWidth || 320, 280),
         );
         window.google?.accounts.id.renderButton(container, {
           type: 'standard',
