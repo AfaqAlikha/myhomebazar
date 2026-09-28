@@ -24,14 +24,6 @@
       </div>
     </div>
 
-    <div class="w-full px-2">
-      <app-social-auth-buttons
-        dividerLabel="or sign in with email"
-        (googleToken)="onGoogleToken($event)"
-        (facebookToken)="onFacebookToken($event)"
-      ></app-social-auth-buttons>
-    </div>
-
     <form
       [formGroup]="form"
       (ngSubmit)="submit()"
@@ -68,6 +60,11 @@
         [loading]="submitLoading"
         variant="accent"
       ></app-ui-button>
+
+      <app-social-auth-buttons
+        (googleToken)="onGoogleToken($event)"
+        (facebookToken)="onFacebookToken($event)"
+      ></app-social-auth-buttons>
 
       <div
         class="seller-portal-note mt-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-center"
