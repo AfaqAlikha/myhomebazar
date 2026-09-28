@@ -24,22 +24,19 @@
       </div>
     </div>
 
-    <div class="w-full p-2" *ngIf="!showManualForm">
+    <div class="w-full px-2">
       <app-social-auth-buttons
-        manualLabel="Sign in with Email"
+        dividerLabel="or sign in with email"
         (googleToken)="onGoogleToken($event)"
         (facebookToken)="onFacebookToken($event)"
-        (manualClick)="showManualForm = true"
       ></app-social-auth-buttons>
     </div>
 
     <form
-      *ngIf="showManualForm"
       [formGroup]="form"
       (ngSubmit)="submit()"
       class="signin-form flex flex-col gap-6 w-full p-2"
     >
-      <!-- Email -->
       <app-ui-input
         label="Email"
         type="email"
@@ -47,10 +44,8 @@
         [controlName]="'email'"
       ></app-ui-input>
 
-      <!-- Password -->
       <app-ui-password label="Password" [controlName]="'password'"></app-ui-password>
 
-      <!-- Links -->
       <div class="flex justify-between text-sm">
         <a
           routerLink="/forgot-password"
@@ -65,7 +60,7 @@
           Don't have an account? Sign Up
         </a>
       </div>
-      <!-- Submit -->
+
       <app-ui-button
         label="Sign In"
         type="submit"

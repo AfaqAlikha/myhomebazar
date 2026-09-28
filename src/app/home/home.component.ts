@@ -15,8 +15,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { forkJoin, interval, Subscription } from 'rxjs';
 
-import { Hero3dBannerComponent, Hero3dSlide } from '../shared/components/hero-3d-banner/hero-3d-banner.component';
-import { Promo3dCardComponent } from '../shared/components/promo-3d-card/promo-3d-card.component';
+import { Hero3dSlide } from '../shared/components/hero-3d-banner/hero-3d-banner.component';
+import {
+  HomeHeroLayoutId,
+  HomeHeroSectionComponent,
+} from './home-hero-section/home-hero-section.component';
 import { ProductCardComponent } from '../shared/card/product-card/product-card.component';
 import { CategoryChipsComponent } from '../shared/category-chips/category-chips.component';
 
@@ -36,8 +39,7 @@ import { HeaderProductSearchService } from '../core/services/header-product-sear
   selector: 'app-home',
   standalone: true,
   imports: [
-    Hero3dBannerComponent,
-    Promo3dCardComponent,
+    HomeHeroSectionComponent,
     CategoryChipsComponent,
     ProductCardComponent,
     GoogleAdComponent,
@@ -157,6 +159,27 @@ export class HomeComponent implements OnInit, OnDestroy {
     const currentIndex = options.indexOf(this.effectiveGridColumns);
     const next = options[(currentIndex + 1) % options.length];
     return `Current ${this.effectiveGridColumns} cards per row. Switch to ${next}.`;
+  }
+
+  get effectiveHeroLayout(): HomeHeroLayoutId {
+    const layouts = this.homeData?.heroLayout;
+    const mobileLayouts: HomeHeroLayoutId[] = [
+      'bento-classic',
+      'stack-minimal',
+      'bento-tilt',
+      'bento-cube',
+      'bento-depth',
+    ];
+    const pick = (value?: string, fallback: HomeHeroLayoutId = 'bento-classic') => {
+      if (value && mobileLayouts.includes(value as HomeHeroLayoutId)) {
+        return value as HomeHeroLayoutId;
+      }
+      return fallback;
+    };
+    if (this.viewportTier === 'mobile') {
+      return pick(layouts?.mobile, 'stack-minimal');
+    }
+    return pick(layouts?.desktop, 'bento-classic');
   }
 
   get heroDesktopCopy() {

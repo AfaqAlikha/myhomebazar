@@ -32,7 +32,6 @@ export class SignupComponent implements OnInit {
   form: FormGroup;
   logo: any = null;
   submitLoading = false;
-  showManualForm = false;
 
   constructor(
     private fb: FormBuilder,
