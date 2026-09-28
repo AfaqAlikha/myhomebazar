@@ -10,16 +10,8 @@ import { SpinnerService } from '../spinner.service';
   template: `
     <div class="custom-loader-overlay" *ngIf="spinner.visible$ | async" aria-live="polite" aria-busy="true">
       <div class="custom-loader-card">
-        <div class="custom-loader-logo-wrap">
-          <img
-            *ngIf="logoUrl; else logoFallback"
-            [src]="logoUrl"
-            alt="Loading"
-            class="custom-loader-logo"
-          />
-          <ng-template #logoFallback>
-            <div class="custom-loader-logo-fallback">M</div>
-          </ng-template>
+        <div class="custom-loader-logo-wrap" *ngIf="logoUrl">
+          <img [src]="logoUrl" alt="Loading" class="custom-loader-logo" />
         </div>
         <div class="custom-loader-track">
           <div class="custom-loader-bar"></div>

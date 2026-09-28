@@ -1,10 +1,7 @@
 <div class="offline-page">
   <div class="offline-card">
-    <div class="offline-logo-wrap">
-      <img *ngIf="logoUrl; else logoFallback" [src]="logoUrl" alt="Logo" class="offline-logo" />
-      <ng-template #logoFallback>
-        <div class="offline-logo-fallback">M</div>
-      </ng-template>
+    <div class="offline-logo-wrap" *ngIf="logoUrl">
+      <img [src]="logoUrl" alt="Logo" class="offline-logo" />
     </div>
 
     <div class="offline-icon-wrap">
