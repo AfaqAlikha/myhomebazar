@@ -416,6 +416,174 @@
   }
 }
 
+/* —— Variant: clean (simple bento) —— */
+.hero-3d--clean .hero-3d__aurora,
+.hero-3d--clean .hero-3d__grid-lines,
+.hero-3d--clean .hero-3d__orbs,
+.hero-3d--clean .hero-3d__float-icons,
+.hero-3d--clean .hero-3d__frame-glow {
+  display: none;
+}
+
+.hero-3d--clean {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--color-card) 92%, var(--color-background)),
+    var(--color-background)
+  );
+}
+
+.hero-3d--clean .hero-3d__slide {
+  transform: scale(0.98);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--color-text) 12%, transparent);
+}
+
+.hero-3d--clean .hero-3d__slide--active {
+  transform: scale(1);
+}
+
+.hero-3d--clean .hero-3d__slide--prev,
+.hero-3d--clean .hero-3d__slide--next {
+  opacity: 0;
+}
+
+/* —— Variant: minimal (stack layout) —— */
+.hero-3d--minimal .hero-3d__aurora,
+.hero-3d--minimal .hero-3d__grid-lines,
+.hero-3d--minimal .hero-3d__orbs,
+.hero-3d--minimal .hero-3d__float-icons {
+  display: none;
+}
+
+.hero-3d--minimal .hero-3d__frame-glow {
+  opacity: 0.15;
+}
+
+.hero-3d--minimal .hero-3d__layout {
+  grid-template-columns: 1fr;
+}
+
+.hero-3d--minimal .hero-3d__copy {
+  order: 2;
+  padding: 0.75rem 1rem 1rem;
+}
+
+.hero-3d--minimal .hero-3d__stage {
+  order: 1;
+}
+
+.hero-3d--minimal .hero-3d__frame-wrap {
+  width: 100%;
+  padding-top: 52%;
+}
+
+.hero-3d--minimal .hero-3d__slide {
+  transform: none;
+  border-radius: var(--radius-lg);
+}
+
+.hero-3d--minimal .hero-3d__slide--active {
+  transform: none;
+}
+
+/* —— Variant: cube (3D flip) —— */
+.hero-3d--cube .hero-3d__frame-wrap {
+  perspective: 1400px;
+}
+
+.hero-3d--cube .hero-3d__frame {
+  animation: hero3d-cube-idle 6s ease-in-out infinite;
+}
+
+.hero-3d--cube .hero-3d__slide {
+  transform: rotateY(90deg) scale(0.85);
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
+
+.hero-3d--cube .hero-3d__slide--active {
+  transform: rotateY(0deg) scale(1);
+  animation: hero3d-cube-in 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-3d--cube .hero-3d__slide--prev {
+  transform: rotateY(-75deg) translateX(-8%) scale(0.9);
+  opacity: 0.2;
+}
+
+.hero-3d--cube .hero-3d__slide--next {
+  transform: rotateY(75deg) translateX(8%) scale(0.9);
+  opacity: 0.2;
+}
+
+@keyframes hero3d-cube-idle {
+  0%,
+  100% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  50% {
+    transform: rotateX(2deg) rotateY(-2deg);
+  }
+}
+
+@keyframes hero3d-cube-in {
+  from {
+    transform: rotateY(-90deg) scale(0.88);
+    opacity: 0.2;
+  }
+  to {
+    transform: rotateY(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* —— Variant: depth (parallax layers) —— */
+.hero-3d--depth .hero-3d__stage {
+  perspective: 1200px;
+}
+
+.hero-3d--depth .hero-3d__frame-wrap::before,
+.hero-3d--depth .hero-3d__frame-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 10%;
+  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-3d--depth .hero-3d__frame-wrap::before {
+  transform: translateZ(-40px) scale(1.04);
+  opacity: 0.45;
+}
+
+.hero-3d--depth .hero-3d__frame-wrap::after {
+  inset: 4%;
+  transform: translateZ(-80px) scale(1.08);
+  opacity: 0.25;
+}
+
+.hero-3d--depth .hero-3d__slide--active .hero-3d__slide-img {
+  animation: hero3d-depth-drift 8s ease-in-out infinite alternate;
+}
+
+.hero-3d--depth .hero-3d__slide--active {
+  transform: translateZ(60px) scale(1);
+  box-shadow:
+    0 32px 64px color-mix(in srgb, var(--color-text) 22%, transparent),
+    0 0 0 1px color-mix(in srgb, white 20%, transparent);
+}
+
+@keyframes hero3d-depth-drift {
+  from {
+    transform: scale(1.05) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-1.5%, -1%, 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-3d__aurora,
   .hero-3d__orb,

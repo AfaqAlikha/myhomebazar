@@ -1,65 +1,15 @@
-<!-- Hero bento: responsive (hero + flash deals + free delivery) -->
-<section class="home-bento container mx-auto px-2">
-  <div class="home-bento__grid">
-    <div class="home-bento__hero">
-      <app-hero-3d-banner [slides]="heroSlides" [loading]="heroSlidesLoading">
-        <div hero3d-copy class="home-bento__hero-copy hidden md:block">
-          <span class="home-bento__promo-badge">{{ heroDesktopCopy.badge }}</span>
-          <h1 class="home-bento__hero-title">{{ heroDesktopCopy.title }}</h1>
-          <p class="home-bento__hero-sub">{{ heroDesktopCopy.subtitle }}</p>
-          <a [routerLink]="heroDesktopCopy.ctaLink" class="home-bento__promo-cta">
-            {{ heroDesktopCopy.ctaLabel }} →
-          </a>
-        </div>
-        <div hero3d-copy class="home-bento__hero-copy home-bento__hero-copy--mobile md:hidden">
-          <span class="home-bento__promo-badge">{{ heroMobileCopy.badge }}</span>
-          <h1 class="home-bento__hero-title home-bento__hero-title--mobile">{{ heroMobileCopy.title }}</h1>
-          <p class="home-bento__hero-sub">{{ heroMobileCopy.subtitle }}</p>
-          <a [routerLink]="heroMobileCopy.ctaLink" class="home-bento__promo-cta">
-            {{ heroMobileCopy.ctaLabel }} →
-          </a>
-        </div>
-      </app-hero-3d-banner>
-    </div>
-
-    <div class="home-bento__promos-row">
-      <div class="home-bento__promo-slot">
-        <app-promo-3d-card variant="flash">
-          <div class="home-bento__promo-body">
-            <div>
-              <span class="home-bento__promo-badge">{{ flashDealsCopy.badge }}</span>
-              <p class="home-bento__promo-title">{{ flashDealsCopy.title }}</p>
-              <p class="home-bento__promo-text">{{ flashDealsCopy.subtitle }}</p>
-              <div *ngIf="flashCountdown" class="flash-countdown" aria-live="polite">
-                <div class="flash-countdown__unit"><strong>{{ flashCountdown.hours }}</strong><span>HRS</span></div>
-                <div class="flash-countdown__unit"><strong>{{ flashCountdown.minutes }}</strong><span>MINS</span></div>
-                <div class="flash-countdown__unit"><strong>{{ flashCountdown.seconds }}</strong><span>SECS</span></div>
-              </div>
-            </div>
-            <a [routerLink]="flashDealsCopy.ctaLink" class="home-bento__promo-link">
-              {{ flashDealsCopy.ctaLabel }} →
-            </a>
-          </div>
-        </app-promo-3d-card>
-      </div>
-
-      <div class="home-bento__promo-slot">
-        <app-promo-3d-card variant="delivery">
-          <div class="home-bento__promo-body">
-            <div>
-              <span class="home-bento__promo-badge home-bento__promo-badge--blue">{{ freeDeliveryCopy.badge }}</span>
-              <p class="home-bento__promo-title">{{ freeDeliveryCopy.title }}</p>
-              <p class="home-bento__promo-text">{{ freeDeliveryCopy.subtitle }}</p>
-            </div>
-            <a [routerLink]="freeDeliveryCopy.ctaLink" class="home-bento__promo-link home-bento__promo-link--blue">
-              {{ freeDeliveryCopy.ctaLabel }} →
-            </a>
-          </div>
-        </app-promo-3d-card>
-      </div>
-    </div>
-  </div>
-</section>
+<app-home-hero-section
+  [layout]="effectiveHeroLayout"
+  [slides]="heroSlides"
+  [loading]="heroSlidesLoading"
+  [desktopCopy]="heroDesktopCopy"
+  [mobileCopy]="heroMobileCopy"
+  [flashDealsCopy]="flashDealsCopy"
+  [freeDeliveryCopy]="freeDeliveryCopy"
+  [flashCountdown]="flashCountdown"
+  [flashDealsActive]="homeData?.flashDeals?.isActive !== false"
+  [freeDeliveryActive]="homeData?.freeDelivery?.isActive !== false"
+></app-home-hero-section>
 
 <div class="container mx-auto px-2 md:px-3 py-4 space-y-6 md:space-y-8">
   <!-- Categories -->

@@ -1,4 +1,12 @@
-<div class="hero-3d" [class.hero-3d--loading]="loading">
+<div
+  class="hero-3d"
+  [class.hero-3d--loading]="loading"
+  [class.hero-3d--clean]="variant === 'clean'"
+  [class.hero-3d--minimal]="variant === 'minimal'"
+  [class.hero-3d--tilt]="variant === 'tilt'"
+  [class.hero-3d--cube]="variant === 'cube'"
+  [class.hero-3d--depth]="variant === 'depth'"
+>
   <div class="hero-3d__aurora" aria-hidden="true"></div>
   <div class="hero-3d__grid-lines" aria-hidden="true"></div>
 

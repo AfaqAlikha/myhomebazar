@@ -33,7 +33,6 @@ export class SigninComponent implements OnInit {
   logo: any = null;
   submitLoading = false;
   socialLoading = false;
-  showManualForm = false;
   showVerificationNotice = false;
   sellerPortalUrl = `${env.SELLER_PORTAL_URL}/register`;
 

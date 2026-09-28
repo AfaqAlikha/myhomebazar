@@ -12,30 +12,19 @@
       <h3 class="text-center text-xl font-semibold mb-4">REGISTER TO MY HOME BAZAR</h3>
     </div>
 
-    <div class="w-full p-2" *ngIf="!showManualForm">
+    <div class="w-full px-2">
       <app-social-auth-buttons
-        manualLabel="Register with Email"
+        dividerLabel="or register with email"
         (googleToken)="onGoogleToken($event)"
         (facebookToken)="onFacebookToken($event)"
-        (manualClick)="showManualForm = true"
       ></app-social-auth-buttons>
-      <div class="flex justify-center text-sm mt-4">
-        <a
-          routerLink="/signin"
-          class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
-        >
-          Already have an account? Sign In
-        </a>
-      </div>
     </div>
 
     <form
-      *ngIf="showManualForm"
       [formGroup]="form"
       (ngSubmit)="submit()"
       class="signup-form flex flex-col gap-6 w-full p-2"
     >
-      <!-- Name -->
       <app-ui-input
         label="Name"
         type="text"
@@ -43,7 +32,6 @@
         [controlName]="'name'"
       ></app-ui-input>
 
-      <!-- Email -->
       <app-ui-input
         label="Email"
         type="email"
@@ -51,7 +39,6 @@
         [controlName]="'email'"
       ></app-ui-input>
 
-      <!-- Password -->
       <app-ui-password label="Password" [controlName]="'password'"></app-ui-password>
 
       <app-ui-input
@@ -73,7 +60,6 @@
         [controlName]="'city'"
       ></app-ui-input>
 
-      <!-- Terms -->
       <mat-checkbox formControlName="terms">
         I accept the
         <a
@@ -93,7 +79,6 @@
         </a>
       </mat-checkbox>
 
-      <!-- Submit -->
       <app-ui-button
         label="Sign Up"
         type="submit"
@@ -102,7 +87,6 @@
         variant="accent"
       ></app-ui-button>
 
-      <!-- Links -->
       <div class="flex justify-center text-sm">
         <a
           routerLink="/signin"

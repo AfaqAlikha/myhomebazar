@@ -8,67 +8,37 @@ import {
   ViewChild,
 } from '@angular/core';
 import { NgIf } from '@angular/common';
-import { UiButtonComponent } from '../../shared/ui-button/ui-button.component';
 import { SocialAuthService } from '../social-auth.service';
 
 @Component({
   selector: 'app-social-auth-buttons',
   standalone: true,
-  imports: [NgIf, UiButtonComponent],
-  template: `
-    <div class="flex flex-col gap-3 w-full">
-      @if (social.googleEnabled) {
-        <div #googleBtnHost class="w-full flex justify-center"></div>
-      }
-      <!-- Facebook login UI disabled until Meta app is live — uncomment block below to restore
-      @if (social.facebookEnabled) {
-        <app-ui-button
-          label="Continue with Facebook"
-          type="button"
-          variant="primary"
-          [loading]="facebookLoading"
-          (clicked)="onFacebook()"
-        ></app-ui-button>
-      }
-      -->
-      @if (social.googleEnabled) {
-        <div class="flex items-center gap-3 text-xs text-[var(--color-text-secondary)]">
-          <span class="flex-1 h-px bg-[var(--color-border)]"></span>
-          <span>or</span>
-          <span class="flex-1 h-px bg-[var(--color-border)]"></span>
-        </div>
-      }
-      <app-ui-button
-        [label]="manualLabel"
-        type="button"
-        variant="accent"
-        (clicked)="manualClick.emit()"
-      ></app-ui-button>
-    </div>
-  `,
+  imports: [NgIf],
+  templateUrl: './social-auth-buttons.component.html',
+  styleUrl: './social-auth-buttons.component.css',
 })
 export class SocialAuthButtonsComponent implements AfterViewInit {
-  @Input() manualLabel = 'Continue with Email';
+  @Input() dividerLabel = 'or continue with email';
   @Output() googleToken = new EventEmitter<string>();
   @Output() facebookToken = new EventEmitter<string>();
-  @Output() manualClick = new EventEmitter<void>();
 
   @ViewChild('googleBtnHost') googleBtnHost?: ElementRef<HTMLElement>;
-
-  facebookLoading = false;
 
   constructor(public social: SocialAuthService) {}
 
   ngAfterViewInit(): void {
-    if (this.social.googleEnabled && this.googleBtnHost?.nativeElement) {
-      this.social.renderGoogleButton(this.googleBtnHost.nativeElement, (token) => {
-        this.googleToken.emit(token);
-      });
-    }
+    if (!this.social.googleEnabled || !this.googleBtnHost?.nativeElement) return;
+    const host = this.googleBtnHost.nativeElement;
+    const render = () => {
+      this.social.renderGoogleButton(host, (token) => this.googleToken.emit(token));
+    };
+    render();
+    setTimeout(render, 0);
   }
 
-  // Facebook login — re-enable when Meta app is live (used by commented template block above)
+  // Facebook — re-enable in template when Meta app is live
   /*
+  facebookLoading = false;
   onFacebook(): void {
     this.facebookLoading = true;
     this.social

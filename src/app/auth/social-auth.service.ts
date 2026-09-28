@@ -89,12 +89,17 @@ export class SocialAuthService {
           },
         });
         container.innerHTML = '';
+        const width = Math.min(
+          Math.max(container.offsetWidth || container.parentElement?.offsetWidth || 320, 280),
+          400,
+        );
         window.google?.accounts.id.renderButton(container, {
           type: 'standard',
           theme: 'outline',
           size: 'large',
-          width: container.offsetWidth > 0 ? container.offsetWidth : 320,
+          width,
           text: 'continue_with',
+          shape: 'rectangular',
         });
       })
       .catch(() => {});

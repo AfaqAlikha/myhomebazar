@@ -51,7 +51,18 @@ export interface HomeProductPreview {
   user?: string | { _id?: string; id?: string };
 }
 
+export type HomeHeroLayoutId =
+  | 'bento-classic'
+  | 'stack-minimal'
+  | 'bento-tilt'
+  | 'bento-cube'
+  | 'bento-depth';
+
 export interface HomePageData {
+  heroLayout?: {
+    desktop: HomeHeroLayoutId;
+    mobile: HomeHeroLayoutId;
+  };
   hero: HomePromoTile & { slides: HomeHeroSlide[] };
   flashDeals: HomePromoTile;
   freeDelivery: HomePromoTile;

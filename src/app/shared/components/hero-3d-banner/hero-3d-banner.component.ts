@@ -11,6 +11,8 @@ import { NgIf, NgFor, NgTemplateOutlet, isPlatformBrowser } from '@angular/commo
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 
+export type HeroVisualVariant = 'tilt' | 'cube' | 'depth' | 'clean' | 'minimal';
+
 export interface Hero3dSlide {
   bannerImage?: string;
   image?: string;
@@ -31,6 +33,8 @@ export interface Hero3dSlide {
 export class Hero3dBannerComponent implements OnChanges, OnDestroy {
   @Input() slides: Hero3dSlide[] = [];
   @Input() loading = false;
+  /** Visual style: simple (clean/minimal) or 3D (tilt/cube/depth). */
+  @Input() variant: HeroVisualVariant = 'tilt';
 
   activeIndex = 0;
   tiltX = 0;
@@ -87,7 +91,7 @@ export class Hero3dBannerComponent implements OnChanges, OnDestroy {
   }
 
   onMouseMove(event: MouseEvent): void {
-    if (!this.isBrowser) return;
+    if (!this.isBrowser || this.variant !== 'tilt') return;
     const target = event.currentTarget as HTMLElement;
     const rect = target.getBoundingClientRect();
     const px = (event.clientX - rect.left) / rect.width - 0.5;

@@ -1,0 +1,67 @@
+<section class="home-hero-section container mx-auto px-2" [ngClass]="layoutClass">
+  <div class="home-hero-section__grid">
+    <div class="home-hero-section__hero">
+      <app-hero-3d-banner [slides]="slides" [loading]="loading" [variant]="visualVariant">
+        <div hero3d-copy class="home-hero-section__copy home-hero-section__copy--desktop hidden md:block">
+          <span class="home-hero-section__badge">{{ desktopCopy.badge }}</span>
+          <h1 class="home-hero-section__title">{{ desktopCopy.title }}</h1>
+          <p class="home-hero-section__sub">{{ desktopCopy.subtitle }}</p>
+          <a [routerLink]="desktopCopy.ctaLink" class="home-hero-section__cta">
+            {{ desktopCopy.ctaLabel }} →
+          </a>
+        </div>
+        <div hero3d-copy class="home-hero-section__copy home-hero-section__copy--mobile md:hidden">
+          <span class="home-hero-section__badge">{{ mobileCopy.badge }}</span>
+          <h1 class="home-hero-section__title home-hero-section__title--mobile">{{ mobileCopy.title }}</h1>
+          <p class="home-hero-section__sub">{{ mobileCopy.subtitle }}</p>
+          <a [routerLink]="mobileCopy.ctaLink" class="home-hero-section__cta">
+            {{ mobileCopy.ctaLabel }} →
+          </a>
+        </div>
+      </app-hero-3d-banner>
+    </div>
+
+    <div class="home-hero-section__promos" *ngIf="flashDealsActive || freeDeliveryActive">
+      <div class="home-hero-section__promo-slot" *ngIf="flashDealsActive">
+        <app-promo-3d-card variant="flash">
+          <div class="home-hero-section__promo-body">
+            <div>
+              <span class="home-hero-section__badge">{{ flashDealsCopy.badge }}</span>
+              <p class="home-hero-section__promo-title">{{ flashDealsCopy.title }}</p>
+              <p class="home-hero-section__promo-text">{{ flashDealsCopy.subtitle }}</p>
+              <div *ngIf="flashCountdown" class="flash-countdown" aria-live="polite">
+                <div class="flash-countdown__unit">
+                  <strong>{{ flashCountdown.hours }}</strong><span>HRS</span>
+                </div>
+                <div class="flash-countdown__unit">
+                  <strong>{{ flashCountdown.minutes }}</strong><span>MINS</span>
+                </div>
+                <div class="flash-countdown__unit">
+                  <strong>{{ flashCountdown.seconds }}</strong><span>SECS</span>
+                </div>
+              </div>
+            </div>
+            <a [routerLink]="flashDealsCopy.ctaLink" class="home-hero-section__promo-link">
+              {{ flashDealsCopy.ctaLabel }} →
+            </a>
+          </div>
+        </app-promo-3d-card>
+      </div>
+
+      <div class="home-hero-section__promo-slot" *ngIf="freeDeliveryActive">
+        <app-promo-3d-card variant="delivery">
+          <div class="home-hero-section__promo-body">
+            <div>
+              <span class="home-hero-section__badge home-hero-section__badge--blue">{{ freeDeliveryCopy.badge }}</span>
+              <p class="home-hero-section__promo-title">{{ freeDeliveryCopy.title }}</p>
+              <p class="home-hero-section__promo-text">{{ freeDeliveryCopy.subtitle }}</p>
+            </div>
+            <a [routerLink]="freeDeliveryCopy.ctaLink" class="home-hero-section__promo-link home-hero-section__promo-link--blue">
+              {{ freeDeliveryCopy.ctaLabel }} →
+            </a>
+          </div>
+        </app-promo-3d-card>
+      </div>
+    </div>
+  </div>
+</section>
