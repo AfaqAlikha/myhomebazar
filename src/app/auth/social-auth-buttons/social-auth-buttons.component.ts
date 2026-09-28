@@ -29,11 +29,9 @@ export class SocialAuthButtonsComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     if (!this.social.googleEnabled || !this.googleBtnHost?.nativeElement) return;
     const host = this.googleBtnHost.nativeElement;
-    const render = () => {
+    requestAnimationFrame(() => {
       this.social.renderGoogleButton(host, (token) => this.googleToken.emit(token));
-    };
-    render();
-    setTimeout(render, 0);
+    });
   }
 
   // Facebook — re-enable in template when Meta app is live

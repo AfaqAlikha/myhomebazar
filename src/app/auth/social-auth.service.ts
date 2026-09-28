@@ -30,6 +30,7 @@ export class SocialAuthService {
   private googleScriptPromise?: Promise<void>;
   private facebookScriptPromise?: Promise<void>;
   private facebookInitialized = false;
+  private googleSignInInitialized = false;
 
   constructor(@Inject(PLATFORM_ID) platformId: object) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -80,21 +81,30 @@ export class SocialAuthService {
 
   renderGoogleButton(container: HTMLElement, onCredential: (idToken: string) => void): void {
     if (!this.isBrowser || !container || !this.googleEnabled) return;
+    if (container.dataset['gsiRendered'] === '1') return;
+
     this.loadGoogle()
       .then(() => {
-        window.google?.accounts.id.initialize({
-          client_id: env.googleClientId,
-          callback: (response: { credential?: string }) => {
-            if (response?.credential) onCredential(response.credential);
-          },
-        });
+        if (!window.google?.accounts?.id) return;
+
+        if (!this.googleSignInInitialized) {
+          window.google.accounts.id.initialize({
+            client_id: env.googleClientId,
+            callback: (response: { credential?: string }) => {
+              if (response?.credential) onCredential(response.credential);
+            },
+          });
+          this.googleSignInInitialized = true;
+        }
+
+        const wrap =
+          (container.closest('.social-google-wrap') as HTMLElement | null) ||
+          container.parentElement ||
+          container;
+        const width = Math.floor(Math.max(wrap.getBoundingClientRect().width || 320, 280));
+
         container.innerHTML = '';
-        const form = container.closest('form');
-        const source = form || container.parentElement || container;
-        const width = Math.floor(
-          Math.max(source.getBoundingClientRect().width || container.offsetWidth || 320, 280),
-        );
-        window.google?.accounts.id.renderButton(container, {
+        window.google.accounts.id.renderButton(container, {
           type: 'standard',
           theme: 'outline',
           size: 'large',
@@ -102,6 +112,7 @@ export class SocialAuthService {
           text: 'continue_with',
           shape: 'rectangular',
         });
+        container.dataset['gsiRendered'] = '1';
       })
       .catch(() => {});
   }
