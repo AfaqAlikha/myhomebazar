@@ -62,6 +62,8 @@ export interface HomePageData {
   heroLayout?: {
     desktop: HomeHeroLayoutId;
     mobile: HomeHeroLayoutId;
+    promoGridDesktop?: number;
+    promoGridMobile?: number;
   };
   hero: HomePromoTile & { slides: HomeHeroSlide[] };
   flashDeals: HomePromoTile;

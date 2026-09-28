@@ -41,6 +41,17 @@ export class HomeHeroSectionComponent {
   @Input() flashCountdown: { hours: string; minutes: string; seconds: string } | null = null;
   @Input() flashDealsActive = true;
   @Input() freeDeliveryActive = true;
+  @Input() promoGridDesktop = 2;
+  @Input() promoGridMobile = 1;
+
+  get promoGridClasses(): Record<string, boolean> {
+    const d = Math.min(3, Math.max(1, this.promoGridDesktop || 2));
+    const m = Math.min(3, Math.max(1, this.promoGridMobile || 1));
+    return {
+      [`home-hero-section__promos--desktop-cols-${d}`]: true,
+      [`home-hero-section__promos--mobile-cols-${m}`]: m > 1,
+    };
+  }
 
   get visualVariant(): HeroVisualVariant {
     switch (this.layout) {
