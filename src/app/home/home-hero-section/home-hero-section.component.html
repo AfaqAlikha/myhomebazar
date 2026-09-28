@@ -2,21 +2,22 @@
   <div class="home-hero-section__grid">
     <div class="home-hero-section__hero">
       <app-hero-3d-banner [slides]="slides" [loading]="loading" [variant]="visualVariant">
-        <div hero3d-copy class="home-hero-section__copy home-hero-section__copy--desktop">
-          <span class="home-hero-section__badge">{{ desktopCopy.badge }}</span>
-          <h1 class="home-hero-section__title">{{ desktopCopy.title }}</h1>
-          <p class="home-hero-section__sub">{{ desktopCopy.subtitle }}</p>
-          <a [routerLink]="desktopCopy.ctaLink" class="home-hero-section__cta">
-            {{ desktopCopy.ctaLabel }} →
-          </a>
-        </div>
-        <div hero3d-copy class="home-hero-section__copy home-hero-section__copy--mobile">
-          <span class="home-hero-section__badge">{{ mobileCopy.badge }}</span>
-          <h1 class="home-hero-section__title home-hero-section__title--mobile">{{ mobileCopy.title }}</h1>
-          <p class="home-hero-section__sub">{{ mobileCopy.subtitle }}</p>
-          <a [routerLink]="mobileCopy.ctaLink" class="home-hero-section__cta">
-            {{ mobileCopy.ctaLabel }} →
-          </a>
+        <div hero3d-copy class="home-hero-section__copy">
+          @if (!useMobileHeroCopy) {
+            <span class="home-hero-section__badge">{{ desktopCopy.badge }}</span>
+            <h1 class="home-hero-section__title">{{ desktopCopy.title }}</h1>
+            <p class="home-hero-section__sub">{{ desktopCopy.subtitle }}</p>
+            <a [routerLink]="desktopCopy.ctaLink" class="home-hero-section__cta">
+              {{ desktopCopy.ctaLabel }} →
+            </a>
+          } @else {
+            <span class="home-hero-section__badge">{{ mobileCopy.badge }}</span>
+            <h1 class="home-hero-section__title home-hero-section__title--mobile">{{ mobileCopy.title }}</h1>
+            <p class="home-hero-section__sub">{{ mobileCopy.subtitle }}</p>
+            <a [routerLink]="mobileCopy.ctaLink" class="home-hero-section__cta">
+              {{ mobileCopy.ctaLabel }} →
+            </a>
+          }
         </div>
       </app-hero-3d-banner>
     </div>

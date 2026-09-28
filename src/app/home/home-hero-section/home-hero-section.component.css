@@ -35,24 +35,6 @@
   max-width: 22rem;
 }
 
-.home-hero-section__copy--desktop {
-  display: none;
-}
-
-.home-hero-section__copy--mobile {
-  display: flex;
-}
-
-@media (min-width: 768px) {
-  .home-hero-section__copy--desktop {
-    display: flex;
-  }
-
-  .home-hero-section__copy--mobile {
-    display: none;
-  }
-}
-
 .home-hero-section__badge {
   align-self: flex-start;
   padding: 0.25rem 0.65rem;

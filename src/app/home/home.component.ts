@@ -137,11 +137,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.loadHomeConfig();
     this.loadHomeProducts();
-    this.loadFeaturedProducts();
   }
 
   ngOnDestroy(): void {
     this.countdownSub?.unsubscribe();
+    clearTimeout(this.resizeTimer);
   }
 
   get effectiveGridColumns(): number {
@@ -290,10 +290,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     return 'desktop';
   }
 
+  private resizeTimer?: ReturnType<typeof setTimeout>;
+
   @HostListener('window:resize')
   onWindowResize(): void {
-    this.syncViewport();
-    this.cdr.markForCheck();
+    if (!this.isBrowser) return;
+    clearTimeout(this.resizeTimer);
+    this.resizeTimer = setTimeout(() => {
+      this.syncViewport();
+      this.cdr.markForCheck();
+    }, 150);
   }
 
   @HostListener('window:scroll')
@@ -401,6 +407,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.syncHeroSlides();
         if (this.heroSlides.length) {
           this.heroSlidesLoading = false;
+        } else {
+          this.loadFeaturedProducts();
         }
         this.defaultFlashDealProducts = data?.flashDealProducts || [];
         this.defaultPopularProducts = data?.popularProducts || [];

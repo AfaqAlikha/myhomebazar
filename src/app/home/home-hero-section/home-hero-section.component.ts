@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { NgClass, NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -29,8 +29,10 @@ export interface HomeHeroCopy {
   imports: [NgClass, NgIf, RouterLink, Hero3dBannerComponent, Promo3dCardComponent],
   templateUrl: './home-hero-section.component.html',
   styleUrl: './home-hero-section.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeHeroSectionComponent {
+  @Input() useMobileHeroCopy = false;
   @Input({ required: true }) layout: HomeHeroLayoutId = 'bento-classic';
   @Input() slides: Hero3dSlide[] = [];
   @Input() loading = false;
