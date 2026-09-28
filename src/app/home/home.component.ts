@@ -133,10 +133,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     if (this.hasActiveProductFilters()) {
       this.reloadHomeSections();
+      this.loadHomeConfig();
+      this.loadHomeProducts();
+      return;
     }
 
     this.loadHomeConfig();
-    this.loadHomeProducts();
   }
 
   ngOnDestroy(): void {
@@ -423,14 +425,33 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.applyFlashCountdown(data);
         this.homeConfigLoading = false;
         this.cdr.markForCheck();
+        if (!this.hasActiveProductFilters() && !this.products.length && !this.isLoading) {
+          this.scheduleHomeProductsLoad();
+        }
       },
       error: () => {
         if (requestId !== this.homeConfigRequestId) return;
         this.homeConfigLoading = false;
         this.loadCategoriesFallback();
         this.cdr.markForCheck();
+        if (!this.hasActiveProductFilters()) {
+          this.scheduleHomeProductsLoad();
+        }
       },
     });
+  }
+
+  private scheduleHomeProductsLoad(): void {
+    if (!this.isBrowser) {
+      this.loadHomeProducts();
+      return;
+    }
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number };
+    if (typeof w.requestIdleCallback === 'function') {
+      w.requestIdleCallback(() => this.loadHomeProducts(), { timeout: 2000 });
+    } else {
+      setTimeout(() => this.loadHomeProducts(), 0);
+    }
   }
 
   private applyFlashCountdown(data: HomePageData): void {

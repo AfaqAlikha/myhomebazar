@@ -37,3 +37,12 @@
   border-left: none;
   background-color: transparent;
 }
+
+.drawer-seller-btn {
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+.drawer-seller-btn mat-icon {
+  color: var(--color-accent);
+}

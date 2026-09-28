@@ -130,6 +130,16 @@ html {
   color: var(--color-text) !important;
 }
 
+.dark .mat-mdc-menu-panel .mat-mdc-menu-item,
+.dark .mat-mdc-menu-panel a.mat-mdc-menu-item,
+.dark .mat-mdc-menu-panel .mat-mdc-menu-item .mat-mdc-menu-item-text {
+  color: var(--color-text) !important;
+}
+
+.dark .mat-mdc-menu-panel .mat-mdc-menu-item mat-icon {
+  color: var(--color-text-secondary) !important;
+}
+
 :host {
   display: block;
 }

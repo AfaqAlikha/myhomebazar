@@ -198,6 +198,20 @@
               Sign Up
             </a>
           </li>
+
+          <li>
+            <a
+              [href]="sellerRegisterUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              mat-stroked-button
+              class="drawer-seller-btn flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md w-full"
+              (click)="drawer.close()"
+            >
+              <mat-icon>storefront</mat-icon>
+              Sign up with seller account
+            </a>
+          </li>
         }
       </ul>
     </nav>

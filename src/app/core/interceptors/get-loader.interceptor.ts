@@ -23,6 +23,7 @@ const SKIP_URL_PATTERNS = [
   '/user/refresh-token',
   '/products/locations',
   '/products/home',
+  '/products/public',
   '/products/featured',
 ];
 

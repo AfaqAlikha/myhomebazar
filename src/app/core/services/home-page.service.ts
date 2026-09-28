@@ -1,8 +1,14 @@
 import { Inject, Injectable, PLATFORM_ID, TransferState, makeStateKey } from '@angular/core';
 import { isPlatformServer } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, of, tap } from 'rxjs';
+import { Observable, map, of, shareReplay, tap } from 'rxjs';
 import { API_ENDPOINTS } from '../config/api-endpoints';
+import {
+  CACHE_KEYS,
+  CACHE_TTL,
+  readPublicCache,
+  writePublicCache,
+} from '../utils/public-cache';
 
 export interface HomeHeroSlide {
   type: 'product' | 'image';
@@ -86,6 +92,9 @@ const HOME_PUBLIC_STATE_KEY = makeStateKey<HomePageData>('home-public-data');
 
 @Injectable({ providedIn: 'root' })
 export class HomePageService {
+  private homeMemory: HomePageData | null = null;
+  private homeRequest: Observable<HomePageData> | null = null;
+
   constructor(
     private readonly http: HttpClient,
     private readonly transferState: TransferState,
@@ -106,18 +115,32 @@ export class HomePageService {
     const transferred = this.transferState.get(HOME_PUBLIC_STATE_KEY, null);
     if (transferred) {
       this.transferState.remove(HOME_PUBLIC_STATE_KEY);
+      this.homeMemory = transferred;
       return of(transferred);
     }
 
-    return this.http
-      .get<HomePageData | { success: boolean; data: HomePageData }>(API_ENDPOINTS.home.public)
-      .pipe(
-        map((res) => this.normalizeHomePayload(res)),
-        tap((data) => {
-          if (isPlatformServer(this.platformId)) {
-            this.transferState.set(HOME_PUBLIC_STATE_KEY, data);
-          }
-        }),
-      );
+    const cached = this.homeMemory ?? readPublicCache<HomePageData>(CACHE_KEYS.HOME_PUBLIC);
+    if (cached) {
+      this.homeMemory = cached;
+      return of(cached);
+    }
+
+    if (!this.homeRequest) {
+      this.homeRequest = this.http
+        .get<HomePageData | { success: boolean; data: HomePageData }>(API_ENDPOINTS.home.public)
+        .pipe(
+          map((res) => this.normalizeHomePayload(res)),
+          tap((data) => {
+            this.homeMemory = data;
+            writePublicCache(CACHE_KEYS.HOME_PUBLIC, data, CACHE_TTL.HOME_PUBLIC_MS);
+            if (isPlatformServer(this.platformId)) {
+              this.transferState.set(HOME_PUBLIC_STATE_KEY, data);
+            }
+          }),
+          shareReplay(1),
+        );
+    }
+
+    return this.homeRequest;
   }
 }

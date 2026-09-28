@@ -68,7 +68,20 @@
             </div>
           } @else {
             <div class="mt-2">
-              <a routerLink="/signin" class="block text-sm hover:underline">Login / Register</a>
+              <a routerLink="/signin" class="block text-sm hover:underline">Sign In</a>
+            </div>
+            <div class="mt-2">
+              <a routerLink="/signup" class="block text-sm hover:underline">Sign Up</a>
+            </div>
+            <div class="mt-2">
+              <a
+                [href]="sellerRegisterUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="block text-sm hover:underline"
+              >
+                Sign up with seller account
+              </a>
             </div>
           }
           <div class="mt-2">
