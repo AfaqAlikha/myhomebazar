@@ -26,7 +26,7 @@ import { ProductService } from '../../services/product.service';
 import { PwaService } from '../../core/services/pwa.service';
 import { ChatService } from '../../services/chat.service';
 import { HeaderProductSearchService } from '../../core/services/header-product-search.service';
-import { SELLER_REGISTER_URL } from '../../core/constants/seller-portal';
+import { SELLER_REGISTER_LABEL, SELLER_REGISTER_URL } from '../../core/constants/seller-portal';
 import {
   SearchSuggestCategory,
   SearchSuggestProduct,
@@ -58,6 +58,7 @@ import { HeaderSearchSuggestPanelComponent } from './header-search-suggest-panel
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   readonly sellerRegisterUrl = SELLER_REGISTER_URL;
+  readonly sellerRegisterLabel = SELLER_REGISTER_LABEL;
   isDarkMode = false;
   logo: any = null;
   user: any = null;
