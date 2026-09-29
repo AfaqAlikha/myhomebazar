@@ -1,0 +1,167 @@
+<div
+  class="header-search-suggest"
+  role="listbox"
+  [attr.aria-label]="'Search suggestions'"
+  (mousedown)="$event.preventDefault()"
+>
+  @if (loading) {
+    <div class="header-search-suggest__status">Searching…</div>
+  }
+
+  @if (!loading && showRecent && recent.length) {
+    <div class="header-search-suggest__section">
+      <p class="header-search-suggest__heading">Recent searches</p>
+      @for (term of recent; track term; let i = $index) {
+        <button
+          type="button"
+          class="header-search-suggest__row"
+          [class.header-search-suggest__row--active]="activeKey === recentKey(i)"
+          (click)="recentPick.emit(term)"
+        >
+          <mat-icon class="header-search-suggest__row-icon">history</mat-icon>
+          <span class="header-search-suggest__row-text">{{ term }}</span>
+        </button>
+      }
+      <button type="button" class="header-search-suggest__clear" (click)="clearRecent.emit()">
+        Clear recent
+      </button>
+    </div>
+  }
+
+  @if (!loading && query.trim().length >= 2) {
+    <button
+      type="button"
+      class="header-search-suggest__row header-search-suggest__row--keyword"
+      [class.header-search-suggest__row--active]="activeKey === 'keyword'"
+      (click)="keywordPick.emit(query)"
+    >
+      <mat-icon class="header-search-suggest__row-icon">search</mat-icon>
+      <span class="header-search-suggest__row-text">Search for “{{ query.trim() }}”</span>
+    </button>
+  }
+
+  @if (!loading && result?.products?.length) {
+    <div class="header-search-suggest__section">
+      <p class="header-search-suggest__heading">Products</p>
+      @for (item of result!.products; track item._id; let i = $index) {
+        <button
+          type="button"
+          class="header-search-suggest__row header-search-suggest__row--product"
+          [class.header-search-suggest__row--active]="activeKey === productKey(i)"
+          (click)="productPick.emit(item)"
+        >
+          <span class="header-search-suggest__thumb">
+            @if (item.image) {
+              <img [src]="item.image" alt="" loading="lazy" />
+            } @else {
+              <mat-icon>inventory_2</mat-icon>
+            }
+          </span>
+          <span class="header-search-suggest__row-body">
+            <span class="header-search-suggest__row-title">{{ item.name }}</span>
+            @if (item.catName) {
+              <span class="header-search-suggest__row-meta">{{ item.catName }}</span>
+            }
+          </span>
+          <span class="header-search-suggest__price">Rs. {{ item.price | number: '1.0-0' }}</span>
+        </button>
+      }
+    </div>
+  }
+
+  @if (!loading && result?.categories?.length) {
+    <div class="header-search-suggest__section">
+      <p class="header-search-suggest__heading">Categories</p>
+      @for (item of result!.categories; track item._id; let i = $index) {
+        <button
+          type="button"
+          class="header-search-suggest__row"
+          [class.header-search-suggest__row--active]="activeKey === categoryKey(i)"
+          (click)="categoryPick.emit(item)"
+        >
+          <mat-icon class="header-search-suggest__row-icon">category</mat-icon>
+          <span class="header-search-suggest__row-text">{{ item.name }}</span>
+        </button>
+      }
+    </div>
+  }
+
+  @if (!loading && result?.subCategories?.length) {
+    <div class="header-search-suggest__section">
+      <p class="header-search-suggest__heading">Subcategories</p>
+      @for (item of result!.subCategories; track item._id; let i = $index) {
+        <button
+          type="button"
+          class="header-search-suggest__row"
+          [class.header-search-suggest__row--active]="activeKey === subCategoryKey(i)"
+          (click)="subCategoryPick.emit(item)"
+        >
+          <mat-icon class="header-search-suggest__row-icon">label</mat-icon>
+          <span class="header-search-suggest__row-text">
+            {{ item.name }}
+            @if (item.categoryName) {
+              <span class="header-search-suggest__row-meta">in {{ item.categoryName }}</span>
+            }
+          </span>
+        </button>
+      }
+    </div>
+  }
+
+  @if (!loading && result?.brands?.length) {
+    <div class="header-search-suggest__section">
+      <p class="header-search-suggest__heading">Brands</p>
+      @for (item of result!.brands; track item; let i = $index) {
+        <button
+          type="button"
+          class="header-search-suggest__row"
+          [class.header-search-suggest__row--active]="activeKey === brandKey(i)"
+          (click)="brandPick.emit(item)"
+        >
+          <mat-icon class="header-search-suggest__row-icon">sell</mat-icon>
+          <span class="header-search-suggest__row-text">{{ item }}</span>
+        </button>
+      }
+    </div>
+  }
+
+  @if (!loading && result?.sellers?.length) {
+    <div class="header-search-suggest__section">
+      <p class="header-search-suggest__heading">Sellers</p>
+      @for (item of result!.sellers; track item._id; let i = $index) {
+        <button
+          type="button"
+          class="header-search-suggest__row header-search-suggest__row--product"
+          [class.header-search-suggest__row--active]="activeKey === sellerKey(i)"
+          (click)="sellerPick.emit(item)"
+        >
+          <span class="header-search-suggest__thumb header-search-suggest__thumb--round">
+            @if (item.avatar) {
+              <img [src]="item.avatar" alt="" loading="lazy" />
+            } @else {
+              <mat-icon>storefront</mat-icon>
+            }
+          </span>
+          <span class="header-search-suggest__row-body">
+            <span class="header-search-suggest__row-title">{{ item.name }}</span>
+            @if (item.location) {
+              <span class="header-search-suggest__row-meta">{{ item.location }}</span>
+            }
+          </span>
+        </button>
+      }
+    </div>
+  }
+
+  @if (
+    !loading &&
+    query.trim().length >= 2 &&
+    !result?.products?.length &&
+    !result?.categories?.length &&
+    !result?.subCategories?.length &&
+    !result?.brands?.length &&
+    !result?.sellers?.length
+  ) {
+    <div class="header-search-suggest__status">No matches. Try another keyword.</div>
+  }
+</div>

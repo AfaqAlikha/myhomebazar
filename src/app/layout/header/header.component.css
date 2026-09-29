@@ -1,5 +1,6 @@
 .site-header {
   padding-top: env(safe-area-inset-top, 0px);
+  overflow: visible;
 }
 
 .site-header--glass {
@@ -86,11 +87,25 @@
   transition: border-color 0.2s ease;
 }
 
-.header-search-pill--desktop {
+.header-search-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+.header-search-wrap--desktop {
   display: none;
   flex: 1 1 auto;
   max-width: 36rem;
   margin-inline: 0.5rem;
+}
+
+.header-search-wrap--mobile {
+  width: 100%;
+}
+
+.header-search-pill--desktop {
+  display: flex;
+  width: 100%;
 }
 
 .header-search-pill:focus-within {
@@ -262,8 +277,8 @@
     font-size: 0.6875rem;
   }
 
-  .header-search-pill--desktop {
-    display: flex;
+  .header-search-wrap--desktop {
+    display: block;
   }
 
   .header-search-panel {

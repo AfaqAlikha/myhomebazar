@@ -25,6 +25,7 @@ const SKIP_URL_PATTERNS = [
   '/products/home',
   '/products/public',
   '/products/featured',
+  '/search/suggest',
 ];
 
 const LOADER_DELAY_MS = 350;
