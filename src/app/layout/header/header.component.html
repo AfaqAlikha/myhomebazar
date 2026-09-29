@@ -27,25 +27,49 @@
           </a>
         </div>
 
-        <form
-          class="header-search-pill header-search-pill--desktop"
-          (submit)="onSearchSubmit($event)"
-          role="search"
-          aria-label="Search products"
-        >
-          <input
-            type="search"
-            class="header-search-pill__input"
-            [(ngModel)]="searchQuery"
-            name="headerSearch"
-            (keydown)="onSearchKeydown($event)"
-            placeholder="Search for products, brands or sellers…"
-            autocomplete="off"
-          />
-          <button type="submit" class="header-search-pill__btn" aria-label="Search">
-            <mat-icon>search</mat-icon>
-          </button>
-        </form>
+        <div class="header-search-wrap header-search-wrap--desktop">
+          <form
+            class="header-search-pill header-search-pill--desktop"
+            (submit)="onSearchSubmit($event)"
+            role="search"
+            aria-label="Search products"
+          >
+            <input
+              type="search"
+              class="header-search-pill__input"
+              [(ngModel)]="searchQuery"
+              name="headerSearch"
+              (input)="onSearchInput()"
+              (focus)="onSearchFocus()"
+              (keydown)="onSearchKeydown($event)"
+              placeholder="Search for products, brands or sellers…"
+              autocomplete="off"
+              aria-autocomplete="list"
+              [attr.aria-expanded]="showSuggestPanel"
+            />
+            <button type="submit" class="header-search-pill__btn" aria-label="Search">
+              <mat-icon>search</mat-icon>
+            </button>
+          </form>
+          @if (showSuggestPanel) {
+            <app-header-search-suggest-panel
+              [query]="searchQuery"
+              [loading]="suggestLoading"
+              [result]="suggestResult"
+              [recent]="recentSearches"
+              [showRecent]="showRecentInPanel"
+              [activeKey]="activeSuggestKey"
+              (keywordPick)="onKeywordPick($event)"
+              (recentPick)="onRecentPick($event)"
+              (clearRecent)="onClearRecent()"
+              (productPick)="onProductPick($event)"
+              (categoryPick)="onCategoryPick($event)"
+              (subCategoryPick)="onSubCategoryPick($event)"
+              (brandPick)="onBrandPick($event)"
+              (sellerPick)="onSellerPick($event)"
+            />
+          }
+        </div>
 
         <nav class="header-quick-nav">
           <a routerLink="/shop" routerLinkActive="header-quick-nav__link--active" class="header-quick-nav__link">
@@ -141,25 +165,49 @@
       </div>
 
       <div *ngIf="mobileSearchOpen" class="header-search-panel">
-        <form
-          class="header-search-pill header-search-pill--mobile"
-          (submit)="onSearchSubmit($event)"
-          role="search"
-          aria-label="Search products"
-        >
-          <input
-            type="search"
-            class="header-search-pill__input"
-            [(ngModel)]="searchQuery"
-            name="headerSearchMobile"
-            (keydown)="onSearchKeydown($event)"
-            placeholder="Search products…"
-            autocomplete="off"
-          />
-          <button type="submit" class="header-search-pill__btn" aria-label="Search">
-            <mat-icon>search</mat-icon>
-          </button>
-        </form>
+        <div class="header-search-wrap header-search-wrap--mobile">
+          <form
+            class="header-search-pill header-search-pill--mobile"
+            (submit)="onSearchSubmit($event)"
+            role="search"
+            aria-label="Search products"
+          >
+            <input
+              type="search"
+              class="header-search-pill__input"
+              [(ngModel)]="searchQuery"
+              name="headerSearchMobile"
+              (input)="onSearchInput()"
+              (focus)="onSearchFocus()"
+              (keydown)="onSearchKeydown($event)"
+              placeholder="Search products…"
+              autocomplete="off"
+              aria-autocomplete="list"
+              [attr.aria-expanded]="showSuggestPanel"
+            />
+            <button type="submit" class="header-search-pill__btn" aria-label="Search">
+              <mat-icon>search</mat-icon>
+            </button>
+          </form>
+          @if (showSuggestPanel) {
+            <app-header-search-suggest-panel
+              [query]="searchQuery"
+              [loading]="suggestLoading"
+              [result]="suggestResult"
+              [recent]="recentSearches"
+              [showRecent]="showRecentInPanel"
+              [activeKey]="activeSuggestKey"
+              (keywordPick)="onKeywordPick($event)"
+              (recentPick)="onRecentPick($event)"
+              (clearRecent)="onClearRecent()"
+              (productPick)="onProductPick($event)"
+              (categoryPick)="onCategoryPick($event)"
+              (subCategoryPick)="onSubCategoryPick($event)"
+              (brandPick)="onBrandPick($event)"
+              (sellerPick)="onSellerPick($event)"
+            />
+          }
+        </div>
       </div>
 
       <p class="header-mobile-tag text-center text-[10px] tracking-wide uppercase text-[var(--color-text-secondary)] mt-1">

@@ -20,6 +20,9 @@ export const API_ENDPOINTS = {
     facebookAuth: `${BASE}/user/auth/facebook`,
     completeSocialProfile: `${BASE}/user/auth/social/complete-profile`,
   },
+  search: {
+    suggest: `${BASE}/search/suggest`,
+  },
   products: {
     list: `${BASE}/products`,
     publicList: `${BASE}/products/public`,
