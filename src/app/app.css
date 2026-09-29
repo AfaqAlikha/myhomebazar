@@ -38,11 +38,16 @@
   background-color: transparent;
 }
 
-.drawer-seller-btn {
-  border-color: var(--color-border) !important;
-  color: var(--color-text) !important;
+/* Drawer Sign In / Sign Up / seller CTA — same filled style in light and dark */
+.drawer-auth-btn {
+  color: #fff !important;
+  background-color: var(--color-accent) !important;
 }
 
-.drawer-seller-btn mat-icon {
-  color: var(--color-accent);
+.drawer-auth-btn:hover {
+  background-color: var(--color-accent-hover) !important;
+}
+
+.drawer-auth-btn mat-icon {
+  color: #fff !important;
 }

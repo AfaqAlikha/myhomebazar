@@ -4,7 +4,7 @@ import { NgIf } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ProductService } from '../../services/product.service';
 import { AuthService } from '../../auth/auth.service';
-import { SELLER_REGISTER_URL } from '../../core/constants/seller-portal';
+import { SELLER_REGISTER_LABEL, SELLER_REGISTER_URL } from '../../core/constants/seller-portal';
 
 @Component({
   selector: 'app-footer',
@@ -15,6 +15,7 @@ import { SELLER_REGISTER_URL } from '../../core/constants/seller-portal';
 })
 export class FooterComponent implements OnInit, OnDestroy {
   readonly sellerRegisterUrl = SELLER_REGISTER_URL;
+  readonly sellerRegisterLabel = SELLER_REGISTER_LABEL;
   logo: any = null;
   token: string | null = null;
   currentYear = new Date().getFullYear();

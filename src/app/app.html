@@ -178,7 +178,7 @@
               routerLink="/signin"
               routerLinkActive="active-link"
               mat-flat-button
-              class="flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)]"
+              class="drawer-auth-btn flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)]"
               (click)="drawer.close()"
             >
               <mat-icon>login</mat-icon>
@@ -191,7 +191,7 @@
               routerLink="/signup"
               routerLinkActive="active-link"
               mat-flat-button
-              class="flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)]"
+              class="drawer-auth-btn flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)]"
               (click)="drawer.close()"
             >
               <mat-icon>person_add</mat-icon>
@@ -204,12 +204,12 @@
               [href]="sellerRegisterUrl"
               target="_blank"
               rel="noopener noreferrer"
-              mat-stroked-button
-              class="drawer-seller-btn flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md w-full"
+              mat-flat-button
+              class="drawer-auth-btn flex items-center gap-2 !text-base font-semibold px-4 py-2 rounded-md text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] w-full"
               (click)="drawer.close()"
             >
               <mat-icon>storefront</mat-icon>
-              Sign up with seller account
+              {{ sellerRegisterLabel }}
             </a>
           </li>
         }

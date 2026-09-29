@@ -30,7 +30,7 @@ import { PwaInstallPromptComponent } from './shared/pwa-install-prompt/pwa-insta
 import { MobileBottomNavComponent } from './shared/mobile-bottom-nav/mobile-bottom-nav.component';
 import { PageBackBarComponent } from './shared/page-back-bar/page-back-bar.component';
 import { ChatService } from './services/chat.service';
-import { SELLER_REGISTER_URL } from './core/constants/seller-portal';
+import { SELLER_REGISTER_LABEL, SELLER_REGISTER_URL } from './core/constants/seller-portal';
 import { AppBrandingService } from './core/services/app-branding.service';
 @Component({
   selector: 'app-root',
@@ -65,6 +65,7 @@ export class AppComponent implements OnInit {
   private branding = inject(AppBrandingService);
 
   readonly sellerRegisterUrl = SELLER_REGISTER_URL;
+  readonly sellerRegisterLabel = SELLER_REGISTER_LABEL;
 
   user: any = null;
   token: string | null = null;
