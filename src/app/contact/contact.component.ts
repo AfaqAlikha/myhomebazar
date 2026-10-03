@@ -12,6 +12,7 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { ContactService } from '../services/contact.service';
 import { SeoService } from '../services/seo';
+import { SITE_CONTACT } from '../core/constants/site-contact';
 
 @Component({
   selector: 'app-contact',
@@ -27,6 +28,7 @@ import { SeoService } from '../services/seo';
   templateUrl: './contact.component.html',
 })
 export class ContactComponent implements OnInit {
+  readonly contact = SITE_CONTACT;
   borderRadius = '8px';
   contactForm: FormGroup;
   submitLoading = false;

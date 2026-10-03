@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { trigger, style, animate, transition } from '@angular/animations';
-import { NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { SeoService } from '../services/seo';
 import {
@@ -10,11 +10,12 @@ import {
   AboutStat,
   AboutTeamMember,
 } from '../services/about.service';
+import { DEFAULT_ABOUT_STORY } from '../core/constants/default-about-fallback';
 @Component({
   selector: 'app-about',
   templateUrl: './about.component.html',
   standalone: true,
-  imports: [UiCardComponent, NgFor],
+  imports: [UiCardComponent, NgFor, NgIf],
   animations: [
     trigger('fadeIn', [
       transition(':enter', [
@@ -41,16 +42,7 @@ export class AboutComponent implements OnInit {
   isLoading = true;
   readonly placeholderImage = '/assets/placeholder-product.png';
 
-  story = {
-    title: 'Our Story',
-    paragraphs: [
-      'MyHomeBazar is a growing online marketplace connecting buyers with trusted sellers across Pakistan.',
-      'We help customers discover quality products for home and daily life, while giving sellers a simple platform to reach more buyers.',
-      'Our goal is to make online shopping easy, secure, and accessible for everyone.',
-    ],
-    image:
-      '/portrait-two-african-females-holding-shopping-bags-while-reacting-something-their-smartphone 1.png',
-  };
+  story = { ...DEFAULT_ABOUT_STORY };
 
   deliveryStats: AboutStat[] = [
     { icon: 'store', title: '10.5k', description: 'Sellers active on our site' },
@@ -59,32 +51,13 @@ export class AboutComponent implements OnInit {
     { icon: 'money', title: '25k', description: 'Annual gross sale' },
   ];
 
-  owners: AboutTeamMember[] = [
-    {
-      img: '/image 46.png',
-      name: 'Tom Cruise',
-      role: 'Founder & Chairman',
-      animation: 'fadeRight',
-    },
-    {
-      img: '/image 51.png',
-      name: 'Emma Watson',
-      role: 'Managing Director',
-      animation: 'fadeIn',
-    },
-    {
-      img: '/image 47.png',
-      name: 'Will Smith',
-      role: 'Product Designer',
-      animation: 'fadeLeft',
-    },
-  ];
+  owners: AboutTeamMember[] = [];
 
   deliveryFeatures: AboutFeature[] = [
     {
       icon: 'local_shipping',
       title: 'FREE AND FAST DELIVERY',
-      desc: 'Free delivery for all orders over $140',
+      desc: 'Free delivery on eligible seller orders over Rs 5,000 where offered',
     },
     {
       icon: 'headset_mic',
@@ -125,8 +98,20 @@ export class AboutComponent implements OnInit {
       };
     }
     if (content.stats?.length) this.deliveryStats = content.stats;
-    if (content.team?.length) this.owners = content.team;
+    if (content.team?.length && !this.isPlaceholderTeam(content.team)) {
+      this.owners = content.team;
+    }
     if (content.features?.length) this.deliveryFeatures = content.features;
+  }
+
+  private isPlaceholderTeam(team: AboutTeamMember[]): boolean {
+    const placeholderNames = new Set([
+      'Team Member',
+      'Tom Cruise',
+      'Emma Watson',
+      'Will Smith',
+    ]);
+    return team.some((m) => placeholderNames.has(m.name));
   }
 
   onImageError(event: Event): void {

@@ -9,6 +9,9 @@ import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
+const ADS_TXT_BODY =
+  'google.com, pub-4666633726308706, DIRECT, f08c47fec0942fa0\n';
+
 const app = express();
 app.set('trust proxy', true);
 // const angularApp = new AngularNodeAppEngine();
@@ -28,6 +31,19 @@ const angularApp = new AngularNodeAppEngine({
  * });
  * ```
  */
+
+/** Crawler files must not fall through to SPA HTML */
+app.get('/ads.txt', (_req, res) => {
+  res.status(200).type('text/plain; charset=utf-8').send(ADS_TXT_BODY);
+});
+
+app.get('/robots.txt', (_req, res, next) => {
+  res.sendFile(join(browserDistFolder, 'robots.txt'), (err) => (err ? next() : undefined));
+});
+
+app.get('/sitemap.xml', (_req, res, next) => {
+  res.sendFile(join(browserDistFolder, 'sitemap.xml'), (err) => (err ? next() : undefined));
+});
 
 /**
  * Serve static files from /browser

@@ -42,6 +42,18 @@ export const serverRoutes: ServerRoute[] = [
     path: 'contact',
     renderMode: RenderMode.Server,
   },
+  {
+    path: 'faq',
+    renderMode: RenderMode.Server,
+  },
+  {
+    path: 'guides',
+    renderMode: RenderMode.Server,
+  },
+  {
+    path: 'guides/**',
+    renderMode: RenderMode.Server,
+  },
 
   // ✅ Dynamic but SEO-relevant
   {
