@@ -235,8 +235,12 @@
 
             <div
               class="product-description-text text-sm text-[var(--color-text)] whitespace-pre-line break-words leading-6"
+              itemprop="description"
             >
-              {{ product.description || 'No description available.' }}
+              {{
+                product.description ||
+                  'This product does not yet include a written description from the seller. Please use the message button to ask about features, size, or warranty before ordering.'
+              }}
             </div>
           </div>
 

@@ -1,0 +1,33 @@
+<main class="p-4 container mx-auto max-w-4xl">
+  <app-ui-card [borderRadius]="borderRadius" class="p-6 md:p-10">
+    <header class="mb-8 border-b border-[var(--color-border)] pb-6">
+      <h1 class="text-3xl md:text-4xl font-bold text-[var(--color-text)] mb-2">
+        Frequently Asked Questions
+      </h1>
+      <p class="text-[var(--color-text-secondary)] leading-relaxed">
+        Answers about shopping, payments, delivery, seller registration, and account help on
+        MyHomeBazar in Pakistan.
+      </p>
+    </header>
+
+    <div class="space-y-6">
+      @for (item of items; track item.question) {
+        <section class="border-b border-[var(--color-border)] pb-5 last:border-0">
+          <h2 class="text-lg font-semibold text-[var(--color-accent)] mb-2">{{ item.question }}</h2>
+          <p class="text-[var(--color-text-secondary)] leading-relaxed">{{ item.answer }}</p>
+        </section>
+      }
+    </div>
+
+    <footer class="mt-10 pt-6 border-t border-[var(--color-border)] text-sm text-[var(--color-text-secondary)]">
+      <p>
+        Still need help? Email
+        <a [href]="'mailto:' + contact.email" class="text-[var(--color-accent)] hover:underline">{{
+          contact.email
+        }}</a>
+        or visit our
+        <a routerLink="/contact" class="text-[var(--color-accent)] hover:underline">Contact page</a>.
+      </p>
+    </footer>
+  </app-ui-card>
+</main>

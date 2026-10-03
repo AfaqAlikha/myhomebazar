@@ -29,17 +29,19 @@
 
         <!-- Column 2 -->
         <div>
-          <p class="text-xl font-semibold">Exclusive</p>
+          <p class="text-xl font-semibold">Contact</p>
           <div class="mt-2">
-            <a routerLink="#" class="block text-sm hover:underline"> LAHORE DHA PHASE 5. </a>
+            <p class="text-sm opacity-90">{{ contact.address }}</p>
           </div>
           <div class="mt-2">
-            <a href="mailto:exclusive@gmail.com" class="block text-sm hover:underline">
-              myhomebazar.shop@gmail.com
+            <a [href]="'mailto:' + contact.email" class="block text-sm hover:underline">
+              {{ contact.email }}
             </a>
           </div>
           <div class="mt-2">
-            <a href="tel:+88015888889999" class="block text-sm hover:underline"> +923486663576 </a>
+            <a [href]="'tel:' + contact.phoneTel" class="block text-sm hover:underline">
+              {{ contact.phoneDisplay }}
+            </a>
           </div>
         </div>
 
@@ -96,6 +98,12 @@
           </div>
           <div class="mt-2">
             <a routerLink="/terms-and-conditions" class="block text-sm hover:underline">Terms & Conditions</a>
+          </div>
+          <div class="mt-2">
+            <a routerLink="/faq" class="block text-sm hover:underline">FAQ</a>
+          </div>
+          <div class="mt-2">
+            <a routerLink="/guides" class="block text-sm hover:underline">Shopping Guides</a>
           </div>
         </div>
       </div>

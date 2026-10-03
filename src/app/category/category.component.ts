@@ -12,6 +12,7 @@ import { HeaderProductSearchService } from '../core/services/header-product-sear
 import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
 import { SeoService } from '../services/seo';
+import { getCategoryIntroParagraphs } from '../core/constants/category-intros';
 import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
@@ -52,6 +53,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   selectedCategoryId = '';
   selectedSubCategory = '';
   searchQuery = '';
+  categoryIntroParagraphs: string[] = [];
 
   constructor(
     private productService: ProductService,
@@ -83,6 +85,10 @@ export class CategoryComponent implements OnInit, OnDestroy {
       this.selectedCategoryName = params['slug'];
       this.selectedCategoryId = params['id'];
       this.searchScope = `category:${this.selectedCategoryId}`;
+      this.categoryIntroParagraphs = getCategoryIntroParagraphs(
+        this.selectedCategoryName,
+        this.formatCategoryTitle(this.selectedCategoryName),
+      );
 
       this.seo.setCategorySeo(this.selectedCategoryName, this.selectedCategoryId);
 
@@ -102,6 +108,10 @@ export class CategoryComponent implements OnInit, OnDestroy {
         error: (err) => console.error('Error loading subcategories', err),
       });
     });
+  }
+
+  formatCategoryTitle(slug: string): string {
+    return decodeURIComponent(slug || '').replace(/-/g, ' ');
   }
 
   selectCategory(cat: Category): void {

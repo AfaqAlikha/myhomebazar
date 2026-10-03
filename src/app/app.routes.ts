@@ -78,6 +78,25 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'terms',
+    redirectTo: 'terms-and-conditions',
+    pathMatch: 'full',
+  },
+  {
+    path: 'faq',
+    loadComponent: () => import('./faq/faq.component').then((m) => m.FaqComponent),
+  },
+  {
+    path: 'guides',
+    loadComponent: () =>
+      import('./guides/guides-list.component').then((m) => m.GuidesListComponent),
+  },
+  {
+    path: 'guides/:slug',
+    loadComponent: () =>
+      import('./guides/guide-detail.component').then((m) => m.GuideDetailComponent),
+  },
+  {
     path: 'product/details/:id',
     loadComponent: () =>
       import('./product-details/product-details.component').then((m) => m.ProductDetailsComponent),

@@ -1,0 +1,26 @@
+<main class="p-4 container mx-auto max-w-4xl">
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold text-[var(--color-text)]">Shopping Guides</h1>
+    <p class="mt-2 text-[var(--color-text-secondary)] leading-relaxed">
+      Original tips for buyers and sellers on MyHomeBazar — payments, delivery, safety, and product
+      choices in Pakistan.
+    </p>
+  </header>
+
+  <div class="grid gap-4">
+    @for (article of articles; track article.slug) {
+      <app-ui-card [borderRadius]="borderRadius" class="p-5">
+        <p class="text-xs text-[var(--color-text-secondary)] mb-1">
+          {{ article.published }} · {{ article.author }}
+        </p>
+        <h2 class="text-xl font-semibold text-[var(--color-accent)] mb-2">
+          <a [routerLink]="['/guides', article.slug]" class="hover:underline">{{ article.title }}</a>
+        </h2>
+        <p class="text-[var(--color-text-secondary)] leading-relaxed mb-3">{{ article.excerpt }}</p>
+        <a [routerLink]="['/guides', article.slug]" class="text-sm font-semibold text-[var(--color-accent)]">
+          Read guide →
+        </a>
+      </app-ui-card>
+    }
+  </div>
+</main>

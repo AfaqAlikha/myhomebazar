@@ -283,6 +283,35 @@ export class SeoService {
     });
   }
 
+  setFaqSeo(): void {
+    this.setMeta({
+      title: 'FAQ | MyHomeBazar',
+      description:
+        'Frequently asked questions about orders, COD, JazzCash, EasyPaisa, delivery, claims, seller signup, and account help on MyHomeBazar Pakistan.',
+      url: `${SITE_URL}/faq`,
+      type: 'website',
+    });
+  }
+
+  setGuidesListSeo(): void {
+    this.setMeta({
+      title: 'Shopping Guides | MyHomeBazar',
+      description:
+        'Buyer and seller guides for safe online shopping, payments, and home products on MyHomeBazar in Pakistan.',
+      url: `${SITE_URL}/guides`,
+      type: 'website',
+    });
+  }
+
+  setGuideDetailSeo(article: { title: string; excerpt: string; slug: string }): void {
+    this.setMeta({
+      title: `${article.title} | MyHomeBazar Guides`,
+      description: article.excerpt,
+      url: `${SITE_URL}/guides/${article.slug}`,
+      type: 'article',
+    });
+  }
+
   setTermsSeo(): void {
     this.setMeta({
       title: 'Terms & Conditions | MyHomeBazar',

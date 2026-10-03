@@ -55,6 +55,17 @@
 
   <!-- Products Section -->
   <div class="md:col-span-9 flex flex-col">
+    <section
+      *ngIf="categoryIntroParagraphs.length"
+      class="category-intro mb-6 px-3 text-[var(--color-text-secondary)] leading-relaxed space-y-3"
+      aria-label="About this category"
+    >
+      <h1 class="text-2xl font-bold text-[var(--color-text)]">
+        {{ formatCategoryTitle(selectedCategoryName) }}
+      </h1>
+      <p *ngFor="let paragraph of categoryIntroParagraphs">{{ paragraph }}</p>
+    </section>
+
     <div class="flex flex-col md:flex-row md:items-center md:justify-end gap-4 mb-6 px-3">
       <div class="flex flex-wrap items-center justify-start md:justify-end gap-3">
         <button
