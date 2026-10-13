@@ -155,14 +155,17 @@ export class SeoService {
   setShopSeo(): void {
     this.setMeta({
       title: 'Shop All Products | MyHomeBazar',
-      description: 'Browse all products at MyHomeBazar. Filter by category, brand, and price.',
+      description:
+        'Browse home, kitchen, electronics, and fashion from verified Pakistani sellers on MyHomeBazar. Compare prices, read descriptions, and order with COD or digital payment.',
       url: `${SITE_URL}/shop`,
       type: 'website',
     });
   }
 
   setProductSeo(product: Product): void {
-    const desc = (product.description || '').slice(0, 160);
+    const raw = (product.description || '').trim();
+    const fallback = `Buy ${product.name} on MyHomeBazar. Sold by a verified seller in Pakistan with order tracking and marketplace buyer support.`;
+    const desc = (raw.length >= 40 ? raw : fallback).slice(0, 160);
     const title = `${product.name}${product.brand ? ' – ' + product.brand : ''} | MyHomeBazar`;
     const url = `${SITE_URL}/product/details/${product._id}`;
     const image = product.images?.[0];
@@ -258,7 +261,8 @@ export class SeoService {
   setAboutSeo(): void {
     this.setMeta({
       title: 'About Us | MyHomeBazar',
-      description: "Learn about MyHomeBazar – Pakistan's trusted online marketplace.",
+      description:
+        'Learn how MyHomeBazar connects buyers and sellers across Pakistan with secure checkout, delivery, COD, claims support, and trusted marketplace policies.',
       url: `${SITE_URL}/about`,
       type: 'website',
     });
