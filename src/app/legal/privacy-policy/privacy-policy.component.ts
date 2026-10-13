@@ -18,7 +18,7 @@ import { SeoService } from '../../services/seo';
 })
 export class PrivacyPolicyComponent implements OnInit {
   intro =
-    'My Home Bazar ("we", "us", "our") operates the online marketplace at myhomebazar.com and the seller/admin portal at admin.myhomebazar.com. This Privacy Policy explains how we collect, use, store, and protect your personal information when you browse, buy, sell, sign in (including Google or Facebook), or otherwise use our services in Pakistan.';
+    'My Home Bazar ("we", "us", "our") operates the online marketplace at myhomebazar.com and the seller/admin portal at admin.myhomebazar.com. This Privacy Policy explains how we collect, use, store, and protect your personal information when you browse, buy, sell, sign in (including Google or Facebook), or otherwise use our services in Pakistan. We use Google AdSense (publisher ID pub-4666633726308706) on our storefront; ad serving may use cookies as described below and in Google\'s policies.';
 
   sections: LegalSection[] = [
     {

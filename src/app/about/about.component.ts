@@ -11,11 +11,12 @@ import {
   AboutTeamMember,
 } from '../services/about.service';
 import { DEFAULT_ABOUT_STORY } from '../core/constants/default-about-fallback';
+import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
 @Component({
   selector: 'app-about',
   templateUrl: './about.component.html',
   standalone: true,
-  imports: [UiCardComponent, NgFor, NgIf],
+  imports: [UiCardComponent, NgFor, NgIf, GoogleAdComponent],
   animations: [
     trigger('fadeIn', [
       transition(':enter', [
@@ -91,9 +92,12 @@ export class AboutComponent implements OnInit {
 
   private applyContent(content: AboutContent): void {
     if (content.story) {
+      const paragraphs = content.story.paragraphs?.filter(Boolean) ?? [];
+      const wordCount = paragraphs.join(' ').trim().split(/\s+/).filter(Boolean).length;
       this.story = {
         title: content.story.title || this.story.title,
-        paragraphs: content.story.paragraphs?.length ? content.story.paragraphs : this.story.paragraphs,
+        paragraphs:
+          paragraphs.length && wordCount >= 200 ? paragraphs : DEFAULT_ABOUT_STORY.paragraphs,
         image: content.story.image || this.story.image,
       };
     }

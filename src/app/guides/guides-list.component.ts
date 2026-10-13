@@ -3,11 +3,12 @@ import { RouterLink } from '@angular/router';
 import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { SeoService } from '../services/seo';
 import { GUIDE_ARTICLES } from './guides.data';
+import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
 
 @Component({
   selector: 'app-guides-list',
   standalone: true,
-  imports: [UiCardComponent, RouterLink],
+  imports: [UiCardComponent, RouterLink, GoogleAdComponent],
   templateUrl: './guides-list.component.html',
 })
 export class GuidesListComponent implements OnInit {

@@ -4,11 +4,12 @@ import { UiCardComponent } from '../shared/ui-card/ui-card.component';
 import { SeoService } from '../services/seo';
 import { FAQ_ITEMS } from './faq.data';
 import { SITE_CONTACT } from '../core/constants/site-contact';
+import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
 
 @Component({
   selector: 'app-faq',
   standalone: true,
-  imports: [UiCardComponent, RouterLink],
+  imports: [UiCardComponent, RouterLink, GoogleAdComponent],
   templateUrl: './faq.component.html',
 })
 export class FaqComponent implements OnInit {

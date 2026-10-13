@@ -2,6 +2,11 @@
   <div class="mb-4">
     <h1 class="section-title section-title-accent">Shop All Products</h1>
     <div class="section-underline"></div>
+    <section class="mt-4 space-y-3 text-sm text-[var(--color-text-secondary)] leading-relaxed max-w-4xl">
+      @for (paragraph of shopIntro; track paragraph) {
+        <p>{{ paragraph }}</p>
+      }
+    </section>
   </div>
 
   <div class="shop-chip-bar">
@@ -92,6 +97,8 @@
         ></mat-paginator>
       </div>
     </section>
+
+    <app-google-ad variant="horizontal" layoutClass="mt-6 mb-2"></app-google-ad>
   </div>
 </div>
 

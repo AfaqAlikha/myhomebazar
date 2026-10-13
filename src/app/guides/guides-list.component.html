@@ -7,6 +7,8 @@
     </p>
   </header>
 
+  <app-google-ad variant="horizontal" layoutClass="mb-6"></app-google-ad>
+
   <div class="grid gap-4">
     @for (article of articles; track article.slug) {
       <app-ui-card [borderRadius]="borderRadius" class="p-5">

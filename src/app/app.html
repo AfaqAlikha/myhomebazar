@@ -136,6 +136,56 @@
         </li>
 
         <li>
+          <a
+            routerLink="/faq"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
+            (click)="drawer.close()"
+          >
+            <mat-icon>help_outline</mat-icon>
+            FAQ
+          </a>
+        </li>
+
+        <li>
+          <a
+            routerLink="/guides"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
+            (click)="drawer.close()"
+          >
+            <mat-icon>menu_book</mat-icon>
+            Guides
+          </a>
+        </li>
+
+        <li>
+          <a
+            routerLink="/privacy-policy"
+            routerLinkActive="active-link"
+            class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
+            (click)="drawer.close()"
+          >
+            <mat-icon>policy</mat-icon>
+            Privacy
+          </a>
+        </li>
+
+        <li>
+          <a
+            routerLink="/terms-and-conditions"
+            routerLinkActive="active-link"
+            class="nav-link flex items-center gap-2 text-[var(--color-text)] dark:text-[var(--color-text)]"
+            (click)="drawer.close()"
+          >
+            <mat-icon>gavel</mat-icon>
+            Terms
+          </a>
+        </li>
+
+        <li>
           <button
             type="button"
             class="nav-link flex items-center gap-2 w-full text-left bg-transparent border-0"

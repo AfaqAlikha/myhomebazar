@@ -12,6 +12,8 @@ import { HeaderProductSearchService } from '../core/services/header-product-sear
 import { ProductService } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
 import { SeoService } from '../services/seo';
+import { SHOP_PAGE_INTRO } from '../core/constants/shop-intro';
+import { GoogleAdComponent } from '../shared/google-ad/google-ad.component';
 
 @Component({
   selector: 'app-shop',
@@ -24,11 +26,13 @@ import { SeoService } from '../services/seo';
     NgClass,
     NgIf,
     MatIconModule,
+    GoogleAdComponent,
   ],
   templateUrl: './shop.component.html',
   styleUrls: ['./shop.component.css'],
 })
 export class ShopComponent implements OnInit {
+  readonly shopIntro = SHOP_PAGE_INTRO;
   private readonly destroyRef = inject(DestroyRef);
   private readonly headerSearch = inject(HeaderProductSearchService);
 
