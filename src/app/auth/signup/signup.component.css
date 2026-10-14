@@ -1,9 +1,0 @@
-:host ::ng-deep .ui-card {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-:host ::ng-deep .ui-card:hover {
-  box-shadow: none !important;
-}
