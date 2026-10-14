@@ -97,13 +97,8 @@ export class SocialAuthService {
           this.googleSignInInitialized = true;
         }
 
-        const wrap =
-          (container.closest('.social-google-wrap') as HTMLElement | null) ||
-          container.parentElement ||
-          container;
-        const width = Math.floor(Math.max(wrap.getBoundingClientRect().width || 320, 280));
+        const width = 300;
 
-        container.innerHTML = '';
         window.google.accounts.id.renderButton(container, {
           type: 'standard',
           theme: 'outline',
