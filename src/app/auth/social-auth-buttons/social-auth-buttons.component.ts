@@ -3,7 +3,6 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  Input,
   Output,
   ViewChild,
 } from '@angular/core';
@@ -18,7 +17,6 @@ import { SocialAuthService } from '../social-auth.service';
   styleUrl: './social-auth-buttons.component.css',
 })
 export class SocialAuthButtonsComponent implements AfterViewInit {
-  @Input() dividerLabel = 'or continue with Google';
   @Output() googleToken = new EventEmitter<string>();
   @Output() facebookToken = new EventEmitter<string>();
 

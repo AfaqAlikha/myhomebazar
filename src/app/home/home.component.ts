@@ -235,6 +235,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
   }
 
+  get flashDealsSectionVisible(): boolean {
+    const active = this.homeData?.flashDeals?.isActive !== false;
+    if (!active) return false;
+    return this.homeConfigLoading || this.sectionsLoading || this.flashDealProducts.length > 0;
+  }
+
   get productGridClass(): string {
     const map: Record<number, string> = {
       1: 'grid-cols-1',

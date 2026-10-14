@@ -34,8 +34,8 @@ import { SpinnerService } from '../spinner.service';
       }
 
       .custom-loader-card {
-        width: 200px;
-        height: 140px;
+        width: 120px;
+        height: 120px;
         border-radius: 16px;
         padding: 14px 16px 16px;
         display: flex;
@@ -61,17 +61,18 @@ import { SpinnerService } from '../spinner.service';
       }
 
       .custom-loader-logo {
-        max-width: 88px;
-        max-height: 64px;
-        width: auto;
-        height: auto;
-        object-fit: contain;
+        width: 40px;
+        height: 40px;
+        max-width: 40px;
+        max-height: 40px;
+        object-fit: cover;
         display: block;
+        border-radius: 9999px;
       }
 
       .custom-loader-logo-fallback {
-        width: 52px;
-        height: 52px;
+        width: 40px;
+        height: 40px;
         border-radius: 9999px;
         display: flex;
         align-items: center;

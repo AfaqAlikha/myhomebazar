@@ -49,7 +49,7 @@
   </section>
 
   <!-- Flash Deals products -->
-  <section *ngIf="homeConfigLoading || sectionsLoading || flashDealProducts.length">
+  <section *ngIf="flashDealsSectionVisible">
     <div class="home-section-head">
       <div>
         <h2 class="section-title section-title-accent">{{ homeData?.sections?.dealsTitle || 'Flash Deals' }}</h2>
