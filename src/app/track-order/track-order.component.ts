@@ -43,7 +43,8 @@ export class TrackOrderComponent {
   order: any = null;
   error = '';
 
-  readonly statusFlow = ['pending', 'confirmed', 'shipped', 'delivered', 'completed'];
+  /** Guest UI: timeline stops at delivered; confirm moves to completed in backend only. */
+  readonly guestTimelineFlow = ['pending', 'confirmed', 'shipped', 'delivered'];
 
   constructor(
     private fb: FormBuilder,
@@ -114,7 +115,7 @@ export class TrackOrderComponent {
       confirmed: 'Confirmed',
       shipped: 'Shipped',
       delivered: 'Delivered',
-      completed: 'Completed',
+      completed: 'Order received',
       cancelled: 'Cancelled',
     };
     return labels[status] || status;
@@ -130,14 +131,21 @@ export class TrackOrderComponent {
 
   getTimelineSteps(): TrackStep[] {
     const current = this.order?.status;
-    const currentIndex = this.statusFlow.indexOf(current);
+    const effectiveStatus = current === 'completed' ? 'delivered' : current;
+    const currentIndex = this.guestTimelineFlow.indexOf(effectiveStatus);
 
-    return this.statusFlow.map((key, index) => ({
+    return this.guestTimelineFlow.map((key, index) => ({
       key,
       label: this.getStatusLabel(key),
-      done: currentIndex >= index && current !== 'cancelled',
-      active: current === key,
+      done:
+        current !== 'cancelled' &&
+        (currentIndex > index || (current === 'completed' && key === 'delivered')),
+      active: effectiveStatus === key && current !== 'completed',
     }));
+  }
+
+  isGuestOrderReceived(): boolean {
+    return this.order?.status === 'completed';
   }
 
   getOrderSubtotal(): number {
@@ -153,7 +161,10 @@ export class TrackOrderComponent {
   }
 
   canComplete(): boolean {
-    return this.order?.canComplete || this.order?.status === 'delivered';
+    if (this.order?.status === 'completed' || this.order?.status === 'cancelled') {
+      return false;
+    }
+    return Boolean(this.order?.canComplete || this.order?.status === 'delivered');
   }
 
 }

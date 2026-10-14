@@ -81,7 +81,15 @@
           </div>
         </div>
 
-        <div class="track-timeline" *ngIf="order.status !== 'cancelled'">
+        <div class="track-guest-received" *ngIf="isGuestOrderReceived()">
+          <mat-icon>task_alt</mat-icon>
+          <div>
+            <strong>You confirmed receipt</strong>
+            <p>Thanks — the seller has been notified. Sign in to leave a product review.</p>
+          </div>
+        </div>
+
+        <div class="track-timeline" *ngIf="order.status !== 'cancelled' && !isGuestOrderReceived()">
           <div
             class="track-step"
             *ngFor="let step of getTimelineSteps(); let last = last"
@@ -112,12 +120,12 @@
           <mat-icon>task_alt</mat-icon>
           <div>
             <h3>Confirm you received the order</h3>
-            <p>Mark the order complete after delivery so the seller gets paid.</p>
+            <p>Only you can confirm delivery with your order ID and phone — the seller cannot do this for you.</p>
           </div>
         </div>
 
         <app-ui-button
-          label="Complete Order"
+          label="I received my order"
           variant="accent"
           [loading]="actionLoading"
           (clicked)="completeOrder()"
