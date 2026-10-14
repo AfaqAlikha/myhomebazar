@@ -245,6 +245,29 @@
   display: none;
 }
 
+.track-guest-received {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-success) 35%, var(--color-border));
+  color: var(--color-text);
+}
+
+.track-guest-received mat-icon {
+  color: var(--color-success);
+  flex-shrink: 0;
+}
+
+.track-guest-received p {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
 .track-cancelled {
   display: flex;
   gap: 0.75rem;
