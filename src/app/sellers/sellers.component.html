@@ -65,7 +65,10 @@
 
           <app-star-rating [value]="seller.rating || 0" [readonly]="true" size="sm"></app-star-rating>
 
-          <div class="seller-store-card__badges" *ngIf="seller.badges?.length">
+          <div class="seller-store-card__badges">
+            <span *ngIf="getRoleBadge(seller) as roleBadge" class="seller-store-card__badge seller-store-card__badge--official">
+              {{ roleBadge }}
+            </span>
             <span *ngFor="let badge of seller.badges" class="seller-store-card__badge">{{ badge }}</span>
           </div>
         </a>
@@ -73,12 +76,14 @@
         <div class="seller-store-card__actions">
           <a [routerLink]="['/profile', seller._id]" class="seller-store-card__cta">View Store</a>
           <button
-            *ngIf="!isOwnSeller(seller)"
+            *ngIf="canMessageSeller(seller)"
             type="button"
             class="seller-store-card__chat"
+            [disabled]="isChatStarting(seller)"
             (click)="messageSeller($event, seller)"
           >
-            <mat-icon>chat</mat-icon>
+            <mat-icon *ngIf="!isChatStarting(seller)">chat</mat-icon>
+            <span *ngIf="isChatStarting(seller)" class="seller-store-card__chat-spinner" aria-hidden="true"></span>
             Chat
           </button>
         </div>

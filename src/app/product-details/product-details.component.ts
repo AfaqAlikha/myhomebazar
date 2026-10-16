@@ -28,6 +28,7 @@ import { pakistaniPhoneValidator } from '../utils/pakistani-phone.validator';
 import { ToastrService } from 'ngx-toastr';
 import { LocationFieldsComponent } from '../shared/location-fields/location-fields.component';
 import { ChatService } from '../services/chat.service';
+import { canMessageUser, getProductChatLabel } from '../utils/chat-participant.util';
 
 @Component({
   selector: 'app-product-details',
@@ -89,6 +90,8 @@ export class ProductDetailsComponent implements OnInit {
   isOutOfStock = false;
   likeLoading = false;
   linkCopied = false;
+  chatStarting = false;
+  ownerRole = '';
 
   private destroyRef = inject(DestroyRef);
   private chat = inject(ChatService);
@@ -202,6 +205,7 @@ export class ProductDetailsComponent implements OnInit {
     this.bio = this.product?.user?.bio || '';
     this.id = this.product?.user?._id || this.product?.user?.id || '';
     this.sellerAvatar = this.product?.user?.avatar || '';
+    this.ownerRole = this.product?.user?.role || '';
 
     const isOwn = isOwnProduct(this.product, this.currentUserId);
     const inStock = Number(this.product?.countInStock ?? 0) > 0;
@@ -519,13 +523,23 @@ export class ProductDetailsComponent implements OnInit {
     return isOwnProduct(this.product, this.currentUserId);
   }
 
+  canMessageOwner(): boolean {
+    return canMessageUser(this.product?.user, this.currentUserId);
+  }
+
+  getChatButtonLabel(): string {
+    return getProductChatLabel(this.ownerRole);
+  }
+
   chatAboutProduct(): void {
-    if (!this.id || !this.product?._id) return;
+    if (!this.id || !this.product?._id || this.chatStarting) return;
 
     if (this.isOwnProductListing()) {
       this.toastr.warning('You cannot message your own store');
       return;
     }
+
+    if (!this.canMessageOwner()) return;
 
     if (!this.auth.isLoggedIn()) {
       this.router.navigate(['/signin'], {
@@ -534,11 +548,14 @@ export class ProductDetailsComponent implements OnInit {
       return;
     }
 
+    this.chatStarting = true;
     this.chat.startWithSeller(this.id, this.product._id).subscribe({
       next: (conversation) => {
+        this.chatStarting = false;
         this.router.navigate(['/messages', conversation._id]);
       },
       error: (err) => {
+        this.chatStarting = false;
         this.toastr.error(err?.error?.message || 'Could not start chat');
       },
     });

@@ -122,6 +122,24 @@
   color: #fff;
 }
 
+.seller-btn:disabled {
+  opacity: 0.8;
+  cursor: wait;
+}
+
+.seller-btn__spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid color-mix(in srgb, #fff 35%, transparent);
+  border-top-color: #fff;
+  border-radius: 999px;
+  animation: seller-btn-spin 0.8s linear infinite;
+}
+
+@keyframes seller-btn-spin {
+  to { transform: rotate(360deg); }
+}
+
 .seller-btn--ghost {
   background: var(--color-card);
   color: var(--color-text);

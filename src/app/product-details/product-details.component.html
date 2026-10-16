@@ -432,13 +432,15 @@
             ></app-ui-button>
 
             <button
-              *ngIf="id && !isOwnProductListing()"
+              *ngIf="canMessageOwner()"
               type="button"
               class="product-chat-btn"
+              [disabled]="chatStarting"
               (click)="chatAboutProduct()"
             >
-              <mat-icon>chat</mat-icon>
-              Chat about this product
+              <mat-icon *ngIf="!chatStarting">chat</mat-icon>
+              <span *ngIf="chatStarting" class="product-chat-btn__spinner" aria-hidden="true"></span>
+              {{ getChatButtonLabel() }}
             </button>
           </div>
 

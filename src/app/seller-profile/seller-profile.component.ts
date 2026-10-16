@@ -16,6 +16,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductGridLayoutService } from '../shared/product-grid-layout.service';
 import { ChatService } from '../services/chat.service';
 import { ToastrService } from 'ngx-toastr';
+import {
+  canMessageUser,
+  getProfileMessageLabel,
+  getStoreEyebrowLabel,
+} from '../utils/chat-participant.util';
 
 @Component({
   selector: 'app-seller-profile',
@@ -63,6 +68,7 @@ export class SellerProfileComponent implements OnInit, OnDestroy {
   itemsPerPage = 0;
   currentPage = 1;
   noProducts = false;
+  chatStarting = false;
   private searchScope = '';
   private searchSub?: Subscription;
 
@@ -168,14 +174,28 @@ export class SellerProfileComponent implements OnInit, OnDestroy {
     return !!viewerId && String(viewerId) === String(this.user?._id);
   }
 
+  canMessageProfile(): boolean {
+    return canMessageUser(this.user, this.auth.getUser()?.id);
+  }
+
+  getMessageButtonLabel(): string {
+    return getProfileMessageLabel(this.user?.role);
+  }
+
+  getStoreLabel(): string {
+    return getStoreEyebrowLabel(this.user?.role);
+  }
+
   messageSeller(): void {
     const sellerId = this.user?._id;
-    if (!sellerId) return;
+    if (!sellerId || this.chatStarting) return;
 
     if (this.isOwnProfile()) {
       this.toastr.warning('You cannot message your own store');
       return;
     }
+
+    if (!this.canMessageProfile()) return;
 
     if (!this.auth.isLoggedIn()) {
       this.router.navigate(['/signin'], {
@@ -184,11 +204,14 @@ export class SellerProfileComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.chatStarting = true;
     this.chat.startWithSeller(sellerId).subscribe({
       next: (conversation) => {
+        this.chatStarting = false;
         this.router.navigate(['/messages', conversation._id]);
       },
       error: (err) => {
+        this.chatStarting = false;
         this.toastr.error(err?.error?.message || 'Could not start chat');
       },
     });
