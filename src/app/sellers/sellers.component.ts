@@ -11,6 +11,10 @@ import { UserAvatarComponent } from '../shared/user-avatar/user-avatar.component
 import { SeoService } from '../services/seo';
 import { AuthService } from '../auth/auth.service';
 import { ChatService } from '../services/chat.service';
+import {
+  canMessageUser,
+  getSellerListBadge,
+} from '../utils/chat-participant.util';
 
 @Component({
   selector: 'app-sellers',
@@ -32,6 +36,7 @@ export class SellersComponent implements OnInit {
   loading = false;
   searchQuery = '';
   copiedSellerId: string | null = null;
+  chatStartingId: string | null = null;
 
   totalItems = 0;
   itemsPerPage = 12;
@@ -153,6 +158,18 @@ export class SellersComponent implements OnInit {
     return !!viewerId && String(viewerId) === String(seller._id);
   }
 
+  canMessageSeller(seller: SellerProfile): boolean {
+    return canMessageUser(seller, this.auth.getUser()?.id);
+  }
+
+  getRoleBadge(seller: SellerProfile): string | null {
+    return getSellerListBadge(seller.role);
+  }
+
+  isChatStarting(seller: SellerProfile): boolean {
+    return this.chatStartingId === seller._id;
+  }
+
   messageSeller(event: Event, seller: SellerProfile): void {
     event.preventDefault();
     event.stopPropagation();
@@ -162,6 +179,8 @@ export class SellersComponent implements OnInit {
       return;
     }
 
+    if (!this.canMessageSeller(seller)) return;
+
     if (!this.auth.isLoggedIn()) {
       this.router.navigate(['/signin'], {
         queryParams: { returnUrl: `/profile/${seller._id}` },
@@ -169,11 +188,14 @@ export class SellersComponent implements OnInit {
       return;
     }
 
+    this.chatStartingId = seller._id;
     this.chat.startWithSeller(seller._id).subscribe({
       next: (conversation) => {
+        this.chatStartingId = null;
         this.router.navigate(['/messages', conversation._id]);
       },
       error: (err) => {
+        this.chatStartingId = null;
         this.toastr.error(err?.error?.message || 'Could not start chat');
       },
     });

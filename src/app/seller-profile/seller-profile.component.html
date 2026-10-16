@@ -11,7 +11,7 @@
           <div class="seller-hero__info">
             <div class="seller-hero__title-row">
               <div>
-                <p class="seller-hero__eyebrow">Verified Seller Store</p>
+                <p class="seller-hero__eyebrow">{{ getStoreLabel() }}</p>
                 <h1>{{ user.name }}</h1>
                 <p *ngIf="getLocation()" class="seller-hero__location">
                   <mat-icon>location_on</mat-icon>
@@ -20,13 +20,15 @@
               </div>
               <div class="seller-hero__actions">
                 <button
-                  *ngIf="!isOwnProfile()"
+                  *ngIf="canMessageProfile()"
                   type="button"
                   class="seller-btn seller-btn--primary"
+                  [disabled]="chatStarting"
                   (click)="messageSeller()"
                 >
-                  <mat-icon>chat</mat-icon>
-                  Message Seller
+                  <mat-icon *ngIf="!chatStarting">chat</mat-icon>
+                  <span *ngIf="chatStarting" class="seller-btn__spinner" aria-hidden="true"></span>
+                  {{ getMessageButtonLabel() }}
                 </button>
                 <a href="#seller-products" class="seller-btn seller-btn--ghost">
                   View Products
